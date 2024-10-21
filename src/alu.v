@@ -1,3 +1,4 @@
+// 0 means do nothing.
 module ALU(
         input wire[31:0] value_1,
         input wire[31:0] value_2,
@@ -58,7 +59,7 @@ module ALU(
         endcase
     end
     always @(negedge clk) begin
-        des <= des_input;
-        result <= tmp;
+            des <= des_input;
+            result <= tmp;
     end
 endmodule
