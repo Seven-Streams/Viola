@@ -9,21 +9,21 @@ module ALU(
         output reg[31:0] result
     );
     reg[31:0] tmp;
-    localparam [3:0]
-               ADD = 4'b0000,
-               AND = 4'b0001,
-               OR  = 4'b0010,
-               SLL = 4'b0011,
-               SRL = 4'b0100,
-               LT  = 4'b0101,
-               LTU = 4'b0110,
-               SRA = 4'b0111,
-               SUB = 4'b1000,
-               XOR = 4'b1001,
-               EQ  = 4'b1010,
-               GE  = 4'b1011,
-               NEQ = 4'b1100,
-               GEU = 4'b1101;
+    localparam [4:0]
+               ADD = 5'b00000,
+               AND = 5'b00001,
+               OR  = 5'b00010,
+               SLL = 5'b00011,
+               SRL = 5'b00100,
+               SLT  = 5'b00101,
+               SLTU = 5'b00110,
+               SRA = 5'b00111,
+               SUB = 5'b01000,
+               XOR = 5'b01001,
+               EQ  = 5'b01010,
+               GE  = 5'b01011,
+               NE = 5'b01100,
+               GEU = 5'b01101;
     always @(posedge clk) begin
         case(op)
             ADD:
@@ -36,9 +36,9 @@ module ALU(
                 tmp <= value_1 << value_2[4:0];
             SRL:
                 tmp <= value_1 >> value_2[4:0];
-            LT:
+            SLT:
                 tmp <= (value_1 < value_2) ? 1 : 0;
-            LTU:
+            SLTU:
                 tmp <= ($unsigned(value_1) < $unsigned(value_2)) ? 1 : 0;
             SRA:
                 tmp <= value_1 >>> value_2[4:0];
@@ -50,7 +50,7 @@ module ALU(
                 tmp <= (value_1 == value_2) ? 1 : 0;
             GE:
                 tmp <= (value_1 >= value_2) ? 1 : 0;
-            NEQ:
+            NE:
                 tmp <= (value_1 != value_2) ? 1 : 0;
             GEU:
                 tmp <= ($unsigned(value_1) >= $unsigned(value_2)) ? 1 : 0;
