@@ -41,7 +41,6 @@ module Decoder(
                SW = 5'b11001,
                BLT = 5'b11010,
                BLTU = 5'b11011;
-    integer opcode;
     always@(posedge clk) begin
         op = 5'b11111;
         case(instruction[6:0])
