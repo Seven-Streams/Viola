@@ -1,13 +1,13 @@
 module RF(
         input wire clk,
         input wire commit,
-        input wire [5:0] reg_num,
+        input wire [4:0] reg_num,
         input wire [31:0] data_in,
         input wire [2:0] num_in,
         input wire instrcution,
-        input wire [5:0] rs1,
-        input wire [5:0] rs2,
-        input wire [5:0] rd,
+        input wire [4:0] rs1,
+        input wire [4:0] rs2,
+        input wire [4:0] rd,
         input wire [2:0] dependency_num,
         output reg [31:0] value1,
         output reg [31:0] value2,
@@ -24,7 +24,7 @@ module RF(
     reg [2:0]dependency[31:0];
     reg [31:0]regs[31:0];
     always@(posedge clk) begin
-        if(busy) begin
+        if(busy && (last_reg != 0)) begin
             dependency[last_reg] = dependency_num;
             busy = 0;
         end

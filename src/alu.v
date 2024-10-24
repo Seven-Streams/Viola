@@ -2,7 +2,7 @@
 module ALU(
         input wire[31:0] value_1,
         input wire[31:0] value_2,
-        input wire[3:0] op,
+        input wire[4:0] op,
         input wire[2:0] des_input,
         input wire clk,
         output reg[2:0] des,

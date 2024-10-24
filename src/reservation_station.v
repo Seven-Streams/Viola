@@ -140,17 +140,25 @@ module RS(
                 end
             end
         end
-        for(l = 3; l < 6 && (!memory_shooted); l++) begin
-            if(busy[l]) begin
-                if(query1_rs[l] == 0 && query2_rs[l] == 0) begin
-                    memory_value1 <= value1_rs[l];
-                    memory_value2 <= value2_rs[l];
-                    memory_des <= des_rs[l];
-                    memory_op <= op_rs[l];
-                    busy[l] <= 0;
-                    memory_shooted = 1;
+        if(!memory_busy) begin
+            for(l = 3; l < 6 && (!memory_shooted); l++) begin
+                if(busy[l]) begin
+                    if(query1_rs[l] == 0 && query2_rs[l] == 0) begin
+                        memory_value1 <= value1_rs[l];
+                        memory_value2 <= value2_rs[l];
+                        memory_des <= des_rs[l];
+                        memory_op <= op_rs[l];
+                        busy[l] <= 0;
+                        memory_shooted = 1;
+                    end
                 end
             end
+        end
+        if(!alu_shooted) begin
+            alu_des <= 0;
+        end
+        if(!memory_shooted) begin
+            memory_des <= 0;
         end
     end
 endmodule
