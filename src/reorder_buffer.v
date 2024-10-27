@@ -110,7 +110,7 @@ module ROB(
         if(tail == 0) begin
             tail = 1;
         end
-        rob_full <= (head == tail);
+        rob_full <= (head == (tail + 1));
         if(to_shoot) begin
             rob_op[tail] <= new_op;
             rob_rd[tail] <= new_rd;

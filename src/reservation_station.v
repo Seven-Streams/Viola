@@ -122,8 +122,12 @@ module RS(
     end
     logic alu_shooted;
     logic memory_shooted;
+    reg [2:0]busy_check_alu;
+    reg [2:0]busy_check_memory;
     always@(negedge clk) begin
-        if(busy[0] & busy[1] & busy[2] & busy[3] & busy[4] & busy[5]) begin
+        busy_check_alu = busy[0] + busy[1] + busy[2];
+        busy_check_memory = busy[3] + busy[4] + busy[5];
+        if(((busy_check_alu & 2'b10) != 0) || ((busy_check_memory & 2'b10) != 0)) begin
             rs_full <= 1;
         end
         alu_shooted = 0;

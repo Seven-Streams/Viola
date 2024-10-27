@@ -57,7 +57,7 @@ module LSB(
     end
 
     always@(negedge clk) begin
-        if(head == tail) begin
+        if(head == (tail + 1)) begin
             buffer_full <= 1;
         end
         if((!output_busy)) begin
