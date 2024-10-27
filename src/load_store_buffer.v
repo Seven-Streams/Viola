@@ -7,11 +7,15 @@ module LSB(
         input wire[2:0] rob_number,
         input wire[4:0] op,
         input wire[2:0] committed_number,
-        output reg[2:0] output_reg,
-        output reg[31:0] output_value0,
-        output reg[31:0] output_value1,
-        output reg[31:0] output_value2,
-        output reg[31:0] output_value3,
+        input wire[7:0] ram_loaded_data,
+        output reg[2:0] output_number,
+        output reg[31:0] output_value,
+        output reg[31:0] ins_value,
+        output reg ins_ready,
+        output reg mem_ready,
+        output reg[31:0] ram_addr,
+        output reg is_ram_writing,
+        output reg[7:0] ram_data,
         output reg buffer_full,
         output reg if_full
     );
@@ -57,7 +61,14 @@ module LSB(
     reg [31:0]if_ready[7:0];
     reg [2:0]if_head;
     reg [2:0]if_tail;
+
+    reg [0:0] is_writing;
+    reg [2:0] executing;
+    reg [0:0] is_ins;
+    reg [31:0] now_addr;
+    reg [31:0] now_data;
     initial begin
+        executing = 0;
         buffer_full = 0;
         buffer_ready[0] = 0;
         buffer_ready[1] = 0;
@@ -81,20 +92,27 @@ module LSB(
         if_head = 0;
         if_tail = 0;
     end
-
+    integer i;
     always@(posedge clk) begin
         if(op != 5'b11111) begin
-            buffer_op[head] <= op;
-            buffer_addr[head] <= addr;
-            buffer_data[head] <= data;
-            buffer_rob_number[head] <= rob_number;
-            buffer_ready[head] <= 0;
-            head <= head + 1;
+            buffer_op[tail] <= op;
+            buffer_addr[tail] <= addr;
+            buffer_data[tail] <= data;
+            buffer_rob_number[tail] <= rob_number;
+            buffer_ready[tail] <= 0;
+            tail <= tail + 1;
         end
         if(new_ins) begin
-            if_addr[if_head] <= pc_addr;
-            if_ready[if_head] <= 0;
-            if_head <= if_head + 1;
+            if_addr[if_tail] <= pc_addr;
+            if_ready[if_tail] <= 1;
+            if_tail <= if_tail + 1;
+        end
+        if(committed_number != 0) begin
+            for(i = 0; i < 7; i++) begin
+                if(buffer_rob_number[i] == committed_number) begin
+                    buffer_ready[i] <= 1;
+                end
+            end
         end
     end
 
@@ -111,6 +129,149 @@ module LSB(
         else begin
             if_full <= 0;
         end
-        //TODO: the operation with ram.
+        if(!executing) begin
+            mem_ready <= 0;
+            ins_ready <= 0;
+            output_number <= 0;
+            if(buffer_ready[head]) begin
+                now_addr <= buffer_addr[head];
+                now_data <= buffer_data[head];
+                is_ins <= 0;
+                if(buffer_op[head] == SB || buffer_op[head] == SH || buffer_op[head] == SW) begin
+                    is_writing <= 1;
+                end
+                else begin
+                    is_writing <= 0;
+                end
+                case(buffer_op[head])
+                    LB: begin
+                        executing <= 2;
+                    end
+                    LH: begin
+                        executing <= 3;
+                    end
+                    LW: begin
+                        executing <= 5;
+                    end
+                    LBU: begin
+                        executing <= 2;
+                    end
+                    LHU: begin
+                        executing <= 3;
+                    end
+                    SB: begin
+                        executing <= 1;
+                    end
+                    SH: begin
+                        executing <= 2;
+                    end
+                    SW: begin
+                        executing <= 4;
+                    end
+                endcase
+            end
+            else begin
+                now_addr <= if_addr[if_head];
+                is_ins <= 1;
+                if(if_ready[if_head]) begin
+                    is_writing <= 0;
+                    executing <= 5;
+                end
+            end
+        end
+        else begin
+            if(is_writing) begin
+                mem_ready <= 0;
+                ins_ready <= 0;
+                is_ram_writing <= 1;
+                ram_addr <= now_addr + (executing - 1);
+                case(executing)
+                    1: begin
+                        ram_data <= now_data[7:0];
+                    end
+                    2: begin
+                        ram_data <= now_data[15:8];
+                    end
+                    3: begin
+                        ram_data <= now_data[23:16];
+                    end
+                    4: begin
+                        ram_data <= now_data[31:24];
+                    end
+                endcase
+                executing <= executing - 1;
+                if(executing == 1) begin
+                    is_ram_writing <= 1;
+                    output_number <= buffer_rob_number[head];
+                    head <= head + 1;
+                end
+            end
+            else begin
+                is_ram_writing <= 0;
+                ram_addr <= now_addr;
+                case(executing)
+                    4: begin
+                        now_data[31:24] <= ram_loaded_data;
+                    end
+                    3: begin
+                        now_data[23:16] <= ram_loaded_data;
+                    end
+                    2: begin
+                        now_data[15:8] <= ram_loaded_data;
+                    end
+                    1: begin
+                        now_data[7:0] <= ram_loaded_data;
+                    end
+                endcase
+                executing <= executing - 1;
+                if(executing == 1) begin
+                    if(is_ins) begin
+                        ins_ready <= 1;
+                        mem_ready <= 0;
+                        ins_value <= now_data;
+                        if_ready[if_head] <= 0;
+                        if_head <= if_head + 1;
+                    end
+                    else begin
+                        ins_ready <= 0;
+                        mem_ready <= 1;
+                        if(buffer_op[head] == LB) begin
+                            if(now_data[7] == 1) begin
+                                output_value[31:8] <= 24'hffffff;
+                            end
+                            else begin
+                                output_value[31:8] <= 24'h000000;
+                            end
+                            output_value[7:0] <= now_data[7:0];
+                        end
+                        if(buffer_op[head] == LBU) begin
+                            output_value[31:8] <= 24'h000000;
+                            output_value[7:0] <= now_data[7:0];
+                        end
+                        if(buffer_op[head] == LH) begin
+                            if(now_data[15] == 1) begin
+                                output_value[31:16] <= 16'hffff;
+                            end
+                            else begin
+                                output_value[31:16] <= 16'h0000;
+                            end
+                            output_value[15:0] <= now_data[15:0];
+                        end
+                        if(buffer_op[head] == LHU) begin
+                            output_value[31:16] <= 16'h0000;
+                            output_value[15:0] <= now_data[15:0];
+                        end
+                        output_number <= buffer_rob_number[head];
+                        head <= head + 1;
+                        if(buffer_op[head] == LW) begin
+                            output_value <= now_data;
+                        end
+                    end
+                end else begin
+                    mem_ready <= 0;
+                    ins_ready <= 0;
+                end
+            end
+        end
     end
 endmodule
