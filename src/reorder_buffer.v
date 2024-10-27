@@ -49,7 +49,7 @@ module ROB(
     initial begin
         new_has_imm = 0;
         head = 1;
-        tail = 2;
+        tail = 1;
         rob_full = 0;
         to_shoot = 0;
         commit = 0;
@@ -127,7 +127,7 @@ module ROB(
         if(tail == 0) begin
             tail = 1;
         end
-        rob_full <= (head == (tail + 1));
+        rob_full <= (head == (tail + 2) || (head == 1 && tail == 6) || head == (tail + 1));
         if(to_shoot) begin
             rob_op[tail] <= new_op;
             rob_rd[tail] <= new_rd;
