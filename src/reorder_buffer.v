@@ -2,6 +2,7 @@ module ROB(
         input wire clk,
         input wire has_imm,
         input wire[31:0] imm,
+        input wire[31:0] now_pc,
         input wire[4:0] rd,
         input wire[4:0] op,
         input wire [31:0] value1_rf,
@@ -25,7 +26,13 @@ module ROB(
         output reg[2:0] num_out,
         output reg[31:0] value_out,
         output reg ls_commit,
-        output reg[2:0] ls_num_out
+        output reg[2:0] ls_num_out,
+        output reg branch_taken,
+        output reg[31:0] branch_pc,
+        output reg jalr_ready,
+        output reg[31:0] jalr_pc,
+        output reg pc_ready,
+        output reg[31:0] nxt_pc
     );
     reg [2:0] head;
     reg [2:0] tail;
@@ -98,9 +105,10 @@ module ROB(
                 else begin
                     rob_ready[alu_num] <= 2'b11;
                 end
-            end else begin
-            rob_value[alu_num] <= alu_value;
-            rob_ready[alu_num] <= 2'b11;
+            end
+            else begin
+                rob_value[alu_num] <= alu_value;
+                rob_ready[alu_num] <= 2'b11;
             end
         end
         if(mem_num != 0) begin
@@ -123,7 +131,12 @@ module ROB(
         if(to_shoot) begin
             rob_op[tail] <= new_op;
             rob_rd[tail] <= new_rd;
-            rob_ready[tail] <= 0;
+            if(new_op == JAL || new_op == LUI || new_op == AUIPC) begin
+                rob_ready[tail] <= 2'b11;
+            end
+            else begin
+                rob_ready[tail] <= 0;
+            end
             tail <= tail + 1;
             value1_out <= value1_rf;
             query1_out <= query1_rf;
@@ -147,14 +160,63 @@ module ROB(
             if(rob_rd[head != 0]) begin
                 commit <= 1;
                 rd_out <= rob_rd[head];
-                value_out <= rob_value[head];
+                if(rob_op[head] == JALR || rob_op[head] == JAL) begin
+                    value_out <= (now_pc + 4);
+                end
+                else begin
+                    value_out <= rob_value[head];
+                end
                 num_out <= head;
             end
             head <= head + 1;
+            if(rob_op[head] == JALR) begin
+                branch_taken <= 0;
+                pc_ready <= 0;
+                jalr_ready <= 1;
+                jalr_pc <= rob_value[head];
+            end
+            else begin
+                jalr_ready <= 0;
+                if(rob_op[head] == BNE || rob_op[head] == BEQ || rob_op[head] == BLT || rob_op[head] == BLTU || rob_op[head] == BGE || rob_op[head] == BGEU) begin
+                    pc_ready <= 0;
+                    branch_taken <= 1;
+                    branch_pc <= rob_value[head];
+                end
+                else begin
+                    branch_taken <= 0;
+                    pc_ready <= 1;
+                    if(rob_op[head] == JAL) begin
+                        nxt_pc <= rob_value[head];
+                    end
+                    else begin
+                        if(rob_op[head] == AUIPC) begin
+                            nxt_pc <= (now_pc + rob_value[head]);
+                        end
+                        else begin
+                            nxt_pc <= (now_pc + 4);
+                        end
+                    end
+                end
+            end
         end
         else begin
-            commit <= 0;
+            if(rob_ready[head] == 2'b10) begin
+                commit <= 1;
+                rd_out <= 0;
+                value_out <= 0;
+                num_out <= head;
+                head <= head + 1;
+                pc_ready <= 0;
+                branch_taken <= 1;
+                jalr_ready <= 0;
+                branch_pc <= (now_pc + 4);
+            end
+            else begin
+                commit <= 0;
+                pc_ready <= 0;
+                branch_taken <= 0;
+                jalr_ready <= 0;
+            end
         end
     end
 endmodule
-//TODO:the support for branch and jump.
