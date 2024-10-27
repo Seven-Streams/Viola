@@ -33,7 +33,7 @@ module ROB(
     reg [4:0] rob_op[7:0];
     reg [4:0] rob_rd[7:0];
     reg [0:0]rob_busy[7:0];
-    reg [1:0]rob_ready[7:0];//00 executing, 01 can be load_store committed, 11/10, can be committed.
+    reg [1:0]rob_ready[7:0];//00:executing, 01:can be load_store committed, 10: branch not taken, 11: can be committed
     reg new_has_imm;
     reg [31:0]rob_value[7:0];
     reg [4:0] new_op;
@@ -91,8 +91,17 @@ module ROB(
             to_shoot <= 0;
         end
         if(alu_num != 0) begin
+            if(rob_op[alu_num] == BGE || rob_op[alu_num] == BGEU || rob_op[alu_num] == BLT || rob_op[alu_num] == BLTU || rob_op[alu_num] == BEQ || rob_op[alu_num] == BNE) begin
+                if(alu_value == 0) begin
+                    rob_ready[alu_num] <= 2'b10;
+                end
+                else begin
+                    rob_ready[alu_num] <= 2'b11;
+                end
+            end else begin
             rob_value[alu_num] <= alu_value;
             rob_ready[alu_num] <= 2'b11;
+            end
         end
         if(mem_num != 0) begin
             rob_value[mem_num] <= mem_value;
@@ -148,3 +157,4 @@ module ROB(
         end
     end
 endmodule
+//TODO:the support for branch and jump.
