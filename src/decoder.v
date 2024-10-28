@@ -1,5 +1,6 @@
 module Decoder(
         input wire clk,
+        input wire rst,
         input [31:0] instruction,
         output reg[4:0] op,
         output reg[4:0] rs1,
@@ -194,10 +195,15 @@ module Decoder(
         endcase
     end
     always@(negedge clk) begin
-        op <= op_tmp;
-        rs1 <= rs1_tmp;
-        rs2 <= rs2_tmp;
-        rd <= rd_tmp;
-        imm <= imm_tmp;
+        if(!rst) begin
+            op <= op_tmp;
+            rs1 <= rs1_tmp;
+            rs2 <= rs2_tmp;
+            rd <= rd_tmp;
+            imm <= imm_tmp;
+        end
+        else begin
+            op <= 5'b11111;
+        end
     end
 endmodule

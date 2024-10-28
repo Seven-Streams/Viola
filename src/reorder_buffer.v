@@ -1,5 +1,6 @@
 module ROB(
         input wire clk,
+        input wire rst,
         input wire has_imm,
         input wire[31:0] imm,
         input wire[31:0] now_pc,
@@ -87,135 +88,159 @@ module ROB(
                BLTU = 5'b11011;
 
     always@(posedge clk) begin
-        if(op != 5'b11111) begin
-            new_op <= op;
-            new_has_imm <= has_imm;
-            new_rd <= rd;
-            new_value <= imm;
-            to_shoot <= 1;
-        end
-        else begin
-            to_shoot <= 0;
-        end
-        if(alu_num != 0) begin
-            if(rob_op[alu_num] == BGE || rob_op[alu_num] == BGEU || rob_op[alu_num] == BLT || rob_op[alu_num] == BLTU || rob_op[alu_num] == BEQ || rob_op[alu_num] == BNE) begin
-                if(alu_value == 0) begin
-                    rob_ready[alu_num] <= 2'b10;
+        if(!rst) begin
+            if(op != 5'b11111) begin
+                new_op <= op;
+                new_has_imm <= has_imm;
+                new_rd <= rd;
+                new_value <= imm;
+                to_shoot <= 1;
+            end
+            else begin
+                to_shoot <= 0;
+            end
+            if(alu_num != 0) begin
+                if(rob_op[alu_num] == BGE || rob_op[alu_num] == BGEU || rob_op[alu_num] == BLT || rob_op[alu_num] == BLTU || rob_op[alu_num] == BEQ || rob_op[alu_num] == BNE) begin
+                    if(alu_value == 0) begin
+                        rob_ready[alu_num] <= 2'b10;
+                    end
+                    else begin
+                        rob_ready[alu_num] <= 2'b11;
+                    end
                 end
                 else begin
+                    rob_value[alu_num] <= alu_value;
                     rob_ready[alu_num] <= 2'b11;
                 end
             end
-            else begin
-                rob_value[alu_num] <= alu_value;
-                rob_ready[alu_num] <= 2'b11;
+            if(mem_num != 0) begin
+                rob_value[mem_num] <= mem_value;
+                rob_ready[mem_num] <= 2'b11;
             end
-        end
-        if(mem_num != 0) begin
-            rob_value[mem_num] <= mem_value;
-            rob_ready[mem_num] <= 2'b11;
-        end
-        if(ready_load_num != 0) begin
-            rob_ready[ready_load_num] <= 2'b01;
+            if(ready_load_num != 0) begin
+                rob_ready[ready_load_num] <= 2'b01;
+            end
         end
     end
 
+    integer i;
+
     always@(negedge clk) begin
-        if(head == 0) begin
-            head = 1;
-        end
-        if(tail == 0) begin
-            tail = 1;
-        end
-        rob_full <= (head == (tail + 2) || (head == 1 && tail == 6) || head == (tail + 1));
-        if(to_shoot) begin
-            rob_op[tail] <= new_op;
-            rob_rd[tail] <= new_rd;
-            if(new_op == JAL || new_op == LUI || new_op == AUIPC) begin
-                rob_ready[tail] <= 2'b11;
+        if(!rst) begin
+            if(head == 0) begin
+                head = 1;
             end
-            else begin
-                rob_ready[tail] <= 0;
+            if(tail == 0) begin
+                tail = 1;
             end
-            tail <= tail + 1;
-            value1_out <= value1_rf;
-            query1_out <= query1_rf;
-            if(new_has_imm) begin
-                value2_out <= new_has_imm;
-                query2_out <= 0;
-            end
-            else begin
-                value2_out <= value2_rf;
-                query2_out <= query2_rf;
-            end
-        end
-        if(rob_ready[head] == 2'b01) begin
-            ls_commit <= 1;
-            ls_num_out <= head;
-        end
-        else begin
-            ls_commit <= 0;
-        end
-        if(rob_ready[head] == 2'b11) begin
-            if(rob_rd[head != 0]) begin
-                commit <= 1;
-                rd_out <= rob_rd[head];
-                if(rob_op[head] == JALR || rob_op[head] == JAL) begin
-                    value_out <= (now_pc + 4);
+            rob_full <= (head == (tail + 2) || (head == 1 && tail == 6) || head == (tail + 1));
+            if(to_shoot) begin
+                rob_op[tail] <= new_op;
+                rob_rd[tail] <= new_rd;
+                if(new_op == JAL || new_op == LUI || new_op == AUIPC) begin
+                    rob_ready[tail] <= 2'b11;
                 end
                 else begin
-                    value_out <= rob_value[head];
+                    rob_ready[tail] <= 0;
                 end
-                num_out <= head;
-            end
-            head <= head + 1;
-            if(rob_op[head] == JALR) begin
-                branch_taken <= 0;
-                pc_ready <= 0;
-                jalr_ready <= 1;
-                jalr_pc <= rob_value[head];
-            end
-            else begin
-                jalr_ready <= 0;
-                if(rob_op[head] == BNE || rob_op[head] == BEQ || rob_op[head] == BLT || rob_op[head] == BLTU || rob_op[head] == BGE || rob_op[head] == BGEU) begin
-                    pc_ready <= 0;
-                    branch_taken <= 1;
-                    branch_pc <= rob_value[head];
+                tail <= tail + 1;
+                value1_out <= value1_rf;
+                query1_out <= query1_rf;
+                if(new_has_imm) begin
+                    value2_out <= new_has_imm;
+                    query2_out <= 0;
                 end
                 else begin
-                    branch_taken <= 0;
-                    pc_ready <= 1;
-                    if(rob_op[head] == JAL) begin
-                        nxt_pc <= rob_value[head];
+                    value2_out <= value2_rf;
+                    query2_out <= query2_rf;
+                end
+            end
+            if(rob_ready[head] == 2'b01) begin
+                ls_commit <= 1;
+                ls_num_out <= head;
+            end
+            else begin
+                ls_commit <= 0;
+            end
+            if(rob_ready[head] == 2'b11) begin
+                if(rob_rd[head != 0]) begin
+                    commit <= 1;
+                    rd_out <= rob_rd[head];
+                    if(rob_op[head] == JALR || rob_op[head] == JAL) begin
+                        value_out <= (now_pc + 4);
                     end
                     else begin
-                        if(rob_op[head] == AUIPC) begin
-                            nxt_pc <= (now_pc + rob_value[head]);
+                        value_out <= rob_value[head];
+                    end
+                    num_out <= head;
+                end
+                head <= head + 1;
+                if(rob_op[head] == JALR) begin
+                    branch_taken <= 0;
+                    pc_ready <= 0;
+                    jalr_ready <= 1;
+                    jalr_pc <= rob_value[head];
+                end
+                else begin
+                    jalr_ready <= 0;
+                    if(rob_op[head] == BNE || rob_op[head] == BEQ || rob_op[head] == BLT || rob_op[head] == BLTU || rob_op[head] == BGE || rob_op[head] == BGEU) begin
+                        pc_ready <= 0;
+                        branch_taken <= 1;
+                        branch_pc <= rob_value[head];
+                    end
+                    else begin
+                        branch_taken <= 0;
+                        pc_ready <= 1;
+                        if(rob_op[head] == JAL) begin
+                            nxt_pc <= rob_value[head];
                         end
                         else begin
-                            nxt_pc <= (now_pc + 4);
+                            if(rob_op[head] == AUIPC) begin
+                                nxt_pc <= (now_pc + rob_value[head]);
+                            end
+                            else begin
+                                nxt_pc <= (now_pc + 4);
+                            end
                         end
                     end
                 end
             end
+            else begin
+                if(rob_ready[head] == 2'b10) begin
+                    commit <= 1;
+                    rd_out <= 0;
+                    value_out <= 0;
+                    num_out <= head;
+                    head <= head + 1;
+                    pc_ready <= 0;
+                    branch_taken <= 1;
+                    jalr_ready <= 0;
+                    branch_pc <= (now_pc + 4);
+                end
+                else begin
+                    commit <= 0;
+                    pc_ready <= 0;
+                    branch_taken <= 0;
+                    jalr_ready <= 0;
+                end
+            end
         end
         else begin
-            if(rob_ready[head] == 2'b10) begin
-                commit <= 1;
-                rd_out <= 0;
-                value_out <= 0;
-                num_out <= head;
-                head <= head + 1;
-                pc_ready <= 0;
-                branch_taken <= 1;
-                jalr_ready <= 0;
-                branch_pc <= (now_pc + 4);
-            end
-            else begin
-                commit <= 0;
-                pc_ready <= 0;
-                branch_taken <= 0;
-                jalr_ready <= 0;
+            commit = 0;
+            ls_commit = 0;
+            branch_taken = 0;
+            jalr_ready = 0;
+            pc_ready = 0;
+            new_has_imm = 0;
+            head = 1;
+            tail = 1;
+            rob_full = 0;
+            to_shoot = 0;
+            commit = 0;
+            ls_commit = 0;
+            op_out <= 5'b11111;
+            for(i = 1; i < 8; i++) begin
+                rob_busy[i] = 1'b0;
             end
         end
     end

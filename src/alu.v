@@ -5,6 +5,7 @@ module ALU(
         input wire[4:0] op,
         input wire[2:0] des_input,
         input wire clk,
+        input wire rst,
         output reg[2:0] des,
         output reg[31:0] result
     );
@@ -59,7 +60,11 @@ module ALU(
         endcase
     end
     always @(negedge clk) begin
+            if(!rst) begin
             des <= des_input;
             result <= tmp;
+            end else begin
+                des <= 3'b0;
+            end
     end
 endmodule

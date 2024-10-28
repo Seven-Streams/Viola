@@ -1,5 +1,6 @@
 module RF(
         input wire clk,
+        input wire rst,
         input wire commit,
         input wire [4:0] reg_num,
         input wire [31:0] data_in,
@@ -24,18 +25,22 @@ module RF(
     reg [2:0]dependency[31:0];
     reg [31:0]regs[31:0];
     always@(posedge clk) begin
-        if(busy && (last_reg != 0)) begin
-            dependency[last_reg] = dependency_num;
-            busy = 0;
-        end
-        if(commit) begin
-            if(dependency[reg_num] == num_in) begin
-                regs[reg_num] = 0;
+        if(!rst) begin
+            if(busy && (last_reg != 0)) begin
+                dependency[last_reg] = dependency_num;
+                busy = 0;
             end
-            regs[reg_num] = data_in;
+            if(commit) begin
+                if(dependency[reg_num] == num_in) begin
+                    regs[reg_num] = 0;
+                end
+                regs[reg_num] = data_in;
+            end
         end
     end
+    integer i;
     always@(negedge clk) begin
+        if(!rst) begin
         if(instrcution) begin
             if(dependency[rs1] == 0) begin
                 value1_tmp <= regs[rs1];
@@ -54,6 +59,11 @@ module RF(
             busy<= 1;
             last_num <= dependency_num;
             last_reg <= rd;
+        end
+        end else begin
+            for(i = 0; i < 32; i = i + 1) begin
+                dependency[i] = 0;
+            end
         end
     end
 endmodule
