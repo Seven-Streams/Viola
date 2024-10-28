@@ -6,13 +6,9 @@ module Decoder(
         output reg[4:0] rs1,
         output reg[4:0] rs2,
         output reg[4:0] rd,
-        output reg[31:0] imm
+        output reg[31:0] imm,
+        output reg has_imm
     );
-    reg [4:0] op_tmp;
-    reg[4:0] rs1_tmp;
-    reg[4:0] rs2_tmp;
-    reg[4:0] rd_tmp;
-    reg[31:0] imm_tmp;
     localparam [4:0]
                ADD = 5'b00000,
                AND = 5'b00001,
@@ -46,161 +42,172 @@ module Decoder(
         op = 5'b11111;
         case(instruction[6:0])
             7'b0110111: begin
-                op_tmp<= LUI;
-                rd_tmp<= instruction[11:7];
-                imm_tmp<= (instruction[31:12] << 12);
+                op <= LUI;
+                rd <= instruction[11:7];
+                imm <= (instruction[31:12] << 12);
+                has_imm <= 1;
             end
             7'b0010111: begin
-                op_tmp<= AUIPC;
-                rd_tmp<= instruction[11:7];
-                imm_tmp<= (instruction[31:12] << 12);
+                op <= AUIPC;
+                rd <= instruction[11:7];
+                imm <= (instruction[31:12] << 12);
+                has_imm <= 1;
             end
             7'b1101111: begin
-                op_tmp<= JAL;
-                imm_tmp <= (instruction[31] << 20 | instruction[19:12] << 12 | instruction[20] << 11 | instruction[30:21] << 1);
+                op <= JAL;
+                imm  <= (instruction[31] << 20 | instruction[19:12] << 12 | instruction[20] << 11 | instruction[30:21] << 1);
+                rd <= instruction[11:7];
+                has_imm <= 1;
             end
             7'b1100111: begin
-                op_tmp<= JALR;
-                rs1_tmp<= instruction[19:15];
-                rd_tmp<= instruction[11:7];
-                imm_tmp<= instruction[31:20];
+                op <= JALR;
+                rs1 <= instruction[19:15];
+                rd <= instruction[11:7];
+                imm <= instruction[31:20];
+                has_imm <= 1;
             end
             7'b1100011: begin
                 case (instruction[14:12])
                     3'b000:
-                        op_tmp <= BEQ;
+                        op  <= BEQ;
                     3'b001:
-                        op_tmp <= BNE;
+                        op  <= BNE;
                     3'b100:
-                        op_tmp <= BLT;
+                        op  <= BLT;
                     3'b101:
-                        op_tmp <= BGE;
+                        op  <= BGE;
                     3'b110:
-                        op_tmp <= BLTU;
+                        op  <= BLTU;
                     3'b111:
-                        op_tmp <= BGEU;
+                        op  <= BGEU;
                     default:
-                        op_tmp <= 5'b11111;
+                        op  <= 5'b11111;
                 endcase
-                rs1_tmp <= instruction[19:15];
-                rs2_tmp <= instruction[24:20];
-                imm_tmp <= (instruction[31] << 12 | instruction[7] << 11 | instruction[30:25] << 5 | instruction[11:8] << 1);
+                rs1  <= instruction[19:15];
+                rs2  <= instruction[24:20];
+                imm  <= (instruction[31] << 12 | instruction[7] << 11 | instruction[30:25] << 5 | instruction[11:8] << 1);
+                has_imm <= 1;
             end
             7'b0000011: begin
                 case(instruction[14:12])
                     3'b000:
-                        op_tmp <= LB;
+                        op  <= LB;
                     3'b001:
-                        op_tmp <= LH;
+                        op  <= LH;
                     3'b010:
-                        op_tmp <= LW;
+                        op  <= LW;
                     3'b100:
-                        op_tmp <= LBU;
+                        op  <= LBU;
                     3'b101:
-                        op_tmp <= LHU;
+                        op  <= LHU;
                     default:
-                        op_tmp <= 5'b11111;
+                        op  <= 5'b11111;
                 endcase
-                rs1_tmp <= instruction[19:15];
-                rd_tmp <= instruction[11:7];
-                imm_tmp <= instruction[31:20];
+                rs1  <= instruction[19:15];
+                rd  <= instruction[11:7];
+                imm  <= instruction[31:20];
+                has_imm <= 1;
             end
             7'b0100011: begin
                 case(instruction[14:12])
                     3'b000:
-                        op_tmp <= SB;
+                        op  <= SB;
                     3'b001:
-                        op_tmp <= SH;
+                        op  <= SH;
                     3'b010:
-                        op_tmp <= SW;
+                        op  <= SW;
                     default:
-                        op_tmp <= 5'b11111;
+                        op  <= 5'b11111;
                 endcase
-                rs1_tmp <= instruction[19:15];
-                rs2_tmp <= instruction[24:20];
-                imm_tmp <= (instruction[31:25] << 5 | instruction[11:7]);
+                rs1  <= instruction[19:15];
+                rd   <= 0;
+                rs2  <= instruction[24:20];
+                imm  <= (instruction[31:25] << 5 | instruction[11:7]);
+                has_imm <= 1;
             end
             7'b0010011: begin
                 if(instruction[14:12] == 3'b101) begin
                     if(instruction[30] == 0) begin
-                        op_tmp <= SRL;
-                        imm_tmp <= instruction[25:20];
+                        op  <= SRL;
+                        imm  <= instruction[25:20];
                     end
                     else begin
-                        op_tmp <= SRA;
+                        op  <= SRA;
                     end
                 end
                 else begin
                     case(instruction[14:12])
                         3'b000:
-                            op_tmp <= ADD;
+                            op  <= ADD;
                         3'b001:
-                            op_tmp <= SLL;
+                            op  <= SLL;
                         3'b010:
-                            op_tmp <= SLT;
+                            op  <= SLT;
                         3'b011:
-                            op_tmp <= SLTU;
+                            op  <= SLTU;
                         3'b100:
-                            op_tmp <= XOR;
+                            op  <= XOR;
                         3'b110:
-                            op_tmp <= OR;
+                            op  <= OR;
                         3'b111:
-                            op_tmp <= AND;
+                            op  <= AND;
                         default:
-                            op_tmp <= 5'b11111;
+                            op  <= 5'b11111;
                     endcase
-                    imm_tmp <= instruction[31:20];
+                    imm  <= instruction[31:20];
                 end
-                rs1_tmp <= instruction[19:15];
-                rd_tmp <= instruction[11:7];
+                rs1  <= instruction[19:15];
+                rd  <= instruction[11:7];
+                has_imm <= 1;
             end
             7'b0110011: begin
                 case(instruction[14:12])
                     3'b000: begin
                         if(instruction[30] == 0) begin
-                            op_tmp <= ADD;
+                            op  <= ADD;
                         end
                         else begin
-                            op_tmp <= SUB;
+                            op  <= SUB;
                         end
                     end
                     3'b001:
-                        op_tmp <= SLL;
+                        op  <= SLL;
                     3'b010:
-                        op_tmp <= SLT;
+                        op  <= SLT;
                     3'b011:
-                        op_tmp <= SLTU;
+                        op  <= SLTU;
                     3'b100:
-                        op_tmp <= XOR;
+                        op  <= XOR;
                     3'b101: begin
                         if(instruction[30] == 0) begin
-                            op_tmp <= SRL;
+                            op  <= SRL;
                         end
                         else begin
-                            op_tmp <= SRA;
+                            op  <= SRA;
                         end
                     end
                     3'b110:
-                        op_tmp <= OR;
+                        op  <= OR;
                     3'b111:
-                        op_tmp <= AND;
+                        op  <= AND;
                     default:
-                        op_tmp <= 5'b11111;
+                        op  <= 5'b11111;
                 endcase
-                imm_tmp <= 32'hffffffff;
-                rs1_tmp <= instruction[19:15];
-                rs2_tmp <= instruction[24:20];
-                rd_tmp <= instruction[11:7];
+                imm  <= 32'hffffffff;
+                rs1  <= instruction[19:15];
+                rs2  <= instruction[24:20];
+                rd  <= instruction[11:7];
+                has_imm <= 0;
             end
         endcase
     end
     always@(negedge clk) begin
         if(!rst) begin
-            op <= op_tmp;
-            rs1 <= rs1_tmp;
-            rs2 <= rs2_tmp;
-            rd <= rd_tmp;
-            imm <= imm_tmp;
+            op <= op ;
+            rs1 <= rs1 ;
+            rs2 <= rs2 ;
+            rd <= rd ;
+            imm <= imm ;
         end
         else begin
             op <= 5'b11111;

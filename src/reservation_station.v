@@ -5,9 +5,11 @@ module RS(
         input wire[2:0] alu_des_in,
         input wire[31:0] memory_data,
         input wire[2:0] memory_des_in,
+        input wire[2:0] des_in,
         input wire[5:0] op,
         input wire[31:0] value1,
         input wire[31:0] value2,
+        input wire[31:0] imm_in,
         input wire[2:0] query1,
         input wire[2:0] query2,
         input wire memory_busy,
@@ -18,6 +20,7 @@ module RS(
         output reg[5:0] memory_op,
         output reg[31:0] memory_value1,
         output reg[31:0] memory_value2,
+        output reg[31:0] memory_imm,
         output reg[2:0] memory_des,
         output reg rs_full
     );
@@ -27,6 +30,7 @@ module RS(
     reg[2:0] des_rs[5:0];
     reg[5:0] query1_rs[5:0];
     reg[5:0] query2_rs[5:0];
+    reg[31:0] imm[5:0];
     reg busy[5:0];
     localparam [4:0]
                ADD = 5'b00000,
@@ -100,9 +104,10 @@ module RS(
                         op_rs[i] <= op;
                         value1_rs[i] <= value1;
                         value2_rs[i] <= value2;
-                        des_rs[i] <= alu_des_in;
+                        des_rs[i] <= des_in;
                         query1_rs[i] <= query1;
                         query2_rs[i] <= query2;
+                        imm[i] <= imm_in;
                         flag = 0;
                     end
                 end
@@ -114,7 +119,7 @@ module RS(
                         op_rs[i] <= op;
                         value1_rs[i] <= value1;
                         value2_rs[i] <= value2;
-                        des_rs[i] <= alu_des_in;
+                        des_rs[i] <= des_in;
                         query1_rs[i] <= query1;
                         query2_rs[i] <= query2;
                         flag = 0;
@@ -156,6 +161,7 @@ module RS(
                             memory_value2 <= value2_rs[l];
                             memory_des <= des_rs[l];
                             memory_op <= op_rs[l];
+                            memory_imm <= imm[l];
                             busy[l] <= 0;
                             memory_shooted = 1;
                         end

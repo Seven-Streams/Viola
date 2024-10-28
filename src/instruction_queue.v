@@ -6,13 +6,16 @@ module IQ(
         input wire[4:0] rs2,
         input wire[4:0] rd,
         input wire[31:0] imm,
+        input wire has_imm,
         input wire rob_full,
         output reg iq_full,
         output reg[4:0] op_out,
         output reg[4:0] rs1_out,
         output reg[4:0] rs2_out,
         output reg[4:0] rd_out,
-        output reg[31:0] imm_out
+        output reg[31:0] imm_out,
+        output reg has_imm_out,
+        output reg shooted
     );
     reg [4:0] op_buffer[15:0];
     reg [4:0] rs1_buffer[15:0];
@@ -20,6 +23,7 @@ module IQ(
     reg [0:0] busy[15:0];
     reg [4:0] rd_buffer[15:0];
     reg [31:0] imm_buffer[15:0];
+    reg [0:0] has_imm_buffer[15:0];
     reg [3:0] head;
     reg [3:0] tail;
 
@@ -54,6 +58,7 @@ module IQ(
                 rs2_buffer[tail] <= rs2;
                 rd_buffer[tail] <= rd;
                 imm_buffer[tail] <= imm;
+                has_imm_buffer[tail] <= has_imm;
                 busy[tail] <= 1;
                 tail <= tail + 1;
             end
@@ -69,10 +74,15 @@ module IQ(
             rs2_out <= rs2_buffer[head];
             rd_out <= rd_buffer[head];
             imm_out <= imm_buffer[head];
+            has_imm_out <= has_imm_buffer[head];
+            shooted <= 1;
             busy[head] <= 0;
             head <= head + 1;
+        end else begin
+          shooted <= 0;
         end
       end else begin
+        shooted <= 0;
         head = 0;
         tail = 1;
         busy[0] = 0;

@@ -1,6 +1,15 @@
 // RISCV32 CPU top module
 // port modification allowed for debugging purposes
-
+`include "src/decoder.v"
+`include "src/alu.v"
+`include "src/address_unit.v"
+`include "src/instruction_cache.v"
+`include "src/instruction_queue.v"
+`include "src/load_store_buffer.v"
+`include "src/ram.v"
+`include "src/register_file.v"
+`include "src/reorder_buffer.v"
+`include "src/reservation_station.v"
 module cpu(
   input  wire                 clk_in,			// system clock signal
   input  wire                 rst_in,			// reset signal
@@ -17,7 +26,6 @@ module cpu(
 );
 
 // implementation goes here
-
 // Specifications:
 // - Pause cpu(freeze pc, registers, etc.) when rdy_in is low
 // - Memory read result will be returned in the next cycle. Write takes 1 cycle(no need to wait)
@@ -44,4 +52,120 @@ always @(posedge clk_in)
       end
   end
 
+
+AU au(
+  .clk(clk_in),
+  .rst(ic.rst),
+  .value1(rs.memory_value1),
+  .value2(rs.memory_imm),
+  .op_input(rs.memmory_op),
+  .reg_number_input(rs.memoru_des),
+  .ls_value(rs.memory_value2)
+);
+
+ALU alu(
+  .clk(clk_in),
+  .rst(ic.rst),
+  .value_1(rs.alu_value1),
+  .value_2(rs.alu_value2),
+  .op(rs.alu_op),
+  .des_input(rs.alu_des)
+);
+
+IC ic(
+  .clk(clk_in),
+  .data(lsb.ins_value),
+  .data_ready(lsb.ins_ready),
+  .branch_taken(rob.branch_taken),
+  .branch_pc(rob.branch_pc),
+  .jalr_addr(rob.jalr_pc),
+  .jalr_ready(rob.jalr_ready),
+  .pc_ready(rob.pc_ready),
+  .nxt_pc(rob.nxt_pc),
+  .lsb_full(lsb.if_full),
+  .iq_full(iq.iq_full)
+);
+
+Decoder decoder(
+  .clk(clk_in),
+  .rst(ic.rst),
+  .instruction(ic.instruction)
+);
+
+IQ iq(
+  .clk(clk_in),
+  .rst(ic.rst),
+  .op(decoder.op),
+  .rs1(decoder.rs1),
+  .rs2(decoder.rs2),
+  .rd(decoder.rd),
+  .imm(decoder.imm),
+  .rob_full(rub.rob_full)
+);
+
+ROB rob(
+  .clk(clk_in),
+  .rst(ic.rst),
+  .has_imm(iq.has_imm),
+  .imm(iq.imm_out),
+  .now_pc(ic.pc),
+  .rd(iq.rd_out),
+  .op(iq.op_out),
+  .value1_rf(rf.value1),
+  .value2_rf(rf.value2),
+  .query1_rf(rf.query1),
+  .query2_rf(rf.query2),
+  .rs_full(rs.rs_full),
+  .alu_num(alu.des),
+  .alu_value(alu.result),
+  .mem_num(lsb.output_number),
+  .mem_value(lsb.output_value),
+  .ready_load_num(lsb.mem_ready)
+);
+
+RF rf(
+  .clk(clk_in),
+  .rst(ic.rst),
+  .commit(rob.commit),
+  .reg_num(rob.rd_out),
+  .data_in(rob.value_out),
+  .num_in(rob.num_out),
+  .instruction(iq.shooted),
+  .rs1(iq.rs1_out),
+  .rs2(iq.rs2_out),
+  .rd(iq.rd_out),
+  .dependency_num(rob.tail) 
+);
+
+RS rs(
+  .clk(clk_in),
+  .rst(ic.rst),
+  .alu_data(alu.result),
+  .alu_des_in(alu.des),
+  .memory_data(lsb.output_value),
+  .memory_des_in(lsb.output_number),
+  .des_in(rob.target),
+  .op(rob.op_out),
+  .value1(rob.value1_out),
+  .value2(rob.value2_out),
+  .query1(rob.query1_out),
+  .query2(rob.query2_out),
+  .memory_busy(lsb.buffer_full),
+  .imm_in(rob.imm_out)
+);
+
+LSB lsb(
+  .clk(clk_in),
+  .rst(ic.rst),
+  .pc_addr(ic.addr),
+  .new_ins(ic.asking),
+  .addr(au.addr),
+  .data(au.ls_value_output),
+  .rob_number(au.rob_number),
+  .op(au.op),
+  .committed_num(rob.ls_commit),
+  .ram_loaded_data(cpu.memdin)
+);
+
 endmodule
+

@@ -33,22 +33,20 @@ module ROB(
         output reg jalr_ready,
         output reg[31:0] jalr_pc,
         output reg pc_ready,
-        output reg[31:0] nxt_pc
+        output reg[31:0] nxt_pc,
+        output reg[2:0] tail,
+        output reg[2:0] target,
+        output reg[31:0] imm_out
     );
+    reg[2:0] last_ins;
     reg [2:0] head;
-    reg [2:0] tail;
     reg to_shoot;
     reg [4:0] rob_op[7:0];
     reg [4:0] rob_rd[7:0];
     reg [0:0]rob_busy[7:0];
     reg [1:0]rob_ready[7:0];//00:executing, 01:can be load_store committed, 10: branch not taken, 11: can be committed
-    reg new_has_imm;
     reg [31:0]rob_value[7:0];
-    reg [4:0] new_op;
-    reg [4:0] new_rd;
-    reg [31:0] new_value;
     initial begin
-        new_has_imm = 0;
         head = 1;
         tail = 1;
         rob_full = 0;
@@ -90,10 +88,11 @@ module ROB(
     always@(posedge clk) begin
         if(!rst) begin
             if(op != 5'b11111) begin
-                new_op <= op;
-                new_has_imm <= has_imm;
-                new_rd <= rd;
-                new_value <= imm;
+                rob_op[tail] <= op;
+                rob_rd[tail] <= rd;
+                rob_value[tail] <= imm;
+                rob_busy[tail] <= 1;
+                tail <= tail + 1;
                 to_shoot <= 1;
             end
             else begin
@@ -124,7 +123,6 @@ module ROB(
     end
 
     integer i;
-
     always@(negedge clk) begin
         if(!rst) begin
             if(head == 0) begin
@@ -135,25 +133,27 @@ module ROB(
             end
             rob_full <= (head == (tail + 2) || (head == 1 && tail == 6) || head == (tail + 1));
             if(to_shoot) begin
-                rob_op[tail] <= new_op;
-                rob_rd[tail] <= new_rd;
-                if(new_op == JAL || new_op == LUI || new_op == AUIPC) begin
-                    rob_ready[tail] <= 2'b11;
+                last_ins = (tail == 1) ? 7 : (tail - 1);
+                if(op == JAL || op == LUI || op == AUIPC) begin
+                    rob_ready[last_ins] <= 2'b11;
                 end
                 else begin
-                    rob_ready[tail] <= 0;
+                    rob_ready[last_ins] <= 0;
                 end
-                tail <= tail + 1;
                 value1_out <= value1_rf;
                 query1_out <= query1_rf;
-                if(new_has_imm) begin
-                    value2_out <= new_has_imm;
+                if(has_imm && (rob_op[last_ins] != SB) && (rob_op[last_ins] != SH) && (rob_op[last_ins] != SW)) begin
+                    value2_out <= imm;
                     query2_out <= 0;
                 end
                 else begin
                     value2_out <= value2_rf;
                     query2_out <= query2_rf;
                 end
+                imm_out <= imm;
+                target <= last_ins;
+            end else begin
+                target <= 0;
             end
             if(rob_ready[head] == 2'b01) begin
                 ls_commit <= 1;
@@ -231,7 +231,6 @@ module ROB(
             branch_taken = 0;
             jalr_ready = 0;
             pc_ready = 0;
-            new_has_imm = 0;
             head = 1;
             tail = 1;
             rob_full = 0;
