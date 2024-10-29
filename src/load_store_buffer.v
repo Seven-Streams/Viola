@@ -15,7 +15,7 @@ module LSB(
         output reg ins_ready,
         output reg mem_ready,
         output reg[31:0] ram_addr,
-        output reg is_ram_writing,
+        output reg ram_writing,
         output reg[7:0] ram_data,
         output reg buffer_full,
         output reg if_full
@@ -151,19 +151,19 @@ module LSB(
                     end
                     case(buffer_op[head])
                         LB: begin
-                            executing <= 2;
+                            executing <= 3;
                         end
                         LH: begin
-                            executing <= 3;
+                            executing <= 4;
                         end
                         LW: begin
-                            executing <= 5;
+                            executing <= 6;
                         end
                         LBU: begin
-                            executing <= 2;
+                            executing <= 3;
                         end
                         LHU: begin
-                            executing <= 3;
+                            executing <= 4;
                         end
                         SB: begin
                             executing <= 1;
@@ -189,7 +189,7 @@ module LSB(
                 if(is_writing) begin
                     mem_ready <= 0;
                     ins_ready <= 0;
-                    is_ram_writing <= 1;
+                    ram_writing <= 1;
                     ram_addr <= now_addr + (executing - 1);
                     case(executing)
                         1: begin
@@ -207,14 +207,14 @@ module LSB(
                     endcase
                     executing <= executing - 1;
                     if(executing == 1) begin
-                        is_ram_writing <= 1;
+                        ram_writing <= 1;
                         output_number <= buffer_rob_number[head];
                         head <= head + 1;
                     end
                 end
                 else begin
-                    is_ram_writing <= 0;
-                    ram_addr <= now_addr;
+                    ram_writing <= 0;
+                    ram_addr <= now_addr + (executing - 3);
                     case(executing)
                         4: begin
                             now_data[31:24] <= ram_loaded_data;
@@ -227,6 +227,8 @@ module LSB(
                         end
                         1: begin
                             now_data[7:0] <= ram_loaded_data;
+                        end
+                        default:begin
                         end
                     endcase
                     executing <= executing - 1;

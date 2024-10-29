@@ -40,11 +40,14 @@ always @(posedge clk_in)
   begin
     if (rst_in)
       begin
-      
+        
       end
     else if (!rdy_in)
       begin
-      
+        mem_dout = lsb.ram_data;
+        mem_a = lsb.ram_addr;
+        mem_wr = lsb.ram_writing;
+        dbgreg_dout = 0;
       end
     else
       begin
