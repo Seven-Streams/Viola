@@ -1,15 +1,5 @@
 // RISCV32 CPU top module
 // port modification allowed for debugging purposes
-`include "src/decoder.v"
-`include "src/alu.v"
-`include "src/address_unit.v"
-`include "src/instruction_cache.v"
-`include "src/instruction_queue.v"
-`include "src/load_store_buffer.v"
-`include "src/ram.v"
-`include "src/register_file.v"
-`include "src/reorder_buffer.v"
-`include "src/reservation_station.v"
 module cpu(
   input  wire                 clk_in,			// system clock signal
   input  wire                 rst_in,			// reset signal
