@@ -65,6 +65,10 @@ module IC(
             rst <= 0;
         end
     end
+    reg[31:0] value0;
+    reg[31:0] value1;
+    reg[31:0] value2;
+    reg[31:0] value3;
     always@(negedge clk) begin
         if((!lsb_full) && (!iq_full) && (!shooted) && (!ready)) begin
             asking <= 1;
@@ -79,18 +83,28 @@ module IC(
             ready <= 0;
             case(data_tmp[6:0])
                 7'b0010111: begin
-                    predicted_pc <= pc + data_tmp[31:12] << 12;
+                    value0 = data_tmp[31:12];
+                    value0 = value0 << 12;
+                    predicted_pc <= predicted_pc + value0;
                     shooted <= 0;
                 end
                 7'b1101111: begin
-                    predicted_pc <= pc + data_tmp[31] << 20 | data_tmp[19:12] << 12 | data_tmp[20] << 11 | data_tmp[30:21] << 1;
+                    value0 = data_tmp[31];
+                    value0 = value0 << 20;
+                    value1 = data_tmp[20];
+                    value1 = value1 << 11;
+                    value2 = data_tmp[19:12];
+                    value2 = value2 << 12;
+                    value3 = data_tmp[30:21];
+                    value3 = value3 << 1;
+                    predicted_pc <= (predicted_pc + value0 + value1 + value2 + value3);
                     shooted <= 0;
                 end
                 7'b1100111: begin
                     shooted <= 1;
                 end
                 default: begin
-                    predicted_pc <= pc + 4;
+                    predicted_pc <= predicted_pc + 4;
                     shooted <= 0;
                 end//Predict branch always not taken.
             endcase

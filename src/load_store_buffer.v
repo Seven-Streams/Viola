@@ -121,7 +121,8 @@ module LSB(
             end
             if(buffer_op[head] == LB || buffer_op[head] == LH || buffer_op[head] == LW || buffer_op[head] == LBU || buffer_op[head] == LHU) begin
                 can_be_load <= buffer_rob_number[head];
-            end else begin
+            end
+            else begin
                 can_be_load <= 0;
             end
         end
@@ -187,7 +188,7 @@ module LSB(
                     is_ins <= 1;
                     if(if_ready[if_head]) begin
                         is_writing <= 0;
-                        executing <= 5;
+                        executing <= 6;
                     end
                 end
             end
@@ -220,21 +221,23 @@ module LSB(
                 end
                 else begin
                     ram_writing <= 0;
-                    ram_addr <= now_addr + (executing - 3);
+                    if(executing >= 3) begin
+                        ram_addr <= now_addr + (executing - 3);
+                    end
                     case(executing)
+                        5: begin
+                            now_data[31:24] = ram_loaded_data;
+                        end
                         4: begin
-                            now_data[31:24] <= ram_loaded_data;
+                            now_data[23:16] = ram_loaded_data;
                         end
                         3: begin
-                            now_data[23:16] <= ram_loaded_data;
+                            now_data[15:8] = ram_loaded_data;
                         end
                         2: begin
-                            now_data[15:8] <= ram_loaded_data;
+                            now_data[7:0] = ram_loaded_data;
                         end
-                        1: begin
-                            now_data[7:0] <= ram_loaded_data;
-                        end
-                        default:begin
+                        default: begin
                         end
                     endcase
                     executing <= executing - 1;
