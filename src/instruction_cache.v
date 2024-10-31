@@ -26,6 +26,9 @@ module IC(
         ready = 0;
         pc = 0;
         predicted_pc = 0;
+        shooted = 0;
+        ready = 0;
+        rst = 0;
     end
 
     always@(posedge clk) begin
