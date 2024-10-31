@@ -14,6 +14,7 @@ module LSB(
         output reg[31:0] ins_value,
         output reg ins_ready,
         output reg mem_ready,
+        output reg[2:0] can_be_load,
         output reg[31:0] ram_addr,
         output reg ram_writing,
         output reg[7:0] ram_data,
@@ -117,6 +118,11 @@ module LSB(
                         buffer_ready[i] <= 1;
                     end
                 end
+            end
+            if(buffer_op[head] == LB || buffer_op[head] == LH || buffer_op[head] == LW || buffer_op[head] == LBU || buffer_op[head] == LHU) begin
+                can_be_load <= buffer_rob_number[head];
+            end else begin
+                can_be_load <= 0;
             end
         end
     end

@@ -138,7 +138,12 @@ module ROB(
                     rob_ready[last_ins] <= 2'b11;
                 end
                 else begin
-                    rob_ready[last_ins] <= 0;
+                    if(op == SB || op == SH || op == SW) begin
+                        rob_ready[last_ins] <= 2'b01;
+                    end
+                    else begin
+                        rob_ready[last_ins] <= 2'b00;
+                    end
                 end
                 value1_out <= value1_rf;
                 query1_out <= query1_rf;
@@ -158,8 +163,7 @@ module ROB(
             if(rob_ready[head] == 2'b01) begin
                 ls_commit <= 1;
                 ls_num_out <= head;
-            end
-            else begin
+            end else begin
                 ls_commit <= 0;
             end
             if(rob_ready[head] == 2'b11) begin

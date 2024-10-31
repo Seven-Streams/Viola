@@ -5,7 +5,7 @@ module RF(
         input wire [4:0] reg_num,
         input wire [31:0] data_in,
         input wire [2:0] num_in,
-        input wire instrcution,
+        input wire instruction,
         input wire [4:0] rs1,
         input wire [4:0] rs2,
         input wire [4:0] rd,
@@ -41,7 +41,7 @@ module RF(
     integer i;
     always@(negedge clk) begin
         if(!rst) begin
-        if(instrcution) begin
+        if(instruction) begin
             if(dependency[rs1] == 0) begin
                 value1_tmp <= regs[rs1];
                 query1_tmp <= 0;

@@ -34,10 +34,7 @@ always @(posedge clk_in)
       end
     else if (!rdy_in)
       begin
-        mem_dout = lsb.ram_data;
-        mem_a = lsb.ram_addr;
-        mem_wr = lsb.ram_writing;
-        dbgreg_dout = 0;
+
       end
     else
       begin
@@ -45,14 +42,18 @@ always @(posedge clk_in)
       end
   end
 
+  assign mem_dout = lsb.ram_data;
+  assign mem_a = lsb.ram_addr;
+  assign mem_wr = lsb.ram_writing;
+  assign dbgreg_dout = 0;
 
 AU au(
   .clk(clk_in),
   .rst(ic.rst),
   .value1(rs.memory_value1),
   .value2(rs.memory_imm),
-  .op_input(rs.memmory_op),
-  .reg_number_input(rs.memoru_des),
+  .op_input(rs.memory_op),
+  .rob_number_input(rs.memory_des),
   .ls_value(rs.memory_value2)
 );
 
@@ -93,7 +94,7 @@ IQ iq(
   .rs2(decoder.rs2),
   .rd(decoder.rd),
   .imm(decoder.imm),
-  .rob_full(rub.rob_full)
+  .rob_full(rob.rob_full)
 );
 
 ROB rob(
@@ -113,7 +114,7 @@ ROB rob(
   .alu_value(alu.result),
   .mem_num(lsb.output_number),
   .mem_value(lsb.output_value),
-  .ready_load_num(lsb.mem_ready)
+  .ready_load_num(lsb.can_be_load)
 );
 
 RF rf(
@@ -156,8 +157,8 @@ LSB lsb(
   .data(au.ls_value_output),
   .rob_number(au.rob_number),
   .op(au.op),
-  .committed_num(rob.ls_commit),
-  .ram_loaded_data(cpu.memdin)
+  .committed_number(rob.ls_num_out),
+  .ram_loaded_data(mem_din)
 );
 
 endmodule

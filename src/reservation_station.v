@@ -6,25 +6,25 @@ module RS(
         input wire[31:0] memory_data,
         input wire[2:0] memory_des_in,
         input wire[2:0] des_in,
-        input wire[5:0] op,
+        input wire[4:0] op,
         input wire[31:0] value1,
         input wire[31:0] value2,
         input wire[31:0] imm_in,
         input wire[2:0] query1,
         input wire[2:0] query2,
         input wire memory_busy,
-        output reg[5:0] alu_op,
+        output reg[4:0] alu_op,
         output reg[31:0] alu_value1,
         output reg[31:0] alu_value2,
         output reg[2:0] alu_des,
-        output reg[5:0] memory_op,
+        output reg[4:0] memory_op,
         output reg[31:0] memory_value1,
         output reg[31:0] memory_value2,
         output reg[31:0] memory_imm,
         output reg[2:0] memory_des,
         output reg rs_full
     );
-    reg[5:0] op_rs[5:0];
+    reg[5:0] op_rs[4:0];
     reg[31:0] value1_rs[5:0];
     reg[31:0] value2_rs[5:0];
     reg[2:0] des_rs[5:0];
