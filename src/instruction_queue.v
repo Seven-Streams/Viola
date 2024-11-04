@@ -29,7 +29,7 @@ module IQ(
 
     initial begin
         head = 0;
-        tail = 1;
+        tail = 0;
         busy[0] = 0;
         busy[1] = 0;
         busy[2] = 0;
