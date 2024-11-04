@@ -33,6 +33,8 @@ module IC(
         shooted = 0;
         ready = 0;
         rst = 0;
+        head = 0;
+        tail = 0;
     end
 
     always@(posedge clk) begin
