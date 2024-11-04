@@ -94,6 +94,7 @@ IQ iq(
   .rs2(decoder.rs2),
   .rd(decoder.rd),
   .imm(decoder.imm),
+  .has_imm(decoder.has_imm),
   .rob_full(rob.rob_full)
 );
 

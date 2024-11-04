@@ -123,9 +123,7 @@ module ROB(
     end
 
     integer i;
-    reg [1:0] debug_head_status;
     always@(negedge clk) begin
-        debug_head_status = rob_ready[head];
         if(!rst) begin
             if(head == 0) begin
                 head = 1;

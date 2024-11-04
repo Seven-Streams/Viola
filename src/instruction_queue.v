@@ -50,6 +50,7 @@ module IQ(
         iq_full = 0;
     end
 
+
     always@(posedge clk) begin
         if(!rst) begin
             if(op != 5'b11111) begin
