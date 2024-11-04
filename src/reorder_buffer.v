@@ -83,8 +83,8 @@ module ROB(
                SH = 5'b11000,
                SW = 5'b11001,
                BLT = 5'b11010,
-               BLTU = 5'b11011;
-
+               BLTU = 5'b11011,
+               JAL_C = 5'b11100;
     always@(posedge clk) begin
         if(!rst) begin
             if(op != 5'b11111) begin
@@ -134,7 +134,7 @@ module ROB(
             rob_full <= (head == (tail + 2) || (head == 1 && tail == 6) || head == (tail + 1));
             if(to_shoot) begin
                 last_ins = (tail == 1) ? 7 : (tail - 1);
-                if(op == JAL || op == LUI || op == AUIPC) begin
+                if(op == JAL || op == LUI || op == AUIPC || op == JAL_C) begin
                     rob_ready[last_ins] <= 2'b11;
                 end
                 else begin
@@ -174,6 +174,9 @@ module ROB(
                         value_out <= (now_pc + 4);
                     end
                     else begin
+                        if(rob_op[head] == JAL_C) begin
+                            value_out <= (now_pc + 2);
+                        end
                         value_out <= rob_value[head];
                     end
                     num_out <= head;
@@ -195,7 +198,7 @@ module ROB(
                     else begin
                         branch_taken <= 0;
                         pc_ready <= 1;
-                        if(rob_op[head] == JAL) begin
+                        if(rob_op[head] == JAL || rob_op[head] == JAL_C) begin
                             nxt_pc <= rob_value[head];
                         end
                         else begin
