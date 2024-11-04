@@ -24,6 +24,7 @@ module IC(
     reg [0:0] ic_size[31:0];
     reg [4:0] head;
     reg [4:0] tail;
+    integer value[0:0];
 
     initial begin
         ready = 0;
@@ -127,7 +128,34 @@ module IC(
             else begin
                 ic_size[tail] <= 0;
                 tail <= tail + 1;
-                //TODO:check the instruction of C.
+                if(instruction[1:0] == 2'b10 && instruction[15:13] == 3'b100 && instruction[6:2] == 5'b00000) begin
+                    shooted <= 1;
+                end
+                else begin
+                    if(instruction[1:0] == 2'b10 && instruction[15:13] == 3'b001) begin
+                        value[0] = instruction[12];
+                        value[0] = value[0] << 1;
+                        value[0] = value[0] + instruction[8];
+                        value[0] = value[0] << 2;
+                        value[0] = value[0] + instruction[10:9];
+                        value[0] = value[0] << 1;
+                        value[0] = value[0] + instruction[6];
+                        value[0] = value[0] << 1;
+                        value[0] = value[0] + instruction[7];
+                        value[0] = value[0] << 1;
+                        value[0] = value[0] + instruction[2];
+                        value[0] = value[0] << 1;
+                        value[0] = value[0] + instruction[11];
+                        value[0] = value[0] << 3;
+                        value[0] = value[0] + instruction[5:3];
+                        value[0] = value[0] << 1;
+                        predicted_pc <= predicted_pc + value[0];
+                        shooted <= 0;
+                    end else begin
+                        predicted_pc <= predicted_pc + 2;
+                        shooted <= 0;
+                    end
+                end
             end
         end
         now_pc <= pc;
