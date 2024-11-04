@@ -133,10 +133,13 @@ module ROB(
             end
             rob_full <= (head == (tail + 2) || (head == 1 && tail == 6) || head == (tail + 1));
             if(to_shoot) begin
-                op_out <= rob_op[head];
                 last_ins = (tail == 1) ? 7 : (tail - 1);
-                if(op == JAL || op == LUI || op == AUIPC || op == JAL_C) begin
+                if(op == LUI || op == AUIPC) begin
+                    op_out <= 5'b11111;
                     rob_ready[last_ins] <= 2'b11;
+                end
+                else begin
+                    op_out <= rob_op[head];
                 end
                 if(op == LUI) begin
                     rob_value[last_ins] <= imm;
@@ -161,13 +164,16 @@ module ROB(
                 end
                 imm_out <= imm;
                 target <= last_ins;
-            end else begin
+            end
+            else begin
+                op_out <= 5'b11111;
                 target <= 0;
             end
             if(rob_ready[head] == 2'b01) begin
                 ls_commit <= 1;
                 ls_num_out <= head;
-            end else begin
+            end
+            else begin
                 ls_commit <= 0;
             end
             if(rob_ready[head] == 2'b11) begin
@@ -191,7 +197,8 @@ module ROB(
                     pc_ready <= 0;
                     jalr_ready <= 1;
                     jalr_pc <= rob_value[head];
-                end else begin
+                end
+                else begin
                     jalr_ready <= 0;
                     if(rob_op[head] == BNE || rob_op[head] == BEQ || rob_op[head] == BLT || rob_op[head] == BLTU || rob_op[head] == BGE || rob_op[head] == BGEU) begin
                         pc_ready <= 0;
