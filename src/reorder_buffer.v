@@ -123,7 +123,9 @@ module ROB(
     end
 
     integer i;
+    reg [1:0] debug_head_status;
     always@(negedge clk) begin
+        debug_head_status = rob_ready[head];
         if(!rst) begin
             if(head == 0) begin
                 head = 1;
@@ -171,7 +173,7 @@ module ROB(
                 ls_commit <= 0;
             end
             if(rob_ready[head] == 2'b11) begin
-                if(rob_rd[head != 0]) begin
+                if(rob_rd[head] != 0) begin
                     commit <= 1;
                     rd_out <= rob_rd[head];
                     if(rob_op[head] == JALR || rob_op[head] == JAL) begin
@@ -186,13 +188,12 @@ module ROB(
                     num_out <= head;
                 end
                 head <= head + 1;
-                if(rob_op[head] == JALR) begin
+                if(rob_op[head] == JALR || rob_op[head] == JAL_C) begin
                     branch_taken <= 0;
                     pc_ready <= 0;
                     jalr_ready <= 1;
                     jalr_pc <= rob_value[head];
-                end
-                else begin
+                end else begin
                     jalr_ready <= 0;
                     if(rob_op[head] == BNE || rob_op[head] == BEQ || rob_op[head] == BLT || rob_op[head] == BLTU || rob_op[head] == BGE || rob_op[head] == BGEU) begin
                         pc_ready <= 0;

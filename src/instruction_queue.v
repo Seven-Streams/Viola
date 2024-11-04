@@ -79,6 +79,7 @@ module IQ(
             busy[head] <= 0;
             head <= head + 1;
         end else begin
+          op_out <= 5'b11111;
           shooted <= 0;
         end
       end else begin
