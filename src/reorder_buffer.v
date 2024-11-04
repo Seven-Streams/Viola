@@ -139,7 +139,7 @@ module ROB(
                     rob_ready[last_ins] <= 2'b11;
                 end
                 else begin
-                    op_out <= rob_op[head];
+                    op_out <= rob_op[last_ins];
                 end
                 if(op == LUI) begin
                     rob_value[last_ins] <= imm;

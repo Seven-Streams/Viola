@@ -22,6 +22,8 @@ module RF(
     reg [31:0]regs[31:0];
     integer cnt;
     initial begin
+        query1 = 0;
+        query2 = 0;
         busy = 0;
         last_num = 0;
         last_reg = 0;
