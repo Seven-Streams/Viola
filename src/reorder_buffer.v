@@ -203,7 +203,7 @@ module ROB(
                                 nxt_pc <= (now_pc + rob_value[head]);
                             end
                             else begin
-                                nxt_pc <= (now_pc + 4);
+                                nxt_pc <= 32'hffffffff;
                             end
                         end
                     end

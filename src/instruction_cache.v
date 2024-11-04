@@ -21,6 +21,9 @@ module IC(
     reg [31:0] predicted_pc;
     reg [0:0] ready;
     reg [0:0] shooted;
+    reg [0:0] ic_size[31:0];
+    reg [4:0] head;
+    reg [4:0] tail;
 
     initial begin
         ready = 0;
@@ -48,6 +51,8 @@ module IC(
                 pc <= branch_pc;
                 predicted_pc <= branch_pc;
                 rst <= 1;
+                head <= 0;
+                tail <= 0;
                 //TODO:flush the pipeline.
             end
         end
@@ -59,7 +64,14 @@ module IC(
         end
         if(pc_ready) begin
             rst <= 0;
-            pc <= nxt_pc;
+            if(nxt_pc == 32'hffffffff) begin
+                pc <= pc + (ic_size[head] == 1 ? 4 : 2);
+                head <= head + 1;
+            end
+            else begin
+                pc <= nxt_pc;
+                head <= head + 1;
+            end
         end
         if((!branch_taken) && (!jalr_ready) && (!pc_ready)) begin
             rst <= 0;
@@ -81,33 +93,42 @@ module IC(
         if(ready) begin
             instruction <= data_tmp;
             ready <= 0;
-            case(data_tmp[6:0])
-                7'b0010111: begin
-                    value0 = data_tmp[31:12];
-                    value0 = value0 << 12;
-                    predicted_pc <= predicted_pc + value0;
-                    shooted <= 0;
-                end
-                7'b1101111: begin
-                    value0 = data_tmp[31];
-                    value0 = value0 << 20;
-                    value1 = data_tmp[20];
-                    value1 = value1 << 11;
-                    value2 = data_tmp[19:12];
-                    value2 = value2 << 12;
-                    value3 = data_tmp[30:21];
-                    value3 = value3 << 1;
-                    predicted_pc <= (predicted_pc + value0 + value1 + value2 + value3);
-                    shooted <= 0;
-                end
-                7'b1100111: begin
-                    shooted <= 1;
-                end
-                default: begin
-                    predicted_pc <= predicted_pc + 4;
-                    shooted <= 0;
-                end//Predict branch always not taken.
-            endcase
+            if(data_tmp[1:0] == 2'b11) begin
+                ic_size[tail] <= 1;
+                tail <= tail + 1;
+                case(data_tmp[6:0])
+                    7'b0010111: begin
+                        value0 = data_tmp[31:12];
+                        value0 = value0 << 12;
+                        predicted_pc <= predicted_pc + value0;
+                        shooted <= 0;
+                    end
+                    7'b1101111: begin
+                        value0 = data_tmp[31];
+                        value0 = value0 << 20;
+                        value1 = data_tmp[20];
+                        value1 = value1 << 11;
+                        value2 = data_tmp[19:12];
+                        value2 = value2 << 12;
+                        value3 = data_tmp[30:21];
+                        value3 = value3 << 1;
+                        predicted_pc <= (predicted_pc + value0 + value1 + value2 + value3);
+                        shooted <= 0;
+                    end
+                    7'b1100111: begin
+                        shooted <= 1;
+                    end
+                    default: begin
+                        predicted_pc <= predicted_pc + 4;
+                        shooted <= 0;
+                    end//Predict branch always not taken.
+                endcase
+            end
+            else begin
+                ic_size[tail] <= 0;
+                tail <= tail + 1;
+                //TODO:check the instruction of C.
+            end
         end
         now_pc <= pc;
     end
