@@ -18,12 +18,18 @@ module RF(
     reg busy;
     reg [2:0] last_num;
     reg [31:0] last_reg;
-    reg [2:0] query1_tmp;
-    reg [2:0] query2_tmp;
-    reg [31:0] value1_tmp;
-    reg [31:0] value2_tmp;
     reg [2:0]dependency[31:0];
     reg [31:0]regs[31:0];
+    integer cnt;
+    initial begin
+        busy = 0;
+        last_num = 0;
+        last_reg = 0;
+        for(cnt = 0; cnt < 32; cnt = cnt + 1) begin
+            dependency[cnt] = 0;
+            regs[cnt] = 0;
+        end
+    end
     always@(posedge clk) begin
         if(!rst) begin
             if(busy && (last_reg != 0)) begin
@@ -43,18 +49,18 @@ module RF(
         if(!rst) begin
         if(instruction) begin
             if(dependency[rs1] == 0) begin
-                value1_tmp <= regs[rs1];
-                query1_tmp <= 0;
+                value1 <= regs[rs1];
+                query1 <= 0;
             end
             else begin
-                query1_tmp <= dependency[rs1];
+                query1 <= dependency[rs1];
             end
             if(dependency[rs2] == 0) begin
-                value2_tmp <= regs[rs2];
-                query2_tmp <= 0;
+                value2 <= regs[rs2];
+                query2 <= 0;
             end
             else begin
-                query2_tmp <= dependency[rs2];
+                query2 <= dependency[rs2];
             end
             busy<= 1;
             last_num <= dependency_num;

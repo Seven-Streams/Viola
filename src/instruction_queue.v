@@ -28,6 +28,7 @@ module IQ(
     reg [3:0] tail;
 
     initial begin
+        shooted = 0;
         head = 0;
         tail = 0;
         busy[0] = 0;
