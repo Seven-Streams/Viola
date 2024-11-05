@@ -26,8 +26,18 @@ module IQ(
     reg [0:0] has_imm_buffer[15:0];
     reg [3:0] head;
     reg [3:0] tail;
+    integer init;
 
     initial begin
+      for(init = 0; init < 16; init = init + 1) begin
+        op_buffer[init] = 5'b11111;
+        rs1_buffer[init] = 0;
+        rs2_buffer[init] = 0;
+        rd_buffer[init] = 0;
+        imm_buffer[init] = 32'b0;
+        has_imm_buffer[init] = 0;
+        busy[init] = 0;
+      end
         shooted = 0;
         head = 0;
         tail = 0;
