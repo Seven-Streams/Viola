@@ -155,6 +155,7 @@ module RS(
                     end
                 end
             end
+            memory_op <= 5'b11111;
             if(!memory_busy) begin
                 for(l = 3; l < 6 && (!memory_shooted); l++) begin
                     if(busy[l]) begin

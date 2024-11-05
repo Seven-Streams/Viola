@@ -25,6 +25,7 @@ module IC(
     reg [4:0] head;
     reg [4:0] tail;
     integer value[0:0];
+    reg [31:0] pc_tmp;
 
     initial begin
         ready = 0;
@@ -115,7 +116,15 @@ module IC(
                         value2 = value2 << 12;
                         value3 = data_tmp[30:21];
                         value3 = value3 << 1;
-                        predicted_pc <= (predicted_pc + value0 + value1 + value2 + value3);
+                        if(value[0] == 0) begin
+                            predicted_pc <= (predicted_pc + value0 + value1 + value2 + value3);
+                        end
+                        else begin
+                            pc_tmp = value0 + value1 + value2 + value3;
+                            pc_tmp[31:20] = 12'hfff;
+                            predicted_pc <= predicted_pc + pc_tmp;
+                        end
+
                         shooted <= 0;
                     end
                     7'b1100111: begin
@@ -151,15 +160,23 @@ module IC(
                         value[0] = value[0] << 3;
                         value[0] = value[0] + data[5:3];
                         value[0] = value[0] << 1;
-                        predicted_pc <= predicted_pc + value[0];
+                        if(data[12] == 0) begin
+                            predicted_pc <= predicted_pc + value[0];
+                        end
+                        else begin
+                            pc_tmp = value[0];
+                            pc_tmp[31:12] = 20'hfffff;
+                        end
                         shooted <= 0;
-                    end else begin
+                    end
+                    else begin
                         predicted_pc <= predicted_pc + 2;
                         shooted <= 0;
                     end
                 end
             end
-        end else begin
+        end
+        else begin
             instruction <= 0;
         end
         now_pc <= pc;

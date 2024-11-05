@@ -46,7 +46,7 @@ module Decoder(
     reg[4:0] rd_tmp;
     reg[31:0] imm_tmp;
     reg [0:0]has_imm_tmp;
-
+    reg [31:0]value_tmp;
     always@(posedge clk) begin
         op_tmp = 5'b11111;
         if(instruction != 0) begin
@@ -78,7 +78,11 @@ module Decoder(
                         value[2] = value[2] << 11;
                         value[3] = instruction[30:21];
                         value[3] = value[3] << 1;
-                        imm_tmp  <= (value[0] + value[1] + value[2] + value[3]);
+                        value_tmp = (value[0] + value[1] + value[2] + value[3]);
+                        if(value_tmp[19] == 1) begin
+                            imm_tmp[31:20] <= 12'hfff;
+                            imm_tmp[19:0] <= value_tmp[19:0];
+                        end
                         rd_tmp <= instruction[11:7];
                         has_imm_tmp <= 1;
                         rs1_tmp <= 0;
@@ -88,7 +92,13 @@ module Decoder(
                         op_tmp <= JALR;
                         rs1_tmp <= instruction[19:15];
                         rd_tmp <= instruction[11:7];
-                        imm_tmp <= instruction[31:20];
+                        if(instruction[31] == 0) begin
+                            imm_tmp <= instruction[31:20];
+                        end
+                        else begin
+                            imm_tmp[31:12] <= 20'hfffff;
+                            imm_tmp[11:0] <= instruction[31:20];
+                        end
                         rs2_tmp <= 0;
                         has_imm_tmp <= 1;
                     end
@@ -120,7 +130,14 @@ module Decoder(
                         value[2] = value[2] << 5;
                         value[3] = instruction[11:8];
                         value[3] = value[3] << 1;
-                        imm_tmp  <= (value[0] + value[1] + value[2] + value[3]);
+                        value_tmp = (value[0] + value[1] + value[2] + value[3]);
+                        if(instruction[31] == 1) begin
+                            imm_tmp[31:12] <= 20'hfffff;
+                            imm_tmp[11:0] <= value_tmp[11:0];
+                        end
+                        else begin
+                            imm_tmp <= value_tmp;
+                        end
                         has_imm_tmp <= 1;
                     end
                     7'b0000011: begin
@@ -140,7 +157,13 @@ module Decoder(
                         endcase
                         rs1_tmp  <= instruction[19:15];
                         rd_tmp  <= instruction[11:7];
-                        imm_tmp  <= instruction[31:20];
+                        if(instruction[31] == 1) begin
+                            imm_tmp[31:12] <= 20'hfffff;
+                            imm_tmp[11:0] <= instruction[31:20];
+                        end
+                        else begin
+                            imm_tmp <= instruction[31:20];
+                        end
                         rs2_tmp  <= 0;
                         has_imm_tmp <= 1;
                     end
@@ -161,7 +184,14 @@ module Decoder(
                         value[0] = instruction[31:25];
                         value[0] = value[0] << 5;
                         value[1] = instruction[11:7];
-                        imm_tmp  <= value[0] + value[1];
+                        value_tmp = value[0] + value[1];
+                        if(instruction[31] == 0) begin
+                            imm_tmp <= value_tmp;
+                        end
+                        else begin
+                            imm_tmp[31:12] <= 20'hfffff;
+                            imm_tmp[11:0] <= value_tmp[11:0];
+                        end
                         has_imm_tmp <= 1;
                     end
                     7'b0010011: begin
@@ -193,7 +223,13 @@ module Decoder(
                                 default:
                                     op_tmp  <= 5'b11111;
                             endcase
-                            imm_tmp  <= instruction[31:20];
+                            if(instruction[31] == 0) begin
+                                imm_tmp  <= instruction[31:20];
+                            end
+                            else begin
+                                imm_tmp[31:12] <= 20'hfffff;
+                                imm_tmp[11:0] <= instruction[31:20];
+                            end
                         end
                         rs1_tmp  <= instruction[19:15];
                         rd_tmp  <= instruction[11:7];
@@ -243,7 +279,7 @@ module Decoder(
             end
             else begin
                 case(instruction[1:0])
-                    2'b10: begin
+                    2'b01: begin
                         case(instruction[15:13])
                             3'b000: begin
                                 op_tmp <= ADD;
@@ -273,8 +309,14 @@ module Decoder(
                                 value[0] = value[0] + instruction[11];
                                 value[0] = value[0] << 3;
                                 value[0] = value[0] + instruction[5:3];
-                                value[0] = value[0] << 1;
-                                imm_tmp <= value[0];
+                                value_tmp = value[0] << 1;
+                                if(instruction[12] == 0) begin
+                                    imm_tmp <= value_tmp;
+                                end
+                                else begin
+                                    imm_tmp[31:12] <= 20'hfffff;
+                                    imm_tmp[11:0] <= value_tmp[11:0];
+                                end
                                 rd_tmp <= 1;
                                 rs1_tmp <= 0;
                                 rs2_tmp <= 0;
@@ -337,12 +379,25 @@ module Decoder(
                                     value[1] = instruction[6:2];
                                     imm_tmp <= value[0] + value[1];
                                     case(instruction[11:10])
-                                        2'b00:
+                                        2'b00:begin
                                             op_tmp <= SRL;
-                                        2'b01:
+                                            imm_tmp <= value[0] + value[1];
+                                        end
+                                        2'b01:begin
                                             op_tmp <= SRA;
-                                        2'b10:
+                                            imm_tmp <= value[0] + value[1];
+                                        end
+                                        2'b10:begin
                                             op_tmp <= AND;
+                                            value_tmp = value[0] + value[1];
+                                            if(value_tmp[5] == 1) begin
+                                                imm_tmp[31:6] <= 26'h3ffffff;
+                                                imm_tmp[5:0] <= value_tmp[5:0];
+                                            end
+                                            else begin
+                                                imm_tmp <= value_tmp;
+                                            end
+                                        end
                                     endcase
                                 end
                             end
