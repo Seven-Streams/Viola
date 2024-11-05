@@ -101,7 +101,7 @@ IQ iq(
 ROB rob(
   .clk(clk_in),
   .rst(ic.rst),
-  .has_imm(iq.has_imm),
+  .has_imm(iq.has_imm_out),
   .imm(iq.imm_out),
   .now_pc(ic.pc),
   .rd(iq.rd_out),

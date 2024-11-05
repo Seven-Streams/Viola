@@ -24,9 +24,15 @@ module ALU(
                EQ  = 5'b01010,
                GE  = 5'b01011,
                NE = 5'b01100,
-               GEU = 5'b01101;
+               GEU = 5'b01101,
+               JAL = 5'b10000,
+               JALR = 5'b10001;
     always @(posedge clk) begin
         case(op)
+            JAL:
+                tmp <= value_1 + value_2;
+            JALR:
+                tmp <= value_1 + value_2;
             ADD:
                 tmp <= value_1 + value_2;
             AND:

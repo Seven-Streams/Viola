@@ -208,7 +208,7 @@ module ROB(
                         branch_taken <= 0;
                         pc_ready <= 1;
                         if(rob_op[head] == JAL || rob_op[head] == JAL_C) begin
-                            nxt_pc <= rob_value[head];
+                            nxt_pc <= (rob_value[head] + now_pc);
                         end
                         else begin
                             if(rob_op[head] == AUIPC) begin

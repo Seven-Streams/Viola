@@ -420,6 +420,7 @@ module Decoder(
             rs2 <= rs2_tmp;
             rd <= rd_tmp;
             imm <= imm_tmp;
+            has_imm <= has_imm_tmp;
         end
         else begin
             op <= 5'b11111;
