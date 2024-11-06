@@ -119,12 +119,7 @@ module LSB(
                     end
                 end
             end
-            if(buffer_op[head] == LB || buffer_op[head] == LH || buffer_op[head] == LW || buffer_op[head] == LBU || buffer_op[head] == LHU) begin
-                can_be_load <= buffer_rob_number[head];
-            end
-            else begin
-                can_be_load <= 0;
-            end
+            can_be_load <= buffer_rob_number[head];
         end
     end
 

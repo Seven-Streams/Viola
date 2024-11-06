@@ -478,6 +478,33 @@ module Decoder(
                                     has_imm_tmp <= 0;
                                 end
                             end
+                            3'b010:begin
+                                op_tmp <= LW;
+                                rd_tmp <= instruction[11:7];
+                                value[0] = instruction[12];
+                                value[0] = value[0] << 5;
+                                value[1] = instruction[6:4];
+                                value[1] = value[1] << 2;
+                                value[2] = instruction[3:2];
+                                value[2] = value[2] << 6;
+                                value_tmp = value[0] + value[1] + value[2];
+                                imm_tmp <= value_tmp;
+                                rs1_tmp <= 2;
+                                has_imm_tmp <= 1;
+                            end
+                            3'b110:begin
+                                op_tmp <= SW;
+                                rs1_tmp <= 2;
+                                rs2_tmp <= instruction[6:2];
+                                value[0] = instruction[12:9];
+                                value[0] = value[0] << 2;
+                                value[1] = instruction[8:7];
+                                value[1] = value[1] << 6;
+                                value_tmp = value[0] + value[1];
+                                imm_tmp <= value_tmp;
+                                rd_tmp <= 0;
+                                has_imm_tmp <= 1;
+                            end
                         endcase
                     end
                 endcase

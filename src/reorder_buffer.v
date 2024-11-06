@@ -143,13 +143,9 @@ module ROB(
                 end
                 if(op == LUI) begin
                     rob_value[last_ins] <= imm;
-                end else begin
-                    if(op == SB || op == SH || op == SW) begin
-                        rob_ready[last_ins] <= 2'b01;
-                    end
-                    else begin
-                        rob_ready[last_ins] <= 2'b00;
-                    end
+                end
+                else begin
+                    rob_ready[last_ins] <= 2'b00;
                 end
                 value1_out <= value1_rf;
                 query1_out <= query1_rf;
