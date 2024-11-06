@@ -116,7 +116,7 @@ module IC(
                         value2 = value2 << 12;
                         value3 = data_tmp[30:21];
                         value3 = value3 << 1;
-                        if(value[0] == 0) begin
+                        if(value0 == 0) begin
                             predicted_pc <= (predicted_pc + value0 + value1 + value2 + value3);
                         end
                         else begin

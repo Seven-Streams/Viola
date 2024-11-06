@@ -286,7 +286,14 @@ module Decoder(
                                 value[0] = instruction[12];
                                 value[0] = value[0] << 5;
                                 value[1] = instruction[6:2];
-                                imm_tmp <= value[0] + value[1];
+                                value_tmp = value[0] + value[1];
+                                if(instruction[12] == 0) begin
+                                    imm_tmp <= value_tmp;
+                                end
+                                else begin
+                                    imm_tmp[31:12] <= 20'hfffff;
+                                    imm_tmp[11:0] <= value_tmp[11:0];
+                                end
                                 rd_tmp <= instruction[11:7];
                                 rs1_tmp <= instruction[11:7];
                                 rs2_tmp <= 0;
@@ -336,7 +343,14 @@ module Decoder(
                                     value[0] = value[0] << 1;
                                     value[0] = value[0] + instruction[6];
                                     value[0] = value[0] << 4;
-                                    imm_tmp <= value[0];
+                                    value_tmp = value[0];
+                                    if(instruction[12] == 0) begin
+                                        imm_tmp <= value_tmp;
+                                    end
+                                    else begin
+                                        imm_tmp[31:10] <= 22'h3fffff;
+                                        imm_tmp[9:0] <= value_tmp[9:0];
+                                    end
                                     has_imm_tmp <= 1;
                                     rs1_tmp <= 2;
                                     rs2_tmp <= 0;
@@ -379,15 +393,15 @@ module Decoder(
                                     value[1] = instruction[6:2];
                                     imm_tmp <= value[0] + value[1];
                                     case(instruction[11:10])
-                                        2'b00:begin
+                                        2'b00: begin
                                             op_tmp <= SRL;
                                             imm_tmp <= value[0] + value[1];
                                         end
-                                        2'b01:begin
+                                        2'b01: begin
                                             op_tmp <= SRA;
                                             imm_tmp <= value[0] + value[1];
                                         end
-                                        2'b10:begin
+                                        2'b10: begin
                                             op_tmp <= AND;
                                             value_tmp = value[0] + value[1];
                                             if(value_tmp[5] == 1) begin
