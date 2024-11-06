@@ -82,6 +82,8 @@ module Decoder(
                         if(value_tmp[19] == 1) begin
                             imm_tmp[31:20] <= 12'hfff;
                             imm_tmp[19:0] <= value_tmp[19:0];
+                        end else begin
+                            imm_tmp <= value_tmp;
                         end
                         rd_tmp <= instruction[11:7];
                         has_imm_tmp <= 1;
