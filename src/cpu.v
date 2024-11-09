@@ -126,9 +126,9 @@ RF rf(
   .data_in(rob.value_out),
   .num_in(rob.num_out),
   .instruction(iq.shooted),
-  .rs1(iq.rs1_out),
-  .rs2(iq.rs2_out),
-  .rd(iq.rd_out),
+  .rs1(iq.rs1_tmp),
+  .rs2(iq.rs2_tmp),
+  .rd(iq.rd_tmp),
   .dependency_num(rob.tail) 
 );
 
