@@ -42,7 +42,7 @@ module RF(
         rd_tmp = rd;
         dependency_tmp = dependency_num;
         if(!rst) begin
-            if(instruction) begin
+            if(instruction && (rd != 0)) begin
                 dependency[rd] <= dependency_num;
             end
             if(commit) begin
