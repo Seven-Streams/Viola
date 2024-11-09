@@ -39,6 +39,7 @@ module ROB(
         output reg[31:0] imm_out
     );
     reg[2:0] last_ins;
+    reg [1:0]check;
     reg [2:0] head;
     reg to_shoot;
     reg [4:0] rob_op[7:0];
@@ -86,6 +87,7 @@ module ROB(
                BLTU = 5'b11011,
                JAL_C = 5'b11100;
     always@(posedge clk) begin
+        check = rob_ready[head];
         if(!rst) begin
             if(op != 5'b11111) begin
                 rob_op[tail] <= op;
@@ -115,8 +117,7 @@ module ROB(
             if(mem_num != 0) begin
                 rob_value[mem_num] <= mem_value;
                 rob_ready[mem_num] <= 2'b11;
-            end
-            if(ready_load_num != 0) begin
+            end else if(ready_load_num != 0) begin
                 rob_ready[ready_load_num] <= 2'b01;
             end
         end
