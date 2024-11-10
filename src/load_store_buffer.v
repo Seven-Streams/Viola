@@ -158,7 +158,7 @@ module LSB(
                 mem_ready <= 0;
                 ins_ready <= 0;
                 output_number <= 0;
-                if(buffer_ready[head]) begin
+                if(buffer_ready[head] && buffer_busy[head]) begin
                     now_addr <= buffer_addr[head];
                     now_data <= buffer_data[head];
                     is_ins <= 0;
@@ -196,10 +196,10 @@ module LSB(
                     endcase
                 end
                 else begin
+                    is_writing <= 0;
                     now_addr <= if_addr[if_head];
                     is_ins <= 1;
                     if(if_ready[if_head]) begin
-                        is_writing <= 0;
                         executing <= 6;
                     end
                 end

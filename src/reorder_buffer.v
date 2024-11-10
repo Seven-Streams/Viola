@@ -41,6 +41,7 @@ module ROB(
     reg[2:0] last_ins;
     reg [1:0]check;
     reg [2:0] head;
+    reg [31:0]value_check;
     reg to_shoot;
     reg [4:0] rob_op[7:0];
     reg [4:0] rob_rd[7:0];
@@ -91,6 +92,7 @@ module ROB(
         if(!rst) begin
             if(op != 5'b11111) begin
                 rob_op[tail] <= op;
+                rob_ready[tail] <= 2'b00;
                 rob_rd[tail] <= rd;
                 rob_value[tail] <= imm;
                 rob_busy[tail] <= 1;
@@ -131,6 +133,7 @@ module ROB(
 
     integer i;
     always@(negedge clk) begin
+        value_check = rob_value[head];
         if(!rst) begin
             if(head == 0) begin
                 head = 1;
@@ -147,12 +150,10 @@ module ROB(
                 end
                 else begin
                     op_out <= rob_op[last_ins];
+                    rob_ready[last_ins] <= 2'b00;
                 end
                 if(op == LUI) begin
                     rob_value[last_ins] <= imm;
-                end
-                else begin
-                    rob_ready[last_ins] <= 2'b00;
                 end
                 value1_out <= value1_rf;
                 query1_out <= query1_rf;
