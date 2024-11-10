@@ -64,6 +64,7 @@ module IC(
             rst <= 0;
             pc <= jalr_addr;
             predicted_pc <= jalr_addr;
+            shooted <= 0;
             ready <= 0;
         end
         if(pc_ready) begin
