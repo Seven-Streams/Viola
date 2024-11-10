@@ -94,7 +94,12 @@ module ROB(
                 rob_rd[tail] <= rd;
                 rob_value[tail] <= imm;
                 rob_busy[tail] <= 1;
-                tail <= tail + 1;
+                if(tail != 7) begin
+                    tail <= tail + 1;
+                end
+                else begin
+                    tail <= 1;
+                end
                 to_shoot <= 1;
             end
             else begin
@@ -178,7 +183,8 @@ module ROB(
                 pc_ready <= 0;
                 branch_taken <= 0;
                 jalr_ready <= 0;
-            end else begin
+            end
+            else begin
                 if(rob_ready[head] == 2'b11) begin
                     rob_busy[head] <= 1'b0;
                     if(rob_rd[head] != 0) begin
@@ -195,7 +201,12 @@ module ROB(
                         end
                         num_out <= head;
                     end
-                    head <= head + 1;
+                    if(head != 7) begin
+                        head <= head + 1;
+                    end
+                    else begin
+                        head <= 1;
+                    end
                     if(rob_op[head] == JALR || rob_op[head] == JAL_C) begin
                         branch_taken <= 0;
                         pc_ready <= 0;
@@ -232,7 +243,12 @@ module ROB(
                         rd_out <= 0;
                         value_out <= 0;
                         num_out <= head;
-                        head <= head + 1;
+                        if(head != 7) begin
+                            head <= head + 1;
+                        end
+                        else begin
+                            head <= 1;
+                        end
                         pc_ready <= 0;
                         branch_taken <= 1;
                         jalr_ready <= 0;
