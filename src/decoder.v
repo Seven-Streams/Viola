@@ -331,6 +331,22 @@ module Decoder(
                                 rs2_tmp <= 0;
                                 has_imm_tmp <= 1;
                             end
+                            3'b010:begin
+                                op_tmp <= ADD;
+                                rd_tmp <= instruction[11:7];
+                                rs1_tmp <= 0;
+                                rs2_tmp <= 0;
+                                has_imm_tmp <= 1;
+                                value[0] = instruction[12];
+                                value[1] = instruction[6:2];
+                                if(value[0] == 0) begin
+                                    value_tmp = value[1];
+                                end else begin
+                                    value_tmp[4:0] = value[1][4:0];
+                                    value_tmp[31:5] = 27'h7ffffff;
+                                end
+                                imm_tmp <= value_tmp;
+                            end
                             3'b011: begin
                                 if(instruction[11:7] == 5'b00010) begin
                                     op_tmp <= ADD;
