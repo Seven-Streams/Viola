@@ -151,7 +151,7 @@ module IC(
                         shooted <= 1;
                     end
                     else begin
-                        if(data[1:0] == 2'b01 && data[15:13] == 3'b001) begin
+                        if(data[1:0] == 2'b01 && (data[15:13] == 3'b001 || data[15:13] == 3'b101)) begin
                             value[0] = data[12];
                             value[0] = value[0] << 1;
                             value[0] = value[0] + data[8];

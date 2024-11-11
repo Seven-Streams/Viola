@@ -294,8 +294,8 @@ module Decoder(
                                     imm_tmp <= value_tmp;
                                 end
                                 else begin
-                                    imm_tmp[31:12] <= 20'hfffff;
-                                    imm_tmp[11:0] <= value_tmp[11:0];
+                                    imm_tmp[31:6] <= 26'h3ffffff;
+                                    imm_tmp[5:0] <= value_tmp[5:0];
                                 end
                                 rd_tmp <= instruction[11:7];
                                 rs1_tmp <= instruction[11:7];
@@ -435,6 +435,80 @@ module Decoder(
                                     endcase
                                 end
                             end
+                            3'b101: begin
+                                op_tmp <= JAL_C;
+                                value[0] = instruction[12];
+                                value[0] = value[0] << 1;
+                                value[0] = value[0] + instruction[8];
+                                value[0] = value[0] << 2;
+                                value[0] = value[0] + instruction[10:9];
+                                value[0] = value[0] << 1;
+                                value[0] = value[0] + instruction[6];
+                                value[0] = value[0] << 1;
+                                value[0] = value[0] + instruction[7];
+                                value[0] = value[0] << 1;
+                                value[0] = value[0] + instruction[2];
+                                value[0] = value[0] << 1;
+                                value[0] = value[0] + instruction[11];
+                                value[0] = value[0] << 3;
+                                value[0] = value[0] + instruction[5:3];
+                                value_tmp = value[0] << 1;
+                                if(instruction[12] == 0) begin
+                                    imm_tmp <= value_tmp;
+                                end
+                                else begin
+                                    imm_tmp[31:12] <= 20'hfffff;
+                                    imm_tmp[11:0] <= value_tmp[11:0];
+                                end
+                                rd_tmp <= 0;
+                                rs1_tmp <= 0;
+                                rs2_tmp <= 0;
+                                has_imm_tmp <= 1;
+                            end
+                            3'b110: begin
+                                op_tmp <= BEQ;
+                                rd_tmp <= 0;
+                                rs1_tmp <= instruction[9:7] + 8;
+                                rs2_tmp <= 0;
+                                has_imm_tmp <= 0;
+                                value_tmp = instruction[6:5];
+                                value_tmp = value_tmp << 1;
+                                value_tmp = value_tmp + instruction[2];
+                                value_tmp = value_tmp << 2;
+                                value_tmp = value_tmp + instruction[11:10];
+                                value_tmp = value_tmp << 2;
+                                value_tmp = value_tmp + instruction[4:3];
+                                value_tmp = value_tmp << 1;
+                                if(instruction[12] == 0) begin
+                                    imm_tmp <= value_tmp;
+                                end
+                                else begin
+                                    imm_tmp[31:8] <= 24'hffffff;
+                                    imm_tmp[7:0] <= value_tmp[7:0];
+                                end
+                            end
+                            3'b111: begin
+                                op_tmp <= BNE;
+                                rd_tmp <= 0;
+                                rs1_tmp <= instruction[9:7] + 8;
+                                rs2_tmp <= 0;
+                                has_imm_tmp <= 0;
+                                value_tmp = instruction[6:5];
+                                value_tmp = value_tmp << 1;
+                                value_tmp = value_tmp + instruction[2];
+                                value_tmp = value_tmp << 2;
+                                value_tmp = value_tmp + instruction[11:10];
+                                value_tmp = value_tmp << 2;
+                                value_tmp = value_tmp + instruction[4:3];
+                                value_tmp = value_tmp << 1;
+                                if(instruction[12] == 0) begin
+                                    imm_tmp <= value_tmp;
+                                end
+                                else begin
+                                    imm_tmp[31:8] <= 24'hffffff;
+                                    imm_tmp[7:0] <= value_tmp[7:0];
+                                end
+                            end
                         endcase
                     end
                     2'b00: begin
@@ -495,7 +569,8 @@ module Decoder(
                                         rs1_tmp <= instruction[11:7];
                                         rs2_tmp <= instruction[6:2];
                                         has_imm_tmp <= 0;
-                                    end else begin
+                                    end
+                                    else begin
                                         op_tmp <= ADD;
                                         rd_tmp <= instruction[11:7];
                                         rs1_tmp <= instruction[6:2];
