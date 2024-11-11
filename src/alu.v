@@ -26,9 +26,12 @@ module ALU(
                NE = 5'b01100,
                GEU = 5'b01101,
                JAL = 5'b10000,
-               JALR = 5'b10001;
+               JALR = 5'b10001,
+               JAL_C = 5'b11100;
     always @(posedge clk) begin
         case(op)
+            JAL_C:
+                tmp <= value_1 + value_2;
             JAL:
                 tmp <= value_1 + value_2;
             JALR:
@@ -70,7 +73,7 @@ module ALU(
             des <= des_input;
             result <= tmp;
             end else begin
-                des <= 3'b0;
+                des <= 0;
             end
     end
 endmodule
