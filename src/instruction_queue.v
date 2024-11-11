@@ -45,7 +45,7 @@ module IQ(
             rs1_buffer[init] = 0;
             rs2_buffer[init] = 0;
             rd_buffer[init] = 0;
-            imm_buffer[init] = 32'b0;
+            imm_buffer[init] = 0;
             has_imm_buffer[init] = 0;
             busy[init] = 0;
         end
@@ -72,6 +72,7 @@ module IQ(
         iq_full = 0;
     end
 
+    reg check;
 
     always@(posedge clk) begin
         if(!rst) begin
@@ -89,6 +90,7 @@ module IQ(
     end
 
     always@(negedge clk) begin
+        check = busy[head];
         if(!rst) begin
             iq_full <= (head == (tail + 1));
             op_out <= op_tmp;
@@ -116,7 +118,7 @@ module IQ(
         else begin
             shooted <= 0;
             head = 0;
-            tail = 1;
+            tail = 0;
             busy[0] = 0;
             busy[1] = 0;
             busy[2] = 0;
