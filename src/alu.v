@@ -30,10 +30,6 @@ module ALU(
                JAL_C = 5'b11100;
     always @(posedge clk) begin
         case(op)
-            JAL_C:
-                tmp <= value_1 + value_2;
-            JAL:
-                tmp <= value_1 + value_2;
             JALR:
                 tmp <= value_1 + value_2;
             ADD:

@@ -144,7 +144,7 @@ module ROB(
             rob_full <= (head == (tail + 2) || (head == 1 && tail == 6) || head == (tail + 1));
             if(to_shoot) begin
                 last_ins = (tail == 1) ? 7 : (tail - 1);
-                if(op == LUI || op == AUIPC) begin
+                if(op == LUI || op == AUIPC || op == JAL || op == JAL_C) begin
                     op_out <= 5'b11111;
                     rob_ready[last_ins] <= 2'b11;
                 end

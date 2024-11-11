@@ -135,6 +135,8 @@ module LSB(
             end
             if(buffer_busy[head] != 0) begin
                 can_be_load <= buffer_rob_number[head];
+            end else begin
+                can_be_load <= 0;
             end
         end
     end
