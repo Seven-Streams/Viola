@@ -512,34 +512,51 @@ module Decoder(
                         endcase
                     end
                     2'b00: begin
-                        if(instruction[15:13] == 3'b010) begin
-                            op_tmp <= LW;
-                            rd_tmp <= instruction[4:2] + 8;
-                            rs1_tmp <= instruction[9:7] + 8;
-                            rs2_tmp <= 0;
-                            value[0] = instruction[12:10];
-                            value[0] = value[0] << 3;
-                            value[1] = instruction[5];
-                            value[1] = value[1] << 6;
-                            value[2] = instruction[6];
-                            value[2] = value[2] << 2;
-                            imm_tmp <= value[0] + value[1] + value[2];
-                            has_imm_tmp <= 1;
-                        end
-                        else begin
-                            op_tmp <= SW;
-                            rs1_tmp <= instruction[9:7] + 8;
-                            rs2_tmp <= instruction[4:2] + 8;
-                            value[0] = instruction[12:10];
-                            value[0] = value[0] << 3;
-                            value[1] = instruction[5];
-                            value[1] = value[1] << 6;
-                            value[2] = instruction[6];
-                            value[2] = value[2] << 2;
-                            imm_tmp <= value[0] + value[1] + value[2];
-                            rd_tmp <= 0;
-                            has_imm_tmp <= 1;
-                        end
+                        case(instruction[15:13])
+                            3'b010: begin
+                                op_tmp <= LW;
+                                rd_tmp <= instruction[4:2] + 8;
+                                rs1_tmp <= instruction[9:7] + 8;
+                                rs2_tmp <= 0;
+                                value[0] = instruction[12:10];
+                                value[0] = value[0] << 3;
+                                value[1] = instruction[5];
+                                value[1] = value[1] << 6;
+                                value[2] = instruction[6];
+                                value[2] = value[2] << 2;
+                                imm_tmp <= value[0] + value[1] + value[2];
+                                has_imm_tmp <= 1;
+                            end
+                            3'b110: begin
+                                op_tmp <= SW;
+                                rs1_tmp <= instruction[9:7] + 8;
+                                rs2_tmp <= instruction[4:2] + 8;
+                                value[0] = instruction[12:10];
+                                value[0] = value[0] << 3;
+                                value[1] = instruction[5];
+                                value[1] = value[1] << 6;
+                                value[2] = instruction[6];
+                                value[2] = value[2] << 2;
+                                imm_tmp <= value[0] + value[1] + value[2];
+                                rd_tmp <= 0;
+                                has_imm_tmp <= 1;
+                            end
+                            3'b000: begin
+                                op_tmp <= ADD;
+                                rd_tmp <= instruction[4:2] + 8;
+                                rs1_tmp <= 2;
+                                value_tmp = instruction[10:7];
+                                value_tmp = value_tmp << 2;
+                                value_tmp = value_tmp + instruction[12:11];
+                                value_tmp = value_tmp << 1;
+                                value_tmp = value_tmp + instruction[5];
+                                value_tmp = value_tmp << 1;
+                                value_tmp = value_tmp + instruction[6];
+                                value_tmp = value_tmp << 2;
+                                imm_tmp <= value_tmp;
+                                has_imm_tmp <= 1;
+                            end
+                        endcase
                     end
                     2'b10: begin
                         case(instruction[15:13])

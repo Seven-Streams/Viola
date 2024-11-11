@@ -159,7 +159,7 @@ module ROB(
                 end
                 value1_out <= value1_rf;
                 query1_out <= query1_rf;
-                if(has_imm && (rob_op[last_ins] != SB) && (rob_op[last_ins] != SH) && (rob_op[last_ins] != SW)) begin
+                if(has_imm && (!((rob_op[last_ins] >= SB) && (rob_op[last_ins] <= BLTU))) && (!((rob_op[last_ins] >= BEQ) && (rob_op[last_ins] <= BGEU)))) begin
                     value2_out <= imm;
                     query2_out <= 0;
                 end
