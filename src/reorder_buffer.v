@@ -42,6 +42,7 @@ module ROB(
     reg [1:0]check;
     reg [2:0] head;
     reg [31:0]value_check;
+    reg busy_check;
     reg to_shoot;
     reg [4:0] rob_op[7:0];
     reg [4:0] rob_rd[7:0];
@@ -133,6 +134,7 @@ module ROB(
 
     integer i;
     always@(negedge clk) begin
+        busy_check = rob_busy[2];
         value_check = rob_value[head];
         if(!rst) begin
             if(head == 0) begin
@@ -172,13 +174,6 @@ module ROB(
                 op_out <= 5'b11111;
                 target <= 0;
             end
-            if(rob_ready[head] == 2'b01) begin
-                ls_commit <= 1;
-                ls_num_out <= head;
-            end
-            else begin
-                ls_commit <= 0;
-            end
             if(rob_busy[head] == 0) begin
                 commit <= 0;
                 pc_ready <= 0;
@@ -186,8 +181,16 @@ module ROB(
                 jalr_ready <= 0;
             end
             else begin
+                if(rob_ready[head] == 2'b01) begin
+                    ls_commit <= 1;
+                    ls_num_out <= head;
+                end
+                else begin
+                    ls_commit <= 0;
+                end
                 if(rob_ready[head] == 2'b11) begin
                     rob_busy[head] <= 1'b0;
+                    rob_ready[head] <= 2'b00;
                     if(rob_rd[head] != 0) begin
                         commit <= 1;
                         rd_out <= rob_rd[head];
@@ -221,7 +224,7 @@ module ROB(
                         if(rob_op[head] == BNE || rob_op[head] == BEQ || rob_op[head] == BLT || rob_op[head] == BLTU || rob_op[head] == BGE || rob_op[head] == BGEU) begin
                             pc_ready <= 0;
                             branch_taken <= 1;
-                            branch_pc <= rob_value[head];
+                            branch_pc <= rob_value[head] + now_pc;
                         end
                         else begin
                             branch_taken <= 0;
@@ -243,6 +246,7 @@ module ROB(
                 else begin
                     if(rob_ready[head] == 2'b10) begin
                         commit <= 1;
+                        rob_busy[head] <= 1'b0;
                         rd_out <= 0;
                         value_out <= 0;
                         num_out <= head;
@@ -281,6 +285,7 @@ module ROB(
             op_out <= 5'b11111;
             for(i = 1; i < 8; i++) begin
                 rob_busy[i] = 1'b0;
+                rob_ready[i] = 2'b00;
             end
         end
     end
