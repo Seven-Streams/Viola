@@ -43,13 +43,11 @@ module IC(
             data_tmp <= data;
             ready <= 1;
         end
-        if(pc_ready) begin
-            pc <= nxt_pc;
-        end
         if(branch_taken) begin
             if((branch_pc - pc) == 4) begin
                 pc <= pc + 4; //OK.
                 rst <= 0;
+                head <= head + 1;
             end
             else begin
                 pc <= branch_pc;
@@ -66,6 +64,7 @@ module IC(
             predicted_pc <= jalr_addr;
             shooted <= 0;
             ready <= 0;
+            head <= head + 1;
         end
         if(pc_ready) begin
             rst <= 0;
@@ -86,7 +85,9 @@ module IC(
     reg[31:0] value1;
     reg[31:0] value2;
     reg[31:0] value3;
+    reg check;
     always@(negedge clk) begin
+        check = ic_size[head];
         if((!lsb_full) && (!iq_full) && (!shooted) && (!ready)) begin
             asking <= 1;
             addr <= predicted_pc;
@@ -144,7 +145,7 @@ module IC(
                     shooted <= 1;
                 end
                 else begin
-                    if(data[1:0] == 2'b10 && data[15:13] == 3'b001) begin
+                    if(data[1:0] == 2'b01 && data[15:13] == 3'b001) begin
                         value[0] = data[12];
                         value[0] = value[0] << 1;
                         value[0] = value[0] + data[8];
@@ -165,8 +166,9 @@ module IC(
                             predicted_pc <= predicted_pc + value[0];
                         end
                         else begin
-                            pc_tmp = value[0];
+                            pc_tmp[11:0] = value[0][11:0];
                             pc_tmp[31:12] = 20'hfffff;
+                            predicted_pc <= predicted_pc + pc_tmp;
                         end
                         shooted <= 0;
                     end

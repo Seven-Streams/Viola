@@ -198,7 +198,9 @@ module ROB(
                             if(rob_op[head] == JAL_C) begin
                                 value_out <= (now_pc + 2);
                             end
-                            value_out <= rob_value[head];
+                            else begin
+                                value_out <= rob_value[head];
+                            end
                         end
                         num_out <= head;
                     end
@@ -208,7 +210,7 @@ module ROB(
                     else begin
                         head <= 1;
                     end
-                    if(rob_op[head] == JALR || rob_op[head] == JAL_C) begin
+                    if(rob_op[head] == JALR) begin
                         branch_taken <= 0;
                         pc_ready <= 0;
                         jalr_ready <= 1;

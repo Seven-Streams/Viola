@@ -82,7 +82,8 @@ module Decoder(
                         if(value_tmp[19] == 1) begin
                             imm_tmp[31:20] <= 12'hfff;
                             imm_tmp[19:0] <= value_tmp[19:0];
-                        end else begin
+                        end
+                        else begin
                             imm_tmp <= value_tmp;
                         end
                         rd_tmp <= instruction[11:7];
@@ -331,7 +332,7 @@ module Decoder(
                                 rs2_tmp <= 0;
                                 has_imm_tmp <= 1;
                             end
-                            3'b010:begin
+                            3'b010: begin
                                 op_tmp <= ADD;
                                 rd_tmp <= instruction[11:7];
                                 rs1_tmp <= 0;
@@ -341,7 +342,8 @@ module Decoder(
                                 value[1] = instruction[6:2];
                                 if(value[0] == 0) begin
                                     value_tmp = value[1];
-                                end else begin
+                                end
+                                else begin
                                     value_tmp[4:0] = value[1][4:0];
                                     value_tmp[31:5] = 27'h7ffffff;
                                 end
@@ -487,14 +489,22 @@ module Decoder(
                                     has_imm_tmp <= 0;
                                 end
                                 else begin
-                                    op_tmp <= ADD;
-                                    rd_tmp <= instruction[11:7];
-                                    rs1_tmp <= instruction[11:7];
-                                    rs2_tmp <= instruction[6:2];
-                                    has_imm_tmp <= 0;
+                                    if(instruction[12] == 1) begin
+                                        op_tmp <= ADD;
+                                        rd_tmp <= instruction[11:7];
+                                        rs1_tmp <= instruction[11:7];
+                                        rs2_tmp <= instruction[6:2];
+                                        has_imm_tmp <= 0;
+                                    end else begin
+                                        op_tmp <= ADD;
+                                        rd_tmp <= instruction[11:7];
+                                        rs1_tmp <= instruction[6:2];
+                                        rs2_tmp <= 0;
+                                        has_imm_tmp <= 0;
+                                    end
                                 end
                             end
-                            3'b010:begin
+                            3'b010: begin
                                 op_tmp <= LW;
                                 rd_tmp <= instruction[11:7];
                                 value[0] = instruction[12];
@@ -508,7 +518,7 @@ module Decoder(
                                 rs1_tmp <= 2;
                                 has_imm_tmp <= 1;
                             end
-                            3'b110:begin
+                            3'b110: begin
                                 op_tmp <= SW;
                                 rs1_tmp <= 2;
                                 rs2_tmp <= instruction[6:2];
