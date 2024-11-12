@@ -31,9 +31,9 @@ module ALU(
     always @(posedge clk) begin
         case(op)
             LT:
-                tmp <= (value_1 < value_2) ? 1 : 0;
+                tmp <= ($signed(value_1) < $signed(value_2)) ? 1 : 0;
             LTU:
-                tmp <= ($unsigned(value_1) < $unsigned(value_2)) ? 1 : 0;
+                tmp <= (value_1 < value_2) ? 1 : 0;
             JALR:
                 tmp <= value_1 + value_2;
             ADD:
@@ -47,7 +47,7 @@ module ALU(
             SRL:
                 tmp <= value_1 >> value_2[4:0];
             SLT:
-                tmp <= (value_1 < value_2) ? 1 : 0;
+                tmp <= ($signed(value_1) < $signed(value_2)) ? 1 : 0;
             SLTU:
                 tmp <= ($unsigned(value_1) < $unsigned(value_2)) ? 1 : 0;
             SRA:
@@ -59,7 +59,7 @@ module ALU(
             EQ:
                 tmp <= (value_1 == value_2) ? 1 : 0;
             GE:
-                tmp <= (value_1 >= value_2) ? 1 : 0;
+                tmp <= ($signed(value_1) >= $signed(value_2)) ? 1 : 0;
             NE:
                 tmp <= (value_1 != value_2) ? 1 : 0;
             GEU:
