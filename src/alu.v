@@ -25,11 +25,15 @@ module ALU(
                GE  = 5'b01011,
                NE = 5'b01100,
                GEU = 5'b01101,
-               JAL = 5'b10000,
                JALR = 5'b10001,
-               JAL_C = 5'b11100;
+               LT = 5'b11010,
+               LTU = 5'b11011;
     always @(posedge clk) begin
         case(op)
+            LT:
+                tmp <= (value_1 < value_2) ? 1 : 0;
+            LTU:
+                tmp <= ($unsigned(value_1) < $unsigned(value_2)) ? 1 : 0;
             JALR:
                 tmp <= value_1 + value_2;
             ADD:
@@ -65,11 +69,12 @@ module ALU(
         endcase
     end
     always @(negedge clk) begin
-            if(!rst) begin
+        if(!rst) begin
             des <= des_input;
             result <= tmp;
-            end else begin
-                des <= 0;
-            end
+        end
+        else begin
+            des <= 0;
+        end
     end
 endmodule
