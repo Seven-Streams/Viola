@@ -77,7 +77,8 @@ IC ic(
   .pc_ready(rob.pc_ready),
   .nxt_pc(rob.nxt_pc),
   .lsb_full(lsb.if_full),
-  .iq_full(iq.iq_full)
+  .iq_full(iq.iq_full),
+  .branch_not_taken(rob.branch_not_taken)
 );
 
 Decoder decoder(

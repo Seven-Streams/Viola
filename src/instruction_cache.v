@@ -3,6 +3,7 @@ module IC(
         input wire [31:0] data,
         input wire data_ready,
         input wire branch_taken,
+        input wire branch_not_taken,
         input wire [31:0] branch_pc,
         input wire [31:0] jalr_addr,
         input wire jalr_ready,
@@ -24,9 +25,10 @@ module IC(
     reg [0:0] ic_size[31:0];
     reg [4:0] head;
     reg [4:0] tail;
+    reg [31:0] cache[31:0][1:0];
     integer value[0:0];
+    integer i;
     reg [31:0] pc_tmp;
-
     initial begin
         ready = 0;
         pc = 0;
@@ -36,6 +38,10 @@ module IC(
         rst = 0;
         head = 0;
         tail = 0;
+        for(i = 0; i < 32; i = i + 1) begin
+            cache[i][0] = 1;
+            cache[i][1] = 0;
+        end
     end
 
     always@(posedge clk) begin
@@ -48,19 +54,17 @@ module IC(
                 ready <= 1;
             end
             if(branch_taken) begin
-                if((branch_pc - pc) == 4) begin
-                    pc <= pc + 4; //OK.
-                    rst <= 0;
-                    head <= head + 1;
-                end
-                else begin
-                    pc <= branch_pc;
-                    predicted_pc <= branch_pc;
-                    rst <= 1;
-                    head <= 0;
-                    tail <= 0;
-                    shooted <= 0;
-                end
+                pc <= branch_pc;
+                ready <= 0;
+                head <= head + 1;
+            end
+            if(branch_not_taken) begin
+                pc <= pc + (ic_size[head] == 1 ? 4 : 2);
+                predicted_pc <= pc + (ic_size[head] == 1 ? 4 : 2);
+                rst <= 1;
+                head <= 0;
+                tail <= 0;
+                shooted <= 0;
             end
             if(jalr_ready) begin
                 rst <= 0;
@@ -81,7 +85,7 @@ module IC(
                     head <= head + 1;
                 end
             end
-            if((!branch_taken) && (!jalr_ready) && (!pc_ready)) begin
+            if((!branch_not_taken) && (!jalr_ready) && (!pc_ready)) begin
                 rst <= 0;
             end
         end
@@ -95,6 +99,7 @@ module IC(
         if(!rst) begin
             check = ic_size[head];
             if((!lsb_full) && (!iq_full) && (!shooted) && (!ready)) begin
+                //TODO:Check the cache.Set addr but not set asking.
                 asking <= 1;
                 addr <= predicted_pc;
                 shooted <= 1;
@@ -103,6 +108,7 @@ module IC(
                 asking <= 0;
             end
             if(ready) begin
+                //TODO:Update the cache.
                 instruction <= data_tmp;
                 ready <= 0;
                 if(data_tmp[1:0] == 2'b11) begin
@@ -132,7 +138,24 @@ module IC(
                                 pc_tmp[31:20] = 12'hfff;
                                 predicted_pc <= predicted_pc + pc_tmp;
                             end
-
+                            shooted <= 0;
+                        end
+                        7'b1100011: begin
+                            value0 = data_tmp[31];
+                            value1 = data_tmp[7];
+                            value1 = value1 << 11;
+                            value2 = data_tmp[30:25];
+                            value2 = value2 << 5;
+                            value3 = data_tmp[11:8];
+                            value3 = value3 << 1;
+                            if(value0 == 0) begin
+                                predicted_pc <= predicted_pc + value0 + value1 + value2 + value3;
+                            end
+                            else begin
+                                pc_tmp = value1 + value2 + value3;
+                                pc_tmp[31:12] = 20'hfffff;
+                                predicted_pc <= predicted_pc + pc_tmp;
+                            end
                             shooted <= 0;
                         end
                         7'b1100111: begin
@@ -147,28 +170,28 @@ module IC(
                 else begin
                     ic_size[tail] <= 0;
                     tail <= tail + 1;
-                    if(data[1:0] == 2'b10 && data[15:13] == 3'b100 && data[6:2] == 5'b00000) begin
+                    if(data_tmp[1:0] == 2'b10 && data_tmp[15:13] == 3'b100 && data_tmp[6:2] == 5'b00000) begin
                         shooted <= 1;
                     end
                     else begin
-                        if(data[1:0] == 2'b01 && (data[15:13] == 3'b001 || data[15:13] == 3'b101)) begin
-                            value[0] = data[12];
+                        if(data_tmp[1:0] == 2'b01 && (data_tmp[15:13] == 3'b001 || data_tmp[15:13] == 3'b101)) begin
+                            value[0] = data_tmp[12];
                             value[0] = value[0] << 1;
-                            value[0] = value[0] + data[8];
+                            value[0] = value[0] + data_tmp[8];
                             value[0] = value[0] << 2;
-                            value[0] = value[0] + data[10:9];
+                            value[0] = value[0] + data_tmp[10:9];
                             value[0] = value[0] << 1;
-                            value[0] = value[0] + data[6];
+                            value[0] = value[0] + data_tmp[6];
                             value[0] = value[0] << 1;
-                            value[0] = value[0] + data[7];
+                            value[0] = value[0] + data_tmp[7];
                             value[0] = value[0] << 1;
-                            value[0] = value[0] + data[2];
+                            value[0] = value[0] + data_tmp[2];
                             value[0] = value[0] << 1;
-                            value[0] = value[0] + data[11];
+                            value[0] = value[0] + data_tmp[11];
                             value[0] = value[0] << 3;
-                            value[0] = value[0] + data[5:3];
+                            value[0] = value[0] + data_tmp[5:3];
                             value[0] = value[0] << 1;
-                            if(data[12] == 0) begin
+                            if(data_tmp[12] == 0) begin
                                 predicted_pc <= predicted_pc + value[0];
                             end
                             else begin
@@ -179,8 +202,30 @@ module IC(
                             shooted <= 0;
                         end
                         else begin
-                            predicted_pc <= predicted_pc + 2;
-                            shooted <= 0;
+                            if(data[1:0] == 2'b01 && (data[15:13] == 3'b110 || data[15:13] == 3'b111)) begin
+                                value0 = data_tmp[6:5];
+                                value0 = value0 << 1;
+                                value0 = value0 + data_tmp[2];
+                                value0 = value0 << 2;
+                                value0 = value0 + data_tmp[11:10];
+                                value0 = value0 << 2;
+                                value0 = value0 + data_tmp[4:3];
+                                value0 = value0 << 1;
+                                if(data_tmp[12] == 0) begin
+                                    predicted_pc <= predicted_pc + value0;
+                                    shooted <= 0;
+                                end
+                                else begin
+                                    pc_tmp[7:0] = value0[7:0];
+                                    pc_tmp[31:8] = 24'hffffff;
+                                    predicted_pc <= predicted_pc + pc_tmp;
+                                    shooted <= 0;
+                                end
+                            end
+                            else begin
+                                predicted_pc <= predicted_pc + 2;
+                                shooted <= 0;
+                            end
                         end
                     end
                 end

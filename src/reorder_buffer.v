@@ -36,7 +36,8 @@ module ROB(
         output reg[31:0] nxt_pc,
         output reg[2:0] tail,
         output reg[2:0] target,
-        output reg[31:0] imm_out
+        output reg[31:0] imm_out,
+        output reg branch_not_taken
     );
     reg[2:0] last_ins;
     reg [1:0]check;
@@ -50,6 +51,10 @@ module ROB(
     reg [1:0]rob_ready[7:0];//00:executing, 01:can be load_store committed, 10: branch not taken, 11: can be committed
     reg [31:0]rob_value[7:0];
     initial begin
+        branch_taken = 0;
+        jalr_ready = 0;
+        pc_ready = 0;
+        branch_not_taken = 0;
         head = 1;
         tail = 1;
         rob_full = 0;
@@ -178,6 +183,7 @@ module ROB(
                 commit <= 0;
                 pc_ready <= 0;
                 branch_taken <= 0;
+                branch_not_taken <= 0;
                 jalr_ready <= 0;
             end
             else begin
@@ -189,6 +195,7 @@ module ROB(
                     ls_commit <= 0;
                 end
                 if(rob_ready[head] == 2'b11) begin
+                    branch_not_taken <= 0;
                     rob_busy[head] <= 1'b0;
                     rob_ready[head] <= 2'b00;
                     if(rob_rd[head] != 0) begin
@@ -214,6 +221,7 @@ module ROB(
                         head <= 1;
                     end
                     if(rob_op[head] == JALR) begin
+                        branch_not_taken <= 0;
                         branch_taken <= 0;
                         pc_ready <= 0;
                         jalr_ready <= 1;
@@ -223,11 +231,13 @@ module ROB(
                         jalr_ready <= 0;
                         if(rob_op[head] == BNE || rob_op[head] == BEQ || rob_op[head] == BLT || rob_op[head] == BLTU || rob_op[head] == BGE || rob_op[head] == BGEU) begin
                             pc_ready <= 0;
+                            branch_not_taken <= 0;
                             branch_taken <= 1;
                             branch_pc <= rob_value[head] + now_pc;
                         end
                         else begin
                             branch_taken <= 0;
+                            branch_not_taken <= 0;
                             pc_ready <= 1;
                             if(rob_op[head] == JAL || rob_op[head] == JAL_C) begin
                                 nxt_pc <= (rob_value[head] + now_pc);
@@ -256,12 +266,14 @@ module ROB(
                         else begin
                             head <= 1;
                         end
-                        pc_ready <= 1;
+                        pc_ready <= 0;
                         branch_taken <= 0;
                         jalr_ready <= 0;
+                        branch_not_taken <= 1;
                         nxt_pc <= 32'hffffffff;
                     end
                     else begin
+                        branch_not_taken <= 0;
                         commit <= 0;
                         pc_ready <= 0;
                         branch_taken <= 0;
