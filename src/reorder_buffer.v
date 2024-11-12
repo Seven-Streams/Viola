@@ -256,10 +256,10 @@ module ROB(
                         else begin
                             head <= 1;
                         end
-                        pc_ready <= 0;
-                        branch_taken <= 1;
+                        pc_ready <= 1;
+                        branch_taken <= 0;
                         jalr_ready <= 0;
-                        branch_pc <= (now_pc + 4);
+                        nxt_pc <= 32'hffffffff;
                     end
                     else begin
                         commit <= 0;

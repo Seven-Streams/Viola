@@ -51,6 +51,8 @@ module LSB(
                BLT = 5'b11010,
                BLTU = 5'b11011;
     reg check;
+    reg ra_check;
+    reg [4:0]op_check;
     reg [2:0]head_check;
     reg [4:0]buffer_op[7:0];
     reg [2:0]buffer_rob_number[7:0];
@@ -110,6 +112,7 @@ module LSB(
     end
     integer i;
     always@(posedge clk) begin
+        op_check = buffer_op[head];
         head_check = buffer_rob_number[head];
         if(!rst) begin
             if(op != 5'b11111) begin
@@ -142,6 +145,7 @@ module LSB(
     end
 
     always@(negedge clk) begin
+        ra_check = (ram_addr == 32'h0001fffc);
         check = buffer_ready[head];
         if(!rst) begin
             if(head == (tail + 2) || (head == (tail + 1))) begin
@@ -157,6 +161,7 @@ module LSB(
                 if_full <= 0;
             end
             if(!executing) begin
+                ram_writing <= 0;
                 mem_ready <= 0;
                 ins_ready <= 0;
                 output_number <= 0;

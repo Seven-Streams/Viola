@@ -359,7 +359,7 @@ module Decoder(
                                     value[0] = value[0] << 1;
                                     value[0] = value[0] + instruction[5];
                                     value[0] = value[0] << 1;
-                                    value[0] = value[0] + instruction[3];
+                                    value[0] = value[0] + instruction[2];
                                     value[0] = value[0] << 1;
                                     value[0] = value[0] + instruction[6];
                                     value[0] = value[0] << 4;

@@ -15,6 +15,7 @@ module RF(
         output reg [2:0] query1,
         output reg [2:0] query2
     );
+    reg [31:0]sp;
     reg [31:0]check;
     reg [2:0]dependency[31:0];
     reg [31:0]regs[31:0];
