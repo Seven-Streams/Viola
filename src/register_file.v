@@ -16,7 +16,9 @@ module RF(
         output reg [2:0] query2
     );
     reg [31:0]sp;
-    reg [31:0]check;
+    reg [31:0]ra;
+    reg [31:0]t0;
+    reg [31:0]a4;
     reg [2:0]dependency[31:0];
     reg [31:0]regs[31:0];
     reg [4:0] rs1_tmp;
@@ -37,7 +39,10 @@ module RF(
         end
     end
     always@(posedge clk) begin
-        check = regs[2];
+        sp = regs[2];
+        ra = regs[1];
+        t0 = regs[5];
+        a4 = regs[14];
         rs1_tmp = rs1;
         rs2_tmp = rs2;
         rd_tmp = rd;

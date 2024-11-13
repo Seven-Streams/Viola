@@ -50,7 +50,9 @@ module ROB(
     reg [0:0]rob_busy[7:0];
     reg [1:0]rob_ready[7:0];//00:executing, 01:can be load_store committed, 10: branch not taken, 11: can be committed
     reg [31:0]rob_value[7:0];
+    reg [2:0] cnt;
     initial begin
+        cnt = 0;
         branch_taken = 0;
         jalr_ready = 0;
         pc_ready = 0;
@@ -108,6 +110,7 @@ module ROB(
                 else begin
                     tail <= 1;
                 end
+                cnt = cnt + 1;
                 to_shoot <= 1;
             end
             else begin
@@ -148,7 +151,7 @@ module ROB(
             if(tail == 0) begin
                 tail = 1;
             end
-            rob_full <= (head == (tail + 2) || (head == 1 && tail == 6) || head == (tail + 1));
+            rob_full = (cnt >= 6);
             if(to_shoot) begin
                 last_ins = (tail == 1) ? 7 : (tail - 1);
                 if(op == LUI || op == AUIPC || op == JAL || op == JAL_C) begin
@@ -162,15 +165,35 @@ module ROB(
                 if(op == LUI) begin
                     rob_value[last_ins] <= imm;
                 end
-                value1_out <= value1_rf;
-                query1_out <= query1_rf;
+                if(query1_rf == 0) begin
+                    value1_out <= value1_rf;
+                    query1_out <= query1_rf;
+                end
+                else if(rob_ready[query1_rf] == 2'b11) begin
+                    value1_out <= rob_value[query1_rf];
+                    query1_out <= 0;
+                end
+                else begin
+                    value1_out <= 0;
+                    query1_out <= query1_rf;
+                end
                 if(has_imm && (!((rob_op[last_ins] >= SB) && (rob_op[last_ins] <= BLTU))) && (!((rob_op[last_ins] >= BEQ) && (rob_op[last_ins] <= BGEU)))) begin
                     value2_out <= imm;
                     query2_out <= 0;
                 end
                 else begin
-                    value2_out <= value2_rf;
-                    query2_out <= query2_rf;
+                    if(query2_rf == 0) begin
+                        value2_out <= value2_rf;
+                        query2_out <= query2_rf;
+                    end
+                    else if(rob_ready[query2_rf] == 2'b11) begin
+                        value2_out <= rob_value[query2_rf];
+                        query2_out <= 0;
+                    end
+                    else begin
+                        value2_out <= 0;
+                        query2_out <= query2_rf;
+                    end
                 end
                 imm_out <= imm;
                 target <= last_ins;
@@ -220,6 +243,7 @@ module ROB(
                     else begin
                         head <= 1;
                     end
+                    cnt = cnt - 1;
                     if(rob_op[head] == JALR) begin
                         branch_not_taken <= 0;
                         branch_taken <= 0;
@@ -266,6 +290,7 @@ module ROB(
                         else begin
                             head <= 1;
                         end
+                        cnt = cnt - 1;
                         pc_ready <= 0;
                         branch_taken <= 0;
                         jalr_ready <= 0;
@@ -283,6 +308,7 @@ module ROB(
             end
         end
         else begin
+            cnt = 0;
             commit = 0;
             ls_commit = 0;
             branch_taken = 0;
