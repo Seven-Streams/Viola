@@ -120,6 +120,12 @@ module IQ(
             end
         end
         else begin
+            op_tmp = 5'b11111;
+            rs1_tmp = 0;
+            rs2_tmp = 0;
+            rd_tmp = 0;
+            imm_tmp = 0;
+            has_imm_tmp = 0;
             shooted <= 0;
             head = 0;
             tail = 0;
