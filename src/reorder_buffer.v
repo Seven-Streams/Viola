@@ -169,7 +169,7 @@ module ROB(
                     value1_out <= value1_rf;
                     query1_out <= query1_rf;
                 end
-                else if(rob_ready[query1_rf] == 2'b11) begin
+                else if(rob_ready[query1_rf] == 2'b11 || rob_ready[query1_rf] == 2'b10) begin
                     value1_out <= rob_value[query1_rf];
                     query1_out <= 0;
                 end
@@ -186,7 +186,7 @@ module ROB(
                         value2_out <= value2_rf;
                         query2_out <= query2_rf;
                     end
-                    else if(rob_ready[query2_rf] == 2'b11) begin
+                    else if(rob_ready[query2_rf] == 2'b11 || rob_ready[query2_rf] == 2'b10) begin
                         value2_out <= rob_value[query2_rf];
                         query2_out <= 0;
                     end
