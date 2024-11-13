@@ -19,12 +19,13 @@ module RF(
     reg [31:0]ra;
     reg [31:0]t0;
     reg [31:0]a4;
+    reg [2:0] a4_dependency;
     reg [2:0]dependency[31:0];
     reg [31:0]regs[31:0];
     reg [4:0] rs1_tmp;
     reg [4:0] rs2_tmp;
     reg [4:0] rd_tmp;
-    reg [2:0] dependency_tmp;
+    reg instruction_tmp;
     reg [31:0] value1_tmp;
     reg [31:0] value2_tmp;
     reg [2:0] query1_tmp;
@@ -39,6 +40,8 @@ module RF(
         end
     end
     always@(posedge clk) begin
+        instruction_tmp = instruction;
+        a4_dependency = dependency[14];
         sp = regs[2];
         ra = regs[1];
         t0 = regs[5];
@@ -46,11 +49,7 @@ module RF(
         rs1_tmp = rs1;
         rs2_tmp = rs2;
         rd_tmp = rd;
-        dependency_tmp = dependency_num;
         if(!rst) begin
-            if(instruction && (rd != 0)) begin
-                dependency[rd] <= dependency_num;
-            end
             if(commit) begin
                 if(dependency[reg_num] == num_in) begin
                     dependency[reg_num] = 0;
@@ -84,6 +83,11 @@ module RF(
     end
     integer i;
     always@(negedge clk) begin
+        if(!rst) begin
+            if(instruction_tmp && (rd != 0)) begin
+                dependency[rd] <= dependency_num;
+            end
+        end
         value1 <= value1_tmp;
         value2 <= value2_tmp;
         query1 <= query1_tmp;

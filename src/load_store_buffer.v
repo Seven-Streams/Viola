@@ -62,6 +62,7 @@ module LSB(
     reg [31:0]if_ready[7:0];
     reg [2:0]if_head;
     reg [2:0]if_tail;
+    reg writing_flag;
 
     reg [0:0] is_writing;
     reg [2:0] executing;
@@ -104,7 +105,8 @@ module LSB(
                 buffer_data[rob_number] <= data;
                 buffer_busy[rob_number] <= 1;
                 can_be_load <= rob_number;
-            end else begin
+            end
+            else begin
                 can_be_load <= 0;
             end
             if(new_ins) begin
@@ -137,6 +139,7 @@ module LSB(
                     is_ins <= 0;
                     if(buffer_op[now_committed] == SB || buffer_op[now_committed] == SH || buffer_op[now_committed] == SW) begin
                         is_writing <= 1;
+                        writing_flag <= 1;
                     end
                     else begin
                         is_writing <= 0;
@@ -180,7 +183,6 @@ module LSB(
             else begin
                 if(is_writing) begin
                     ins_ready <= 0;
-                    ram_writing <= 1;
                     ram_addr <= now_addr + (executing - 1);
                     case(executing)
                         1: begin
@@ -196,15 +198,23 @@ module LSB(
                             ram_data <= now_data[31:24];
                         end
                     endcase
-                    executing <= executing - 1;
                     if(executing == 1) begin
-                        now_committed <= 0;
-                        mem_ready <= 0;
-                        ram_writing <= 1;
-                        output_number <= now_committed;
-                        buffer_busy[now_committed] <= 0;
+                        if(!writing_flag) begin
+                            now_committed <= 0;
+                            mem_ready <= 0;
+                            output_number <= now_committed;
+                            buffer_busy[now_committed] <= 0;
+                            executing <= executing - 1;
+                            ram_writing <= 0;
+                        end
+                        else begin
+                            ram_writing <= 1;
+                            writing_flag <= 0;
+                        end
                     end
                     else begin
+                        executing <= executing - 1;
+                        ram_writing <= 1;
                         mem_ready <= 0;
                     end
                 end
