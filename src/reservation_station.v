@@ -12,7 +12,6 @@ module RS(
         input wire[31:0] imm_in,
         input wire[2:0] query1,
         input wire[2:0] query2,
-        input wire memory_busy,
         output reg[4:0] alu_op,
         output reg[31:0] alu_value1,
         output reg[31:0] alu_value2,
@@ -74,12 +73,49 @@ module RS(
         busy[4] = 0;
         busy[5] = 0;
     end
+    reg [2:0] q00;
+    reg [2:0] q01;
+    reg [2:0] q10;
+    reg [2:0] q11;
+    reg [2:0] q20;
+    reg [2:0] q21;
+    reg [2:0] q30;
+    reg [2:0] q31;
+    reg [2:0] q40;
+    reg [2:0] q41;
+    reg [2:0] q50;
+    reg [2:0] q51;
+    reg busy0;
+    reg busy1;
+    reg busy2;
+    reg busy3;
+    reg busy4;
+    reg busy5;
+
     integer i;
     integer j;
     integer k;
     integer l;
     reg flag;
     always@(posedge clk) begin
+        q00 = query1_rs[0];
+        q01 = query2_rs[0];
+        q10 = query1_rs[1];
+        q11 = query2_rs[1];
+        q20 = query1_rs[2];
+        q21 = query2_rs[2];
+        q30 = query1_rs[3];
+        q31 = query2_rs[3];
+        q40 = query1_rs[4];
+        q41 = query2_rs[4];
+        q50 = query1_rs[5];
+        q51 = query2_rs[5];
+        busy0 = busy[0];
+        busy1 = busy[1];
+        busy2 = busy[2];
+        busy3 = busy[3];
+        busy4 = busy[4];
+        busy5 = busy[5];
         alu_in_tmp = alu_des_in;
         memory_in_tmp = memory_des_in;
         alu_data_tmp = alu_data;
@@ -87,21 +123,25 @@ module RS(
         if(!rst) begin
             for(j = 0; j < 6; j++) begin
                 if(busy[j]) begin
-                    if(query1_rs[j] == alu_des_in) begin
-                        value1_rs[j] <= alu_data;
-                        query1_rs[j] <= 0;
+                    if(alu_des_in != 0) begin
+                        if(query1_rs[j] == alu_des_in) begin
+                            value1_rs[j] <= alu_data;
+                            query1_rs[j] <= 0;
+                        end
+                        if(query2_rs[j] == alu_des_in) begin
+                            value2_rs[j] <= alu_data;
+                            query2_rs[j] <= 0;
+                        end
                     end
-                    if(query2_rs[j] == alu_des_in) begin
-                        value2_rs[j] <= alu_data;
-                        query2_rs[j] <= 0;
-                    end
-                    if(query1_rs[j] == memory_des_in) begin
-                        value1_rs[j] <= memory_data;
-                        query1_rs[j] <= 0;
-                    end
-                    if(query2_rs[j] == memory_des_in) begin
-                        value2_rs[j] <= memory_data;
-                        query2_rs[j] <= 0;
+                    if(memory_des_in != 0) begin
+                        if(query1_rs[j] == memory_des_in) begin
+                            value1_rs[j] <= memory_data;
+                            query1_rs[j] <= 0;
+                        end
+                        if(query2_rs[j] == memory_des_in) begin
+                            value2_rs[j] <= memory_data;
+                            query2_rs[j] <= 0;
+                        end
                     end
                 end
             end
@@ -215,6 +255,8 @@ module RS(
             busy_check_memory = busy[3] + busy[4] + busy[5];
             if(((busy_check_alu & 2'b10) != 0) || ((busy_check_memory & 2'b10) != 0)) begin
                 rs_full <= 1;
+            end else begin
+                rs_full <= 0;
             end
             alu_shooted = 0;
             memory_shooted = 0;
@@ -230,19 +272,16 @@ module RS(
                     end
                 end
             end
-            memory_op <= 5'b11111;
-            if(!memory_busy) begin
-                for(l = 3; l < 6 && (!memory_shooted); l++) begin
-                    if(busy[l]) begin
-                        if(query1_rs[l] == 0 && query2_rs[l] == 0) begin
-                            memory_value1 <= value1_rs[l];
-                            memory_value2 <= value2_rs[l];
-                            memory_des <= des_rs[l];
-                            memory_op <= op_rs[l];
-                            memory_imm <= imm[l];
-                            busy[l] <= 0;
-                            memory_shooted = 1;
-                        end
+            for(l = 3; l < 6 && (!memory_shooted); l++) begin
+                if(busy[l]) begin
+                    if(query1_rs[l] == 0 && query2_rs[l] == 0) begin
+                        memory_value1 <= value1_rs[l];
+                        memory_value2 <= value2_rs[l];
+                        memory_des <= des_rs[l];
+                        memory_op <= op_rs[l];
+                        memory_imm <= imm[l];
+                        busy[l] <= 0;
+                        memory_shooted = 1;
                     end
                 end
             end
@@ -250,6 +289,7 @@ module RS(
                 alu_des <= 0;
             end
             if(!memory_shooted) begin
+                memory_op <= 5'b11111;
                 memory_des <= 0;
             end
         end

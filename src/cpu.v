@@ -147,7 +147,6 @@ RS rs(
   .value2(rob.value2_out),
   .query1(rob.query1_out),
   .query2(rob.query2_out),
-  .memory_busy(lsb.buffer_full),
   .imm_in(rob.imm_out)
 );
 

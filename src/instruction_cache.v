@@ -63,6 +63,7 @@ module IC(
                 rst <= 1;
                 head <= 0;
                 tail <= 0;
+                ready <= 0;
                 shooted <= 0;
             end
             if(jalr_ready) begin
