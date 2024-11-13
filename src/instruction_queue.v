@@ -7,6 +7,7 @@ module IQ(
         input wire[4:0] rd,
         input wire[31:0] imm,
         input wire has_imm,
+        input wire rs_full,
         input wire rob_full,
         output reg iq_full,
         output reg[4:0] op_out,
@@ -70,10 +71,11 @@ module IQ(
         busy[15] = 0;
         op_out = 5'b11111;
         iq_full = 0;
+        cnt = 0;
     end
 
     reg check;
-
+    reg [4:0]cnt;
     always@(posedge clk) begin
         if(!rst) begin
             if(op != 5'b11111) begin
@@ -85,21 +87,22 @@ module IQ(
                 has_imm_buffer[tail] <= has_imm;
                 busy[tail] <= 1;
                 tail <= tail + 1;
+                cnt = cnt + 1;
             end
         end
     end
 
     always@(negedge clk) begin
+        iq_full = (cnt >= 15);
         check = busy[head];
         if(!rst) begin
-            iq_full <= (head == (tail + 1));
             op_out <= op_tmp;
             rs1_out <= rs1_tmp;
             rs2_out <= rs2_tmp;
             rd_out <= rd_tmp;
             imm_out <= imm_tmp;
             has_imm_out <= has_imm_tmp;
-            if((rob_full == 0)&&(busy[head] == 1)) begin
+            if((rob_full == 0)&&(busy[head] == 1) && (rs_full == 0)) begin
                 op_tmp <= op_buffer[head];
                 rs1_tmp <= rs1_buffer[head];
                 rs2_tmp <= rs2_buffer[head];
@@ -109,6 +112,7 @@ module IQ(
                 shooted <= 1;
                 busy[head] <= 0;
                 head <= head + 1;
+                cnt = cnt - 1;
             end
             else begin
                 op_tmp <= 5'b11111;

@@ -55,7 +55,6 @@ module IC(
             end
             if(branch_taken) begin
                 pc <= branch_pc;
-                ready <= 0;
                 head <= head + 1;
             end
             if(branch_not_taken) begin

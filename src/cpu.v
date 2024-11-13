@@ -96,7 +96,8 @@ IQ iq(
   .rd(decoder.rd),
   .imm(decoder.imm),
   .has_imm(decoder.has_imm),
-  .rob_full(rob.rob_full)
+  .rob_full(rob.rob_full),
+  .rs_full(rs.rs_full)
 );
 
 ROB rob(
