@@ -29,6 +29,14 @@ module IC(
     integer value[0:0];
     integer i;
     reg [31:0] pc_tmp;
+    reg check0;
+    reg check1;
+    reg check2;
+    reg check3;
+    reg check4;
+    reg check5;
+    reg check6;
+    reg check7;
     initial begin
         ready = 0;
         pc = 0;
@@ -45,6 +53,13 @@ module IC(
     end
 
     always@(posedge clk) begin
+        check0 = ic_size[0];
+        check1 = ic_size[1];
+        check2 = ic_size[2];
+        check3 = ic_size[3];
+        check4 = ic_size[4];
+        check5 = ic_size[5];
+        check6 = ic_size[6];
         if(rst) begin
             rst <= 0;
         end
@@ -61,6 +76,7 @@ module IC(
                 pc <= pc + (ic_size[head] == 1 ? 4 : 2);
                 predicted_pc <= pc + (ic_size[head] == 1 ? 4 : 2);
                 rst <= 1;
+                instruction <= 0;
                 head <= 0;
                 tail <= 0;
                 ready <= 0;
