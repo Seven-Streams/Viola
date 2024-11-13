@@ -213,7 +213,7 @@ module IC(
                             shooted <= 0;
                         end
                         else begin
-                            if(data[1:0] == 2'b01 && (data[15:13] == 3'b110 || data[15:13] == 3'b111)) begin
+                            if(data_tmp[1:0] == 2'b01 && (data_tmp[15:13] == 3'b110 || data_tmp[15:13] == 3'b111)) begin
                                 value0 = data_tmp[6:5];
                                 value0 = value0 << 1;
                                 value0 = value0 + data_tmp[2];

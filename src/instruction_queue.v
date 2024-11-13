@@ -140,6 +140,7 @@ module IQ(
             busy[14] = 0;
             busy[15] = 0;
             op_out = 5'b11111;
+            cnt = 0;
             iq_full = 0;
         end
     end
