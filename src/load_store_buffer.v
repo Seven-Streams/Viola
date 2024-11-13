@@ -183,7 +183,6 @@ module LSB(
             else begin
                 if(is_writing) begin
                     ins_ready <= 0;
-                    ram_addr <= now_addr + (executing - 1);
                     case(executing)
                         1: begin
                             ram_data <= now_data[7:0];
@@ -206,13 +205,16 @@ module LSB(
                             buffer_busy[now_committed] <= 0;
                             executing <= executing - 1;
                             ram_writing <= 0;
+                            ram_addr <= 0;
                         end
                         else begin
+                            ram_addr <= now_addr + (executing - 1);
                             ram_writing <= 1;
                             writing_flag <= 0;
                         end
                     end
                     else begin
+                        ram_addr <= now_addr + (executing - 1);
                         executing <= executing - 1;
                         ram_writing <= 1;
                         mem_ready <= 0;
