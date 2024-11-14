@@ -116,6 +116,8 @@ module LSB(
             end
             if(committed_number != 0) begin
                 now_committed = committed_number;
+            end else begin
+                now_committed = 0;
             end
         end
     end
@@ -297,18 +299,17 @@ module LSB(
         else begin
             executing = 0;
             if_full = 0;
-            if_ready[0] = 0;
-            if_ready[1] = 0;
-            if_ready[2] = 0;
-            if_ready[3] = 0;
-            if_ready[4] = 0;
-            if_ready[5] = 0;
-            if_ready[6] = 0;
-            if_ready[7] = 0;
+            is_ins = 0;
+            for(i = 0; i < 8; i = i + 1) begin
+                buffer_busy[i] = 0;
+                if_ready[i] = 0;
+
+            end
             if_head = 0;
             ins_ready = 0;
             mem_ready = 0;
             if_tail = 0;
+            now_committed = 0;
         end
     end
 endmodule

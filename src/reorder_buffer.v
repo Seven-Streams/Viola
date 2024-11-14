@@ -26,7 +26,6 @@ module ROB(
         output reg[4:0] rd_out,
         output reg[2:0] num_out,
         output reg[31:0] value_out,
-        output reg ls_commit,
         output reg[2:0] ls_num_out,
         output reg branch_taken,
         output reg[31:0] branch_pc,
@@ -64,12 +63,12 @@ module ROB(
         jalr_ready = 0;
         pc_ready = 0;
         branch_not_taken = 0;
+        ls_num_out = 0;
         head = 1;
         tail = 1;
         rob_full = 0;
         to_shoot = 0;
         commit = 0;
-        ls_commit = 0;
         op_out = 5'b11111;
     end
     localparam [4:0]
@@ -254,11 +253,10 @@ module ROB(
             end
             else begin
                 if(rob_ready[head] == 2'b01) begin
-                    ls_commit <= 1;
                     ls_num_out <= head;
                 end
                 else begin
-                    ls_commit <= 0;
+                    ls_num_out <= 0;
                 end
                 if(rob_ready[head] == 2'b11) begin
                     branch_not_taken <= 0;
@@ -350,8 +348,7 @@ module ROB(
         end
         else begin
             cnt = 0;
-            commit = 0;
-            ls_commit = 0;
+            ls_num_out = 0;
             branch_taken = 0;
             jalr_ready = 0;
             pc_ready = 0;
@@ -360,7 +357,6 @@ module ROB(
             rob_full = 0;
             to_shoot = 0;
             commit = 0;
-            ls_commit = 0;
             op_out <= 5'b11111;
             for(i = 1; i < 8; i++) begin
                 rob_busy[i] = 1'b0;
