@@ -76,6 +76,7 @@ module IC(
                 pc <= pc + (ic_size[head] == 1 ? 4 : 2);
                 predicted_pc <= pc + (ic_size[head] == 1 ? 4 : 2);
                 rst <= 1;
+                asking <= 0;
                 instruction <= 0;
                 head <= 0;
                 tail <= 0;
