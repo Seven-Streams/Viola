@@ -37,6 +37,7 @@ module IC(
     reg check5;
     reg check6;
     reg check7;
+    reg check_pc;
     initial begin
         ready = 0;
         pc = 0;
@@ -143,12 +144,6 @@ module IC(
                     ic_size[tail] <= 1;
                     tail <= tail + 1;
                     case(data_tmp[6:0])
-                        7'b0010111: begin
-                            value0 = data_tmp[31:12];
-                            value0 = value0 << 12;
-                            predicted_pc <= predicted_pc + value0;
-                            shooted <= 0;
-                        end
                         7'b1101111: begin
                             value0 = data_tmp[31];
                             value0 = value0 << 20;

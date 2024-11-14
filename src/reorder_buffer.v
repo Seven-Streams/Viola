@@ -274,7 +274,11 @@ module ROB(
                                 value_out <= (now_pc + 2);
                             end
                             else begin
+                                if(rob_op[head] == AUIPC) begin
+                                    value_out <= (now_pc + rob_value[head]);
+                                end else begin
                                 value_out <= rob_value[head];
+                                end
                             end
                         end
                         num_out <= head;
@@ -309,12 +313,7 @@ module ROB(
                                 nxt_pc <= (rob_value[head] + now_pc);
                             end
                             else begin
-                                if(rob_op[head] == AUIPC) begin
-                                    nxt_pc <= (now_pc + rob_value[head]);
-                                end
-                                else begin
                                     nxt_pc <= 32'hffffffff;
-                                end
                             end
                         end
                     end

@@ -23,6 +23,8 @@ module RF(
     reg [31:0]a2;
     reg [31:0]a3;
     reg [31:0]a4;
+    reg [31:0]a5;
+    reg [31:0]a6;
     reg [31:0]s0;
     reg [31:0]s1;
     reg [31:0]s2;
@@ -68,6 +70,8 @@ module RF(
         a0 = regs[10];
         a1 = regs[11];
         a2 = regs[12];
+        a5 = regs[15];
+        a6 = regs[16];
         rs1_tmp = rs1;
         rs2_tmp = rs2;
         rd_tmp = rd;
