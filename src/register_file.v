@@ -15,24 +15,6 @@ module RF(
         output reg [2:0] query1,
         output reg [2:0] query2
     );
-    reg [31:0]sp;
-    reg [31:0]ra;
-    reg [31:0]t0;
-    reg [31:0]a0;
-    reg [31:0]a1;
-    reg [31:0]a2;
-    reg [31:0]a3;
-    reg [31:0]a4;
-    reg [31:0]a5;
-    reg [31:0]a6;
-    reg [31:0]s0;
-    reg [31:0]s1;
-    reg [31:0]s2;
-    reg [31:0]s3;
-    reg [31:0]s4;
-    reg [31:0]s5;
-    reg [31:0]s6;
-    reg [2:0] a4_dependency;
     reg [2:0]dependency[31:0];
     reg [31:0]regs[31:0];
     reg [4:0] rs1_tmp;
@@ -54,24 +36,6 @@ module RF(
     end
     always@(posedge clk) begin
         instruction_tmp = instruction;
-        a4_dependency = dependency[14];
-        sp = regs[2];
-        ra = regs[1];
-        t0 = regs[5];
-        a3 = regs[13];
-        a4 = regs[14];
-        s0 = regs[8];
-        s1 = regs[9];
-        s2 = regs[18];
-        s3 = regs[19];
-        s4 = regs[20];
-        s5 = regs[21];
-        s6 = regs[22];
-        a0 = regs[10];
-        a1 = regs[11];
-        a2 = regs[12];
-        a5 = regs[15];
-        a6 = regs[16];
         rs1_tmp = rs1;
         rs2_tmp = rs2;
         rd_tmp = rd;

@@ -29,15 +29,6 @@ module IC(
     integer value[0:0];
     integer i;
     reg [31:0] pc_tmp;
-    reg check0;
-    reg check1;
-    reg check2;
-    reg check3;
-    reg check4;
-    reg check5;
-    reg check6;
-    reg check7;
-    reg check_pc;
     initial begin
         ready = 0;
         pc = 0;
@@ -54,13 +45,6 @@ module IC(
     end
 
     always@(posedge clk) begin
-        check0 = ic_size[0];
-        check1 = ic_size[1];
-        check2 = ic_size[2];
-        check3 = ic_size[3];
-        check4 = ic_size[4];
-        check5 = ic_size[5];
-        check6 = ic_size[6];
         if(rst) begin
             rst <= 0;
         end
@@ -112,13 +96,10 @@ module IC(
     reg[31:0] value1;
     reg[31:0] value2;
     reg[31:0] value3;
-    reg check;
     reg [4:0] rem;
     always@(negedge clk) begin
         if(!rst) begin
-            check = ic_size[head];
             if((!lsb_full) && (!iq_full) && (!shooted) && (!ready)) begin
-                //TODO:Check the cache.Set addr but not set asking.
                 rem = predicted_pc[5:1];
                 if(cache[rem][0] == predicted_pc) begin
                     data_tmp <= cache[rem][1];

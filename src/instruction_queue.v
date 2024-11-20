@@ -53,28 +53,11 @@ module IQ(
         shooted = 0;
         head = 0;
         tail = 0;
-        busy[0] = 0;
-        busy[1] = 0;
-        busy[2] = 0;
-        busy[3] = 0;
-        busy[4] = 0;
-        busy[5] = 0;
-        busy[6] = 0;
-        busy[7] = 0;
-        busy[8] = 0;
-        busy[9] = 0;
-        busy[10] = 0;
-        busy[11] = 0;
-        busy[12] = 0;
-        busy[13] = 0;
-        busy[14] = 0;
-        busy[15] = 0;
         op_out = 5'b11111;
         iq_full = 0;
         cnt = 0;
     end
 
-    reg check;
     reg [4:0]cnt;
     always@(posedge clk) begin
         if(!rst) begin
@@ -94,7 +77,6 @@ module IQ(
 
     always@(negedge clk) begin
         iq_full = (cnt >= 15);
-        check = busy[head];
         if(!rst) begin
             op_out <= op_tmp;
             rs1_out <= rs1_tmp;
@@ -129,22 +111,9 @@ module IQ(
             shooted <= 0;
             head = 0;
             tail = 0;
-            busy[0] = 0;
-            busy[1] = 0;
-            busy[2] = 0;
-            busy[3] = 0;
-            busy[4] = 0;
-            busy[5] = 0;
-            busy[6] = 0;
-            busy[7] = 0;
-            busy[8] = 0;
-            busy[9] = 0;
-            busy[10] = 0;
-            busy[11] = 0;
-            busy[12] = 0;
-            busy[13] = 0;
-            busy[14] = 0;
-            busy[15] = 0;
+            for(init = 0; init < 16; init = init + 1) begin
+                busy[init] = 0;
+            end
             op_out = 5'b11111;
             cnt = 0;
             iq_full = 0;

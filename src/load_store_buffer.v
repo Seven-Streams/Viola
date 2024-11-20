@@ -49,10 +49,6 @@ module LSB(
                SW = 5'b11001,
                BLT = 5'b11010,
                BLTU = 5'b11011;
-    reg check;
-    reg ra_check;
-    reg [4:0]op_check;
-    reg [2:0]head_check;
     reg [4:0]buffer_op[7:0];
     reg [31:0]buffer_addr[7:0];
     reg [31:0]buffer_data[7:0];

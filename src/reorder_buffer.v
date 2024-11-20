@@ -39,17 +39,7 @@ module ROB(
         output reg branch_not_taken
     );
     reg[2:0] last_ins;
-    reg [1:0]check;
     reg [2:0] head;
-    reg [31:0]value_check;
-    reg busy_check;
-    reg [1:0]check1;
-    reg [1:0]check2;
-    reg [1:0]check3;
-    reg [1:0]check4;
-    reg [1:0]check5;
-    reg [1:0]check6;
-    reg [1:0]check7;
     reg to_shoot;
     reg [4:0] rob_op[7:0];
     reg [4:0] rob_rd[7:0];
@@ -102,43 +92,7 @@ module ROB(
                BLTU = 5'b11011,
                JAL_C = 5'b11100;
 
-    reg [4:0] op1;
-    reg [4:0] op2;
-    reg [4:0] op3;
-    reg [4:0] op4;
-    reg [4:0] op5;
-    reg [4:0] op6;
-    reg [4:0] op7;
-    reg busy1;
-    reg busy2;
-    reg busy3;
-    reg busy4;
-    reg busy5;
-    reg busy6;
-    reg busy7;
     always@(posedge clk) begin
-        op1 = rob_op[1];
-        op2 = rob_op[2];
-        op3 = rob_op[3];
-        op4 = rob_op[4];
-        op5 = rob_op[5];
-        op6 = rob_op[6];
-        op7 = rob_op[7];
-        busy1 = rob_busy[1];
-        busy2 = rob_busy[2];
-        busy3 = rob_busy[3];
-        busy4 = rob_busy[4];
-        busy5 = rob_busy[5];
-        busy6 = rob_busy[6];
-        busy7 = rob_busy[7];
-        check1 = rob_ready[1];
-        check2 = rob_ready[2];
-        check3 = rob_ready[3];
-        check4 = rob_ready[4];
-        check5 = rob_ready[5];
-        check6 = rob_ready[6];
-        check7 = rob_ready[7];
-        check = rob_ready[head];
         if(!rst) begin
             if(op != 5'b11111) begin
                 rob_op[tail] <= op;
@@ -184,8 +138,6 @@ module ROB(
 
     integer i;
     always@(negedge clk) begin
-        busy_check = rob_busy[2];
-        value_check = rob_value[head];
         if(!rst) begin
             if(head == 0) begin
                 head = 1;
