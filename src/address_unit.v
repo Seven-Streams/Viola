@@ -9,7 +9,6 @@ module AU(
         output reg[31:0] addr,
         output reg[4:0] op,
         output reg[2:0] rob_number,
-        output reg[3:0] instruction_number,
         output reg[31:0] ls_value_output
     );
     reg [31:0] value_tmp;

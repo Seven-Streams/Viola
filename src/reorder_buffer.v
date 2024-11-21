@@ -310,7 +310,7 @@ module ROB(
             to_shoot = 0;
             commit = 0;
             op_out <= 5'b11111;
-            for(i = 1; i < 8; i++) begin
+            for(i = 1; i < 8; i = i + 1) begin
                 rob_busy[i] = 1'b0;
                 rob_ready[i] = 2'b00;
             end

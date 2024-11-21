@@ -121,7 +121,7 @@ module RS(
         alu_data_tmp = alu_data;
         memory_data_tmp = memory_data;
         if(!rst) begin
-            for(j = 0; j < 6; j++) begin
+            for(j = 0; j < 6; j = j + 1) begin
                 if(busy[j]) begin
                     if(alu_des_in != 0) begin
                         if(query1_rs[j] == alu_des_in) begin
@@ -148,7 +148,7 @@ module RS(
             if(op != 5'b11111) begin
                 flag = 1;
                 if(op >= LB && (!(op > SW))) begin
-                    for(i = 3; (i < 6) && flag; i++) begin
+                    for(i = 3; (i < 6) && flag; i = i + 1) begin
                         if(!busy[i]) begin
                             busy[i] <= 1;
                             op_rs[i] <= op;
@@ -196,7 +196,7 @@ module RS(
                     end
                 end
                 else begin
-                    for(i = 0; (i < 3) && flag; i++) begin
+                    for(i = 0; (i < 3) && flag; i = i + 1) begin
                         if(!busy[i]) begin
                             busy[i] <= 1;
                             op_rs[i] <= op;
@@ -260,7 +260,7 @@ module RS(
             end
             alu_shooted = 0;
             memory_shooted = 0;
-            for(k = 0; k < 3 && (!alu_shooted); k++) begin
+            for(k = 0; k < 3 && (!alu_shooted); k = k + 1) begin
                 if(busy[k]) begin
                     if(query1_rs[k] == 0 && query2_rs[k] == 0) begin
                         alu_value1 <= value1_rs[k];
@@ -272,7 +272,7 @@ module RS(
                     end
                 end
             end
-            for(l = 3; l < 6 && (!memory_shooted); l++) begin
+            for(l = 3; l < 6 && (!memory_shooted); l = l + 1) begin
                 if(busy[l]) begin
                     if(query1_rs[l] == 0 && query2_rs[l] == 0) begin
                         memory_value1 <= value1_rs[l];
