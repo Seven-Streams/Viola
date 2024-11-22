@@ -245,8 +245,8 @@ module RS(
             end
         end
     end
-    logic alu_shooted;
-    logic memory_shooted;
+    reg alu_shooted;
+    reg memory_shooted;
     reg [2:0]busy_check_alu;
     reg [2:0]busy_check_memory;
     always@(negedge clk) begin
