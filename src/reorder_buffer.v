@@ -112,20 +112,11 @@ module ROB(
             else begin
                 to_shoot <= 0;
             end
-            if(alu_num != 0) begin
-                if(rob_op[alu_num] == BGE || rob_op[alu_num] == BGEU || rob_op[alu_num] == BLT || rob_op[alu_num] == BLTU || rob_op[alu_num] == BEQ || rob_op[alu_num] == BNE) begin
-                    if(alu_value == 0) begin
-                        rob_ready[alu_num] = 2'b10;
-                    end
-                    else begin
-                        rob_ready[alu_num] = 2'b11;
-                    end
-                end
-                else begin
-                    rob_value[alu_num] = alu_value;
-                    rob_ready[alu_num] = 2'b11;
-                end
-            end
+        end
+    end
+
+    always@(posedge clk) begin
+        if(!rst)begin
             if(mem_num != 0) begin
                 rob_value[mem_num] = mem_value;
                 rob_ready[mem_num] = 2'b11;
@@ -134,6 +125,25 @@ module ROB(
                 rob_ready[ready_load_num] = 2'b01;
             end
         end
+    end 
+
+    always@(posedge clk) begin
+      if(!rst) begin
+        if(alu_num != 0) begin
+            if(rob_op[alu_num] == BGE || rob_op[alu_num] == BGEU || rob_op[alu_num] == BLT || rob_op[alu_num] == BLTU || rob_op[alu_num] == BEQ || rob_op[alu_num] == BNE) begin
+                if(alu_value == 0) begin
+                    rob_ready[alu_num] = 2'b10;
+                end
+                else begin
+                    rob_ready[alu_num] = 2'b11;
+                end
+            end
+            else begin
+                rob_value[alu_num] = alu_value;
+                rob_ready[alu_num] = 2'b11;
+            end
+        end
+      end
     end
 
     integer i;
