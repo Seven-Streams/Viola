@@ -26,6 +26,7 @@
 ***************************************************************************************************/
 
 // modification allowed for debugging purposes
+
 module hci
 #(
   parameter SYS_CLK_FREQ = 100000000,
@@ -257,8 +258,10 @@ always @*
             end
             d_state = S_DECODE; 
             d_program_finish = 1'b1;
+`ifndef ONLINE_JUDGE
             $display("IO:Return");
-            $finish;
+`endif
+            $finish(0);
           end
         endcase
       end else begin
