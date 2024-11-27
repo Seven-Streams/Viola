@@ -31,8 +31,6 @@ module IQ(
     reg [4:0] rd_buffer[15:0];
     reg [31:0] imm_buffer[15:0];
     reg [0:0] has_imm_buffer[15:0];
-    reg add;
-    reg minus;
     reg [3:0] head;
     reg [3:0] tail;
     integer init;
@@ -41,8 +39,6 @@ module IQ(
         rs1_tmp = 0;
         rs2_tmp = 0;
         rd_tmp = 0;
-        add = 0;
-        minus = 0;
         imm_tmp = 0;
         has_imm_tmp = 0;
         for(init = 0; init < 16; init = init + 1) begin
@@ -74,12 +70,8 @@ module IQ(
                 has_imm_buffer[tail] <= has_imm;
                 busy[tail] <= 1;
                 tail <= tail + 1;
-                add = 1;
-            end else begin
-                add = 0;
+                cnt = cnt + 1;
             end
-        end else begin
-            add = 0;
         end
     end
 
@@ -102,17 +94,14 @@ module IQ(
                 shooted <= 1;
                 busy[head] <= 0;
                 head <= head + 1;
-                minus = 1;
+                cnt = cnt - 1;
             end
             else begin
-                minus = 0;
                 op_tmp <= 5'b11111;
                 shooted <= 0;
             end
-            cnt = cnt + add - minus;
         end
         else begin
-            minus = 0;
             op_tmp = 5'b11111;
             rs1_tmp = 0;
             rs2_tmp = 0;

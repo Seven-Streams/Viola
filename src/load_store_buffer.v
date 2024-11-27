@@ -66,28 +66,20 @@ module LSB(
     reg [0:0] is_ins;
     reg [31:0] now_addr;
     reg [31:0] now_data;
+    reg [2:0] commited_tmp;
     reg [2:0] now_committed;
+    reg [2:0] rob_number_tmp;
+    integer cnt;
     initial begin
         output_value = 0;
         now_committed = 0;
         ins_value = 0;
         executing = 0;
-        buffer_busy[0] = 0;
-        buffer_busy[1] = 0;
-        buffer_busy[2] = 0;
-        buffer_busy[3] = 0;
-        buffer_busy[4] = 0;
-        buffer_busy[5] = 0;
-        buffer_busy[6] = 0;
-        buffer_busy[7] = 0;
-        if_ready[0] = 0;
-        if_ready[1] = 0;
-        if_ready[2] = 0;
-        if_ready[3] = 0;
-        if_ready[4] = 0;
-        if_ready[5] = 0;
-        if_ready[6] = 0;
-        if_ready[7] = 0;
+        for(cnt = 0; cnt < 8; cnt = cnt + 1) begin
+            buffer_op[cnt] = 5'b11111;
+            buffer_busy[cnt] = 0;
+            if_ready[cnt] = 0;
+        end
         if_head = 0;
         ins_ready = 0;
         mem_ready = 0;
@@ -100,10 +92,11 @@ module LSB(
                 buffer_op[rob_number] <= op;
                 buffer_addr[rob_number] <= addr;
                 buffer_data[rob_number] <= data;
-                buffer_busy[rob_number] <= 1;
                 can_be_load <= rob_number;
+                rob_number_tmp = rob_number;
             end
             else begin
+                rob_number_tmp = 0;
                 can_be_load <= 0;
             end
             if(new_ins) begin
@@ -111,16 +104,15 @@ module LSB(
                 if_ready[if_tail] <= 1;
                 if_tail <= if_tail + 1;
             end
-            if(committed_number != 0) begin
-                now_committed = committed_number;
-            end else begin
-                now_committed = 0;
-            end
+            commited_tmp = committed_number;
+        end else begin
+            if_tail = 0;
         end
     end
 
     always@(negedge clk) begin
         if(!rst) begin
+            now_committed = commited_tmp;
             if((if_head == (if_tail + 2)) || (if_head == (if_tail + 1))) begin
                 if_full <= 1;
             end
@@ -294,6 +286,9 @@ module LSB(
                 end
                 end
             end
+            if(rob_number_tmp != 0) begin
+                buffer_busy[rob_number_tmp] = 1;
+            end
         end
         else begin
             executing = 0;
@@ -307,7 +302,6 @@ module LSB(
             if_head = 0;
             ins_ready = 0;
             mem_ready = 0;
-            if_tail = 0;
             now_committed = 0;
         end
     end

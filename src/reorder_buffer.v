@@ -140,12 +140,6 @@ module ROB(
         end
     end
 
-    always@(posedge clk) begin
-    end 
-
-    always@(posedge clk) begin
-    end
-
     integer i;
     always@(negedge clk) begin
         if(!rst) begin
