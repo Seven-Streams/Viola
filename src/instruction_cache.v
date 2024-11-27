@@ -76,8 +76,7 @@ module IC(
                 rst <= 0;
                 pc <= jalr_addr;
                 jalr_tmp = 1;
-                //TODO:MOVE predicted_PC and shooted to another part.
-                predicted_pc <= jalr_addr;
+                jalr_addr_tmp = jalr_addr;
                 ready <= 0;
                 head <= head + 1;
             end
@@ -246,6 +245,7 @@ module IC(
             now_pc <= pc;
         if(jalr_tmp) begin
             shooted = 0;
+            predicted_pc = jalr_addr_tmp;
         end
         end else begin
             asking = 0;
