@@ -35,6 +35,10 @@ module RS(
     reg[5:0] query2_rs[5:0];
     reg[31:0] imm[5:0];
     reg busy[5:0];
+    reg alu_shooted;
+    reg memory_shooted;
+    reg [2:0]busy_check_alu;
+    reg [2:0]busy_check_memory;
     localparam [4:0]
                ADD = 5'b00000,
                AND = 5'b00001,
@@ -73,54 +77,26 @@ module RS(
         busy[4] = 0;
         busy[5] = 0;
     end
-    reg [2:0] q00;
-    reg [2:0] q01;
-    reg [2:0] q10;
-    reg [2:0] q11;
-    reg [2:0] q20;
-    reg [2:0] q21;
-    reg [2:0] q30;
-    reg [2:0] q31;
-    reg [2:0] q40;
-    reg [2:0] q41;
-    reg [2:0] q50;
-    reg [2:0] q51;
-    reg busy0;
-    reg busy1;
-    reg busy2;
-    reg busy3;
-    reg busy4;
-    reg busy5;
 
     integer i;
     integer j;
     integer k;
     integer l;
+    reg [2:0] alu_shoot_tmp;
+    reg [2:0] memory_shoot_tmp;
     reg flag;
     always@(posedge clk) begin
-        q00 = query1_rs[0];
-        q01 = query2_rs[0];
-        q10 = query1_rs[1];
-        q11 = query2_rs[1];
-        q20 = query1_rs[2];
-        q21 = query2_rs[2];
-        q30 = query1_rs[3];
-        q31 = query2_rs[3];
-        q40 = query1_rs[4];
-        q41 = query2_rs[4];
-        q50 = query1_rs[5];
-        q51 = query2_rs[5];
-        busy0 = busy[0];
-        busy1 = busy[1];
-        busy2 = busy[2];
-        busy3 = busy[3];
-        busy4 = busy[4];
-        busy5 = busy[5];
         alu_in_tmp = alu_des_in;
         memory_in_tmp = memory_des_in;
         alu_data_tmp = alu_data;
         memory_data_tmp = memory_data;
         if(!rst) begin
+            if(alu_shooted) begin
+                busy[alu_shoot_tmp] = 0;
+            end
+            if(memory_shooted) begin
+                busy[memory_shoot_tmp] = 0;
+            end
             for(j = 0; j < 6; j = j + 1) begin
                 if(busy[j]) begin
                     if(alu_des_in != 0) begin
@@ -243,12 +219,16 @@ module RS(
                     end
                 end
             end
+        end else begin
+            busy[0] = 0;
+            busy[1] = 0;
+            busy[2] = 0;
+            busy[3] = 0;
+            busy[4] = 0;
+            busy[5] = 0;
         end
     end
-    reg alu_shooted;
-    reg memory_shooted;
-    reg [2:0]busy_check_alu;
-    reg [2:0]busy_check_memory;
+
     always@(negedge clk) begin
         if(!rst) begin
             busy_check_alu = busy[0] + busy[1] + busy[2];
@@ -267,7 +247,7 @@ module RS(
                         alu_value2 <= value2_rs[k];
                         alu_des <= des_rs[k];
                         alu_op <= op_rs[k];
-                        busy[k] <= 0;
+                        alu_shoot_tmp = k;
                         alu_shooted = 1;
                     end
                 end
@@ -280,7 +260,7 @@ module RS(
                         memory_des <= des_rs[l];
                         memory_op <= op_rs[l];
                         memory_imm <= imm[l];
-                        busy[l] <= 0;
+                        memory_shoot_tmp = l;
                         memory_shooted = 1;
                     end
                 end
@@ -294,13 +274,9 @@ module RS(
             end
         end
         else begin
+            alu_shooted = 0;
+            memory_shooted = 0;
             rs_full = 0;
-            busy[0] = 0;
-            busy[1] = 0;
-            busy[2] = 0;
-            busy[3] = 0;
-            busy[4] = 0;
-            busy[5] = 0;
         end
     end
 endmodule
