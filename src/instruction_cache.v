@@ -35,9 +35,7 @@ module IC(
     integer i;
     reg [31:0] pc_tmp;
     reg flag;
-    reg ready_value;
     initial begin
-        ready_value = 0;
         flag = 0;
         pc = 0;
         predicted_pc = 0;
@@ -53,6 +51,7 @@ module IC(
     end
 
     always@(posedge clk) begin
+        flag = 0;
         jalr_tmp = 0;
         if(rst) begin
             head = 0;
@@ -60,8 +59,8 @@ module IC(
         end
         else begin
             if(data_ready) begin
+                flag = 1;
                 data_tmp2 <= data;
-                ready <= 1;
             end
             if(branch_taken) begin
                 pc <= branch_pc;
@@ -70,14 +69,12 @@ module IC(
             if(branch_not_taken) begin
                 pc <= pc + (ic_size[head] == 1 ? 4 : 2);
                 rst <= 1;
-                ready <= 0;
             end
             if(jalr_ready) begin
                 rst <= 0;
                 pc <= jalr_addr;
                 jalr_tmp = 1;
                 jalr_addr_tmp = jalr_addr;
-                ready <= 0;
                 head <= head + 1;
             end
             if(pc_ready) begin
@@ -243,11 +240,15 @@ module IC(
                 instruction <= 0;
             end
             now_pc <= pc;
-        if(jalr_tmp) begin
-            shooted = 0;
-            predicted_pc = jalr_addr_tmp;
-        end
+            if(jalr_tmp) begin
+                shooted = 0;
+                predicted_pc = jalr_addr_tmp;
+            end
+            if(flag) begin
+                ready = 1;
+            end
         end else begin
+            ready = 0;
             asking = 0;
             tail <= 0;
             instruction <= 0;
