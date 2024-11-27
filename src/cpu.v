@@ -151,6 +151,7 @@ RS rs(
 );
 
 LSB lsb(
+  .buffer_full(io_buffer_full),
   .clk(clk_in),
   .rst(ic.rst),
   .pc_addr(ic.addr),
