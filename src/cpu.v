@@ -160,7 +160,8 @@ LSB lsb(
   .rob_number(au.rob_number),
   .op(au.op),
   .committed_number(rob.ls_num_out),
-  .ram_loaded_data(mem_din)
+  .ram_loaded_data(mem_din),
+  .buffer_full(io_buffer_full)
 );
 
 endmodule

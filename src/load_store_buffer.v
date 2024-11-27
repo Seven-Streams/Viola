@@ -86,7 +86,10 @@ module LSB(
         if_tail = 0;
     end
     integer i;
+    reg flag;
+    reg[2:0] value;
     always@(posedge clk) begin
+        flag = 0;
         if(!rst) begin
             if(op != 5'b11111) begin
                 buffer_op[rob_number] <= op;
@@ -101,7 +104,8 @@ module LSB(
             end
             if(new_ins) begin
                 if_addr[if_tail] <= pc_addr;
-                if_ready[if_tail] <= 1;
+                flag = 1;
+                value = if_tail;
                 if_tail <= if_tail + 1;
             end
             commited_tmp = committed_number;
@@ -288,6 +292,9 @@ module LSB(
             end
             if(rob_number_tmp != 0) begin
                 buffer_busy[rob_number_tmp] = 1;
+            end
+            if(flag) begin
+            if_ready[value] = 1;
             end
         end
         else begin
