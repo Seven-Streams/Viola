@@ -19,10 +19,15 @@ localparam RAM_ADDR_WIDTH = 17; 			// 128KiB ram, should not be modified
 reg rst;
 reg rst_delay;
 
-wire clk;
+reg clk;
+initial begin
+	clk = 1'b0;
+end
 
 // assign EXCLK (or your own clock module) to clk
-assign clk = EXCLK;
+always @(posedge EXCLK) begin
+	clk <= ~clk;
+end
 
 always @(posedge clk or posedge btnC)
 begin
