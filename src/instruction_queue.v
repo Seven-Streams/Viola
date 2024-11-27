@@ -56,10 +56,12 @@ module IQ(
         op_out = 5'b11111;
         iq_full = 0;
         cnt = 0;
+        add = 0;
     end
-
+    reg add;
     reg [4:0]cnt;
     always@(posedge clk) begin
+        add = 0;
         if(!rst) begin
             if(op != 5'b11111) begin
                 op_buffer[tail] <= op;
@@ -70,12 +72,15 @@ module IQ(
                 has_imm_buffer[tail] <= has_imm;
                 busy[tail] <= 1;
                 tail <= tail + 1;
-                cnt = cnt + 1;
+                add = 1;
             end
+        end else begin
+          tail = 0;
         end
     end
 
     always@(negedge clk) begin
+        cnt = cnt + add;
         iq_full = (cnt >= 15);
         if(!rst) begin
             op_out <= op_tmp;
@@ -110,7 +115,6 @@ module IQ(
             has_imm_tmp = 0;
             shooted <= 0;
             head = 0;
-            tail = 0;
             for(init = 0; init < 16; init = init + 1) begin
                 busy[init] = 0;
             end
