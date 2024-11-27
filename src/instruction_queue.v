@@ -59,18 +59,19 @@ module IQ(
         add = 0;
     end
     reg add;
+    reg [4:0]last;
     reg [4:0]cnt;
     always@(posedge clk) begin
         add = 0;
         if(!rst) begin
             if(op != 5'b11111) begin
                 op_buffer[tail] <= op;
+                last = tail;
                 rs1_buffer[tail] <= rs1;
                 rs2_buffer[tail] <= rs2;
                 rd_buffer[tail] <= rd;
                 imm_buffer[tail] <= imm;
                 has_imm_buffer[tail] <= has_imm;
-                busy[tail] <= 1;
                 tail <= tail + 1;
                 add = 1;
             end
@@ -81,6 +82,9 @@ module IQ(
 
     always@(negedge clk) begin
         cnt = cnt + add;
+        if(add == 1) begin
+            busy[last] = 1;
+        end
         iq_full = (cnt >= 15);
         if(!rst) begin
             op_out <= op_tmp;
