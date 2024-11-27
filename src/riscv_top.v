@@ -1,5 +1,6 @@
 // riscv top module file
 // modification allowed for debugging purposes
+
 module riscv_top
 #(
 	parameter SIM = 0						// whether in simulation
