@@ -18,13 +18,17 @@ module IC(
         output reg rst
     );
     reg [31:0] data_tmp;
+    reg [31:0] data_tmp2;
     reg [31:0] pc;
     reg [31:0] predicted_pc;
     reg [0:0] ready;
+    reg [0:0] ready_tmp;
     reg [0:0] shooted;
     reg [0:0] ic_size[31:0];
     reg [4:0] head;
     reg [4:0] tail;
+    reg [31:0]predicted_pc_tmp;
+    reg [31:0] jalr_addr_tmp;
     reg [31:0] cache[31:0][1:0];
     integer value[0:0];
     integer i;
@@ -50,7 +54,7 @@ module IC(
         end
         else begin
             if(data_ready) begin
-                data_tmp <= data;
+                data_tmp2 <= data;
                 ready <= 1;
             end
             if(branch_taken) begin
@@ -59,18 +63,14 @@ module IC(
             end
             if(branch_not_taken) begin
                 pc <= pc + (ic_size[head] == 1 ? 4 : 2);
-                predicted_pc <= pc + (ic_size[head] == 1 ? 4 : 2);
                 rst <= 1;
                 asking <= 0;
-                instruction <= 0;
-                head <= 0;
-                tail <= 0;
                 ready <= 0;
-                shooted <= 0;
             end
             if(jalr_ready) begin
                 rst <= 0;
                 pc <= jalr_addr;
+                //TODO:MOVE predicted_PC and shooted to another part.
                 predicted_pc <= jalr_addr;
                 shooted <= 0;
                 ready <= 0;
@@ -102,7 +102,6 @@ module IC(
             if((!lsb_full) && (!iq_full) && (!shooted) && (!ready)) begin
                 rem = predicted_pc[5:1];
                 if(cache[rem][0] == predicted_pc) begin
-                    data_tmp <= cache[rem][1];
                     ready <= 1;
                 end
                 else begin
@@ -116,8 +115,11 @@ module IC(
             end
             if(ready) begin
                 rem = predicted_pc[5:1];
-                cache[rem][0] = predicted_pc;
-                cache[rem][1] = data_tmp;
+                if(cache[rem][0] != predicted_pc) begin
+                    cache[rem][0] = predicted_pc;
+                    cache[rem][1] = data_tmp2;
+                end
+                data_tmp = cache[rem][1];
                 instruction <= data_tmp;
                 ready <= 0;
                 if(data_tmp[1:0] == 2'b11) begin
@@ -237,6 +239,12 @@ module IC(
                 instruction <= 0;
             end
             now_pc <= pc;
+        end else begin
+            head <= 0;
+            tail <= 0;
+            instruction <= 0;
+            predicted_pc <= pc;
+            shooted <= 0;
         end
     end
 endmodule
