@@ -47,7 +47,11 @@ module ROB(
     reg [1:0]rob_ready[7:0];//00:executing, 01:can be load_store committed, 10: branch not taken, 11: can be committed
     reg [31:0]rob_value[7:0];
     reg [2:0] cnt;
+    reg add;
+    reg minus;
     initial begin
+        add = 0;
+        minus = 0;
         cnt = 0;
         branch_taken = 0;
         jalr_ready = 0;
@@ -93,6 +97,7 @@ module ROB(
                JAL_C = 5'b11100;
 
     always@(posedge clk) begin
+        add = 0;
         if(!rst)begin
             if(mem_num != 0) begin
                 rob_value[mem_num] = mem_value;
@@ -101,7 +106,10 @@ module ROB(
             if(ready_load_num != 0 && (mem_num != ready_load_num) && (rob_ready[ready_load_num] != 2'b11)) begin
                 rob_ready[ready_load_num] = 2'b01;
             end
-        end 
+        end else begin
+            tail = 1;
+            to_shoot = 0;
+        end
         if(!rst) begin
             if(alu_num != 0) begin
                 if(rob_op[alu_num] == BGE || rob_op[alu_num] == BGEU || rob_op[alu_num] == BLT || rob_op[alu_num] == BLTU || rob_op[alu_num] == BEQ || rob_op[alu_num] == BNE) begin
@@ -134,7 +142,7 @@ module ROB(
                 else begin
                     tail <= 1;
                 end
-                cnt = cnt + 1;
+                add = 1;
                 to_shoot <= 1;
             end
             else begin
@@ -145,16 +153,17 @@ module ROB(
             rob_ready[i] = 0;
           end
         end
+        if(tail == 0) begin
+            tail = 1;
+        end
     end
 
     integer i;
     always@(negedge clk) begin
         if(!rst) begin
+            cnt = cnt + add;
             if(head == 0) begin
                 head = 1;
-            end
-            if(tail == 0) begin
-                tail = 1;
             end
             rob_full = (cnt >= 5);
             if(to_shoot) begin
@@ -312,9 +321,7 @@ module ROB(
             jalr_ready = 0;
             pc_ready = 0;
             head = 1;
-            tail = 1;
             rob_full = 0;
-            to_shoot = 0;
             commit = 0;
             op_out <= 5'b11111;
             for(i = 1; i < 8; i = i + 1) begin
