@@ -115,7 +115,6 @@ module IC(
                 asking <= 0;
             end
             if(ready) begin
-                //TODO:Update the cache.
                 rem = predicted_pc[5:1];
                 cache[rem][0] = predicted_pc;
                 cache[rem][1] = data_tmp;
