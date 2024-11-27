@@ -18,6 +18,7 @@ module IC(
         output reg rst
     );
     reg [31:0] data_tmp;
+    reg [31:0] data_tmp2;
     reg [31:0] pc;
     reg [31:0] predicted_pc;
     reg [0:0] ready;
@@ -50,7 +51,7 @@ module IC(
         end
         else begin
             if(data_ready) begin
-                data_tmp <= data;
+                data_tmp2 <= data;
                 ready <= 1;
             end
             if(branch_taken) begin
@@ -102,7 +103,6 @@ module IC(
             if((!lsb_full) && (!iq_full) && (!shooted) && (!ready)) begin
                 rem = predicted_pc[5:1];
                 if(cache[rem][0] == predicted_pc) begin
-                    data_tmp <= cache[rem][1];
                     ready <= 1;
                 end
                 else begin
@@ -115,10 +115,12 @@ module IC(
                 asking <= 0;
             end
             if(ready) begin
-                //TODO:Update the cache.
                 rem = predicted_pc[5:1];
-                cache[rem][0] = predicted_pc;
-                cache[rem][1] = data_tmp;
+                if(cache[rem][0] != predicted_pc) begin
+                    cache[rem][0] = predicted_pc;
+                    cache[rem][1] = data_tmp2;
+                end
+                data_tmp = cache[rem][1];
                 instruction <= data_tmp;
                 ready <= 0;
                 if(data_tmp[1:0] == 2'b11) begin
