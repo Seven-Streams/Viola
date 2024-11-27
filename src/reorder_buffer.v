@@ -121,10 +121,13 @@ module ROB(
         if(!rst) begin
             if(op != 5'b11111) begin
                 rob_op[tail] <= op;
-                rob_ready[tail] <= 2'b00;
+                 if(op == LUI || op == AUIPC || op == JAL || op == JAL_C) begin
+                    rob_ready[tail] <= 2'b11;
+                end else begin
+                    rob_ready[tail] <= 2'b00;
+                end
                 rob_rd[tail] <= rd;
                 rob_value[tail] <= imm;
-                rob_busy[tail] <= 1;
                 if(tail != 7) begin
                     tail <= tail + 1;
                 end
@@ -137,6 +140,10 @@ module ROB(
             else begin
                 to_shoot <= 0;
             end
+        end else begin
+          for(i = 1; i < 8; i = i + 1) begin
+            rob_ready[i] = 0;
+          end
         end
     end
 
@@ -152,13 +159,12 @@ module ROB(
             rob_full = (cnt >= 5);
             if(to_shoot) begin
                 last_ins = (tail == 1) ? 7 : (tail - 1);
+                rob_busy[last_ins] = 1;
                 if(op == LUI || op == AUIPC || op == JAL || op == JAL_C) begin
                     op_out <= 5'b11111;
-                    rob_ready[last_ins] <= 2'b11;
                 end
                 else begin
                     op_out <= rob_op[last_ins];
-                    rob_ready[last_ins] <= 2'b00;
                 end
                 if(query1_rf == 0) begin
                     value1_out <= value1_rf;
@@ -313,7 +319,6 @@ module ROB(
             op_out <= 5'b11111;
             for(i = 1; i < 8; i = i + 1) begin
                 rob_busy[i] = 1'b0;
-                rob_ready[i] = 2'b00;
             end
         end
     end
