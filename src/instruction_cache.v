@@ -22,6 +22,7 @@ module IC(
     reg [31:0] pc;
     reg [31:0] predicted_pc;
     reg [0:0] ready;
+    reg jalr_tmp;
     reg [0:0] ready_tmp;
     reg [0:0] shooted;
     reg [0:0] ic_size[31:0];
@@ -33,8 +34,11 @@ module IC(
     integer value[0:0];
     integer i;
     reg [31:0] pc_tmp;
+    reg flag;
+    reg ready_value;
     initial begin
-        ready = 0;
+        ready_value = 0;
+        flag = 0;
         pc = 0;
         predicted_pc = 0;
         shooted = 0;
@@ -49,7 +53,9 @@ module IC(
     end
 
     always@(posedge clk) begin
+        jalr_tmp = 0;
         if(rst) begin
+            head = 0;
             rst <= 0;
         end
         else begin
@@ -64,15 +70,14 @@ module IC(
             if(branch_not_taken) begin
                 pc <= pc + (ic_size[head] == 1 ? 4 : 2);
                 rst <= 1;
-                asking <= 0;
                 ready <= 0;
             end
             if(jalr_ready) begin
                 rst <= 0;
                 pc <= jalr_addr;
+                jalr_tmp = 1;
                 //TODO:MOVE predicted_PC and shooted to another part.
                 predicted_pc <= jalr_addr;
-                shooted <= 0;
                 ready <= 0;
                 head <= head + 1;
             end
@@ -239,8 +244,11 @@ module IC(
                 instruction <= 0;
             end
             now_pc <= pc;
+        if(jalr_tmp) begin
+            shooted = 0;
+        end
         end else begin
-            head <= 0;
+            asking = 0;
             tail <= 0;
             instruction <= 0;
             predicted_pc <= pc;
