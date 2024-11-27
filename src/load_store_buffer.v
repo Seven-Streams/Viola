@@ -127,7 +127,7 @@ module LSB(
             else begin
                 if_full <= 0;
             end
-            if(!buffer_full) begin
+            if(1) begin
                 if(!executing) begin
                 ram_writing <= 0;
                 mem_ready <= 0;
