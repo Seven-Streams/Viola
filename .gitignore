@@ -2,3 +2,5 @@ fpga
 script
 testcase
 .vscode
+serial
+.Xil
