@@ -9,7 +9,6 @@ module LSB(
         input wire[4:0] op,
         input wire[2:0] committed_number,
         input wire[7:0] ram_loaded_data,
-        input wire buffer_full,
         output reg[2:0] output_number,
         output reg[31:0] output_value,
         output reg[31:0] ins_value,
@@ -123,8 +122,7 @@ module LSB(
             else begin
                 if_full <= 0;
             end
-            if(!buffer_full) begin
-                if(!executing) begin
+            if(!executing) begin
                 ram_writing <= 0;
                 mem_ready <= 0;
                 ins_ready <= 0;
@@ -289,7 +287,6 @@ module LSB(
                     end
                 end
                 end
-            end
             if(rob_number_tmp != 0) begin
                 buffer_busy[rob_number_tmp] = 1;
             end
