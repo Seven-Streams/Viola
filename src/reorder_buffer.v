@@ -96,6 +96,7 @@ module ROB(
                BLTU = 5'b11011,
                JAL_C = 5'b11100;
 
+    integer i;
     always@(posedge clk) begin
         add = 0;
         if(!rst)begin
@@ -157,8 +158,6 @@ module ROB(
             tail = 1;
         end
     end
-
-    integer i;
     always@(negedge clk) begin
         if(!rst) begin
             cnt = cnt + add;

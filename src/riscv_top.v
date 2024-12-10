@@ -26,7 +26,7 @@ end
 
 // assign EXCLK (or your own clock module) to clk
 always @(posedge EXCLK) begin
-	clk <= ~clk;
+	clk = ~clk;
 end
 
 always @(posedge clk or posedge btnC)

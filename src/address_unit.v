@@ -12,7 +12,7 @@ module AU(
         output reg[31:0] ls_value_output
     );
     reg [31:0] value_tmp;
-    reg [31:0] op_tmp;
+    reg [4:0] op_tmp;
     reg [2:0] rob_number_tmp;
     reg [31:0] ls_value_tmp;
     always@(posedge clk) begin

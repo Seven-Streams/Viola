@@ -34,7 +34,8 @@ initial
 
 always @(clk_in)
   begin
-    if(io_buffer_full === 1'b0 || io_buffer_full === 1'bx) begin
+    if(io_buffer_full == 1'b1) begin
+    end else begin
       clk_inner = clk_in;
     end
   end
