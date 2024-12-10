@@ -25,6 +25,7 @@ module RF(
     reg [31:0] value2_tmp;
     reg [2:0] query1_tmp;
     reg [2:0] query2_tmp;
+    integer i;
     integer cnt;
     initial begin
         query1 = 0;
@@ -71,7 +72,6 @@ module RF(
             end
         end
     end
-    integer i;
     always@(negedge clk) begin
         if(!rst) begin
             if(instruction_tmp && (rd != 0)) begin

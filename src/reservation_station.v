@@ -27,7 +27,7 @@ module RS(
     reg [2:0]memory_in_tmp;
     reg [31:0]alu_data_tmp;
     reg [31:0]memory_data_tmp;
-    reg[5:0] op_rs[4:0];
+    reg[4:0] op_rs[5:0];
     reg[31:0] value1_rs[5:0];
     reg[31:0] value2_rs[5:0];
     reg[2:0] des_rs[5:0];

@@ -27,10 +27,14 @@ module cpu(
 // - 0x30004 write: indicates program stop (will output '\0' through uart tx)
 
   reg clk_inner;
+initial 
+  begin
+    clk_inner = 0;
+  end
 
 always @(clk_in)
   begin
-    if(!io_buffer_full) begin
+    if(io_buffer_full === 1'b0 || io_buffer_full === 1'bx) begin
       clk_inner = clk_in;
     end
   end

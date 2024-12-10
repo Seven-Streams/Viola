@@ -33,6 +33,9 @@ module IQ(
     reg [0:0] has_imm_buffer[15:0];
     reg [3:0] head;
     reg [3:0] tail;
+    reg add;
+    reg [4:0]last;
+    reg [4:0]cnt;
     integer init;
     initial begin
         op_tmp = 5'b11111;
@@ -58,9 +61,6 @@ module IQ(
         cnt = 0;
         add = 0;
     end
-    reg add;
-    reg [4:0]last;
-    reg [4:0]cnt;
     always@(posedge clk) begin
         add = 0;
         if(!rst) begin
