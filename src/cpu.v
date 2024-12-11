@@ -45,7 +45,7 @@ always @(clk_in)
   assign mem_wr = lsb.ram_writing;
   assign dbgreg_dout = 0;
 AU au(
-  .clk(clk_inner),
+  .clk(clk_in),
   .rst(ic.rst),
   .value1(rs.memory_value1),
   .value2(rs.memory_imm),
@@ -55,7 +55,7 @@ AU au(
 );
 
 ALU alu(
-  .clk(clk_inner),
+  .clk(clk_in),
   .rst(ic.rst),
   .value_1(rs.alu_value1),
   .value_2(rs.alu_value2),
@@ -64,7 +64,7 @@ ALU alu(
 );
 
 IC ic(
-  .clk(clk_inner),
+  .clk(clk_in),
   .data(lsb.ins_value),
   .data_ready(lsb.ins_ready),
   .branch_taken(rob.branch_taken),
@@ -79,13 +79,13 @@ IC ic(
 );
 
 Decoder decoder(
-  .clk(clk_inner),
+  .clk(clk_in),
   .rst(ic.rst),
   .instruction(ic.instruction)
 );
 
 IQ iq(
-  .clk(clk_inner),
+  .clk(clk_in),
   .rst(ic.rst),
   .op(decoder.op),
   .rs1(decoder.rs1),
@@ -98,7 +98,7 @@ IQ iq(
 );
 
 ROB rob(
-  .clk(clk_inner),
+  .clk(clk_in),
   .rst(ic.rst),
   .has_imm(iq.has_imm_out),
   .imm(iq.imm_out),
@@ -118,7 +118,7 @@ ROB rob(
 );
 
 RF rf(
-  .clk(clk_inner),
+  .clk(clk_in),
   .rst(ic.rst),
   .commit(rob.commit),
   .reg_num(rob.rd_out),
@@ -132,7 +132,7 @@ RF rf(
 );
 
 RS rs(
-  .clk(clk_inner),
+  .clk(clk_in),
   .rst(ic.rst),
   .alu_data(alu.result),
   .alu_des_in(alu.des),
@@ -148,7 +148,7 @@ RS rs(
 );
 
 LSB lsb(
-  .clk(clk_inner),
+  .clk(clk_in),
   .rst(ic.rst),
   .pc_addr(ic.addr),
   .new_ins(ic.asking),

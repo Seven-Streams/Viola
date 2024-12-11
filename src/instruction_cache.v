@@ -60,7 +60,7 @@ module IC(
         else begin
             if(data_ready) begin
                 flag = 1;
-                data_tmp2 <= data;
+                data_tmp2 = data;
             end
             if(branch_taken) begin
                 pc <= branch_pc;
