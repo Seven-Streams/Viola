@@ -126,7 +126,7 @@ module RS(
                 if(op >= LB && (!(op > SW))) begin
                     for(i = 3; (i < 6) && flag; i = i + 1) begin
                         if(!busy[i]) begin
-                            busy[i] <= 1;
+                            busy[i] = 1;
                             op_rs[i] <= op;
                             des_rs[i] <= des_in;
                             if(query1 == 0) begin
@@ -174,7 +174,7 @@ module RS(
                 else begin
                     for(i = 0; (i < 3) && flag; i = i + 1) begin
                         if(!busy[i]) begin
-                            busy[i] <= 1;
+                            busy[i] = 1;
                             op_rs[i] <= op;
                             des_rs[i] <= des_in;
                             if(query1 == 0) begin

@@ -136,18 +136,18 @@ module ROB(
                     rob_ready[tail] = 2'b00;
                 end
                 rob_rd[tail] <= rd;
-                rob_value[tail] <= imm;
+                rob_value[tail] = imm;
                 if(tail != 7) begin
-                    tail <= tail + 1;
+                    tail = tail + 1;
                 end
                 else begin
-                    tail <= 1;
+                    tail = 1;
                 end
                 add = 1;
-                to_shoot <= 1;
+                to_shoot = 1;
             end
             else begin
-                to_shoot <= 0;
+                to_shoot = 0;
             end
         end else begin
           for(i = 1; i < 8; i = i + 1) begin
@@ -161,9 +161,6 @@ module ROB(
     always@(negedge clk) begin
         if(!rst) begin
             cnt = cnt + add;
-            if(head == 0) begin
-                head = 1;
-            end
             rob_full = (cnt >= 5);
             if(to_shoot) begin
                 last_ins = (tail == 1) ? 7 : (tail - 1);
@@ -227,7 +224,7 @@ module ROB(
                 end
                 if(rob_ready[head] == 2'b11) begin
                     branch_not_taken <= 0;
-                    rob_busy[head] <= 1'b0;
+                    rob_busy[head] = 1'b0;
                     if(rob_rd[head] != 0) begin
                         commit <= 1;
                         rd_out <= rob_rd[head];
@@ -286,7 +283,7 @@ module ROB(
                 else begin
                     if(rob_ready[head] == 2'b10) begin
                         commit <= 1;
-                        rob_busy[head] <= 1'b0;
+                        rob_busy[head] = 1'b0;
                         rd_out <= 0;
                         value_out <= 0;
                         num_out <= head;
@@ -319,7 +316,7 @@ module ROB(
             branch_taken = 0;
             jalr_ready = 0;
             pc_ready = 0;
-            head = 1;
+            head <= 1;
             rob_full = 0;
             commit = 0;
             op_out <= 5'b11111;

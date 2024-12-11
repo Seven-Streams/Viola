@@ -193,13 +193,13 @@ module LSB(
                     endcase
                     if(executing == 1) begin
                         if(!writing_flag) begin
-                            now_committed <= 0;
                             mem_ready <= 0;
                             output_number <= now_committed;
-                            buffer_busy[now_committed] <= 0;
+                            buffer_busy[now_committed] = 0;
                             executing <= executing - 1;
                             ram_writing <= 0;
                             ram_addr <= 0;
+                            now_committed = 0;
                         end
                         else begin
                             ram_addr <= now_addr + (executing - 1);
@@ -241,11 +241,10 @@ module LSB(
                             ins_ready <= 1;
                             mem_ready <= 0;
                             ins_value <= now_data;
-                            if_ready[if_head] <= 0;
+                            if_ready[if_head] = 0;
                             if_head <= if_head + 1;
                         end
                         else begin
-                            now_committed <= 0;
                             ins_ready <= 0;
                             mem_ready <= 1;
                             if(buffer_op[now_committed] == LB) begin
@@ -279,6 +278,7 @@ module LSB(
                             end
                             output_number <= now_committed;
                             buffer_busy[now_committed] <= 0;
+                            now_committed = 0;
                         end
                     end
                     else begin
@@ -288,7 +288,7 @@ module LSB(
                 end
                 end
             if(rob_number_tmp != 0) begin
-                buffer_busy[rob_number_tmp] = 1;
+                buffer_busy[rob_number_tmp] <= 1;
             end
             if(flag) begin
             if_ready[value] = 1;
