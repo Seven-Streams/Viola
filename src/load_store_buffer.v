@@ -277,7 +277,7 @@ module LSB(
                                 output_value <= now_data;
                             end
                             output_number <= now_committed;
-                            buffer_busy[now_committed] <= 0;
+                            buffer_busy[now_committed] = 0;
                             now_committed = 0;
                         end
                     end
@@ -288,7 +288,7 @@ module LSB(
                 end
                 end
             if(rob_number_tmp != 0) begin
-                buffer_busy[rob_number_tmp] <= 1;
+                buffer_busy[rob_number_tmp] = 1;
             end
             if(flag) begin
             if_ready[value] = 1;
