@@ -101,7 +101,7 @@ module IQ(
                 imm_tmp <= imm_buffer[head];
                 has_imm_tmp <= has_imm_buffer[head];
                 shooted <= 1;
-                busy[head] <= 0;
+                busy[head] = 0;
                 head <= head + 1;
                 cnt = cnt - 1;
             end

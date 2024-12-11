@@ -48,7 +48,6 @@ module Decoder(
     reg [0:0]has_imm_tmp;
     reg [31:0]value_tmp;
     always@(posedge clk) begin
-        op_tmp = 5'b11111;
         if(instruction != 0) begin
             if(instruction[1:0] == 2'b11) begin
                 case(instruction[6:0])
@@ -627,6 +626,8 @@ module Decoder(
                     end
                 endcase
             end
+        end else begin
+          op_tmp <= 5'b11111;
         end
     end
     always@(negedge clk) begin

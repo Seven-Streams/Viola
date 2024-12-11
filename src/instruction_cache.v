@@ -241,14 +241,14 @@ module IC(
             end
             now_pc <= pc;
             if(jalr_tmp) begin
-                shooted = 0;
-                predicted_pc = jalr_addr_tmp;
+                shooted <= 0;
+                predicted_pc <= jalr_addr_tmp;
             end
             if(flag) begin
-                ready = 1;
+                ready <= 1;
             end
         end else begin
-            ready = 0;
+            ready <= 0;
             asking = 0;
             tail <= 0;
             instruction <= 0;

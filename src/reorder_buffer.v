@@ -131,9 +131,9 @@ module ROB(
             if(op != 5'b11111) begin
                 rob_op[tail] <= op;
                  if(op == LUI || op == AUIPC || op == JAL || op == JAL_C) begin
-                    rob_ready[tail] <= 2'b11;
+                    rob_ready[tail] = 2'b11;
                 end else begin
-                    rob_ready[tail] <= 2'b00;
+                    rob_ready[tail] = 2'b00;
                 end
                 rob_rd[tail] <= rd;
                 rob_value[tail] <= imm;
