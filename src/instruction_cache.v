@@ -60,7 +60,11 @@ module IC(
         else begin
             if(data_ready) begin
                 flag = 1;
-                data_tmp2 = data;
+                rem = predicted_pc[5:1];
+                if(cache[rem][0] != predicted_pc) begin
+                    cache[rem][0] = predicted_pc;
+                    cache[rem][1] = data;
+                end
             end
             if(branch_taken) begin
                 pc <= branch_pc;
@@ -115,11 +119,6 @@ module IC(
                 asking <= 0;
             end
             if(ready) begin
-                rem = predicted_pc[5:1];
-                if(cache[rem][0] != predicted_pc) begin
-                    cache[rem][0] = predicted_pc;
-                    cache[rem][1] = data_tmp2;
-                end
                 data_tmp = cache[rem][1];
                 instruction <= data_tmp;
                 ready <= 0;
