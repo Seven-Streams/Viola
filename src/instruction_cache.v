@@ -180,7 +180,9 @@ module IC(
                         shooted <= 1;
                     end
                     else begin
-                        if(data_tmp[1:0] == 2'b01 && (data_tmp[15:13] == 3'b001 || data_tmp[15:13] == 3'b101)) begin
+                        if(data_tmp[1:0] == 2'b01) begin
+                            case(data_tmp[15:13])
+                        3'b001: begin
                             value[0] = 0;
                             value[0][11] = data_tmp[12];
                             value[0][10] = data_tmp[8];
@@ -200,8 +202,27 @@ module IC(
                             end
                             shooted <= 0;
                         end
-                        else begin
-                            if(data_tmp[1:0] == 2'b01 && (data_tmp[15:13] == 3'b110 || data_tmp[15:13] == 3'b111)) begin
+                        3'b101:begin
+                            value[0] = 0;
+                            value[0][11] = data_tmp[12];
+                            value[0][10] = data_tmp[8];
+                            value[0][9:8] = data_tmp[10:9];
+                            value[0][7] = data_tmp[6];
+                            value[0][6] = data_tmp[7];
+                            value[0][5] = data_tmp[2];
+                            value[0][4] = data_tmp[11];
+                            value[0][3:1] = data_tmp[5:3];
+                            if(data_tmp[12] == 0) begin
+                                predicted_pc <= predicted_pc + value[0];
+                            end
+                            else begin
+                                pc_tmp[11:0] = value[0][11:0];
+                                pc_tmp[31:12] = 20'hfffff;
+                                predicted_pc <= predicted_pc + pc_tmp;
+                            end
+                            shooted <= 0;                            
+                        end
+                        3'b110:begin
                                 value0 = 0;
                                 value0[7:6] = data_tmp[6:5];
                                 value0[5] = data_tmp[2];
@@ -217,11 +238,34 @@ module IC(
                                     predicted_pc <= predicted_pc + pc_tmp;
                                     shooted <= 0;
                                 end
-                            end
-                            else begin
+                        end
+                        3'b111:begin
+                                value0 = 0;
+                                value0[7:6] = data_tmp[6:5];
+                                value0[5] = data_tmp[2];
+                                value0[4:3] = data_tmp[11:10];
+                                value0[2:1] = data_tmp[4:3];
+                                if(data_tmp[12] == 0) begin
+                                    predicted_pc <= predicted_pc + value0;
+                                    shooted <= 0;
+                                end
+                                else begin
+                                    pc_tmp[7:0] = value0[7:0];
+                                    pc_tmp[31:8] = 24'hffffff;
+                                    predicted_pc <= predicted_pc + pc_tmp;
+                                    shooted <= 0;
+                                end
+                        end
+                        default:begin
+                            predicted_pc <= predicted_pc + 2;
+                            shooted <= 0;
+                        end
+                        endcase
+                        end
+                        else begin
+                        
                                 predicted_pc <= predicted_pc + 2;
                                 shooted <= 0;
-                            end
                         end
                     end
                 end
