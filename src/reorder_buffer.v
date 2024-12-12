@@ -27,13 +27,16 @@ module ROB(
         output reg[2:0] num_out,
         output reg[31:0] value_out,
         output reg[2:0] ls_num_out,
+        output reg branch_taken,
         output reg[31:0] branch_pc,
+        output reg jalr_ready,
         output reg[31:0] jalr_pc,
+        output reg pc_ready,
         output reg[31:0] nxt_pc,
         output reg[2:0] tail,
         output reg[2:0] target,
         output reg[31:0] imm_out,
-        output reg[2:0] pc_signal
+        output reg branch_not_taken
     );
     reg[2:0] last_ins;
     reg [2:0] head;
@@ -47,10 +50,13 @@ module ROB(
     reg add;
     reg minus;
     initial begin
-        pc_signal = 0;
         add = 0;
         minus = 0;
         cnt = 0;
+        branch_taken = 0;
+        jalr_ready = 0;
+        pc_ready = 0;
+        branch_not_taken = 0;
         ls_num_out = 0;
         head = 1;
         tail = 1;
@@ -152,9 +158,7 @@ module ROB(
             tail = 1;
         end
     end
-
     always@(negedge clk) begin
-        pc_signal = 0;
         if(!rst) begin
             cnt = cnt + add;
             rob_full = (cnt >= 5);
@@ -206,6 +210,10 @@ module ROB(
             end
             if(rob_busy[head] == 0) begin
                 commit <= 0;
+                pc_ready <= 0;
+                branch_taken <= 0;
+                branch_not_taken <= 0;
+                jalr_ready <= 0;
             end
             else begin
                 if(rob_ready[head] == 2'b01) begin
@@ -215,6 +223,7 @@ module ROB(
                     ls_num_out <= 0;
                 end
                 if(rob_ready[head] == 2'b11) begin
+                    branch_not_taken <= 0;
                     rob_busy[head] = 1'b0;
                     if(rob_rd[head] != 0) begin
                         commit <= 1;
@@ -244,16 +253,24 @@ module ROB(
                     end
                     cnt = cnt - 1;
                     if(rob_op[head] == JALR) begin
-                        pc_signal = 1;//JALR
+                        branch_not_taken <= 0;
+                        branch_taken <= 0;
+                        pc_ready <= 0;
+                        jalr_ready <= 1;
                         jalr_pc <= rob_value[head];
                     end
                     else begin
+                        jalr_ready <= 0;
                         if(rob_op[head] == BNE || rob_op[head] == BEQ || rob_op[head] == BLT || rob_op[head] == BLTU || rob_op[head] == BGE || rob_op[head] == BGEU) begin
-                            pc_signal = 2;//taken
+                            pc_ready <= 0;
+                            branch_not_taken <= 0;
+                            branch_taken <= 1;
                             branch_pc <= rob_value[head] + now_pc;
                         end
                         else begin
-                            pc_signal = 3;//ready
+                            branch_taken <= 0;
+                            branch_not_taken <= 0;
+                            pc_ready <= 1;
                             if(rob_op[head] == JAL || rob_op[head] == JAL_C) begin
                                 nxt_pc <= (rob_value[head] + now_pc);
                             end
@@ -277,11 +294,18 @@ module ROB(
                             head <= 1;
                         end
                         cnt = cnt - 1;
-                        pc_signal = 4;//not taken
+                        pc_ready <= 0;
+                        branch_taken <= 0;
+                        jalr_ready <= 0;
+                        branch_not_taken <= 1;
                         nxt_pc <= 32'hffffffff;
                     end
                     else begin
+                        branch_not_taken <= 0;
                         commit <= 0;
+                        pc_ready <= 0;
+                        branch_taken <= 0;
+                        jalr_ready <= 0;
                     end
                 end
             end
@@ -289,7 +313,9 @@ module ROB(
         else begin
             cnt = 0;
             ls_num_out = 0;
-            pc_signal = 0;
+            branch_taken = 0;
+            jalr_ready = 0;
+            pc_ready = 0;
             head <= 1;
             rob_full = 0;
             commit = 0;

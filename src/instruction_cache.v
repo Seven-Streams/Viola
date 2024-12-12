@@ -2,9 +2,12 @@ module IC(
         input wire clk,
         input wire [31:0] data,
         input wire data_ready,
+        input wire branch_taken,
+        input wire branch_not_taken,
         input wire [31:0] branch_pc,
         input wire [31:0] jalr_addr,
-        input wire [2:0] pc_signal,
+        input wire jalr_ready,
+        input wire pc_ready,
         input wire [31:0] nxt_pc,
         input wire lsb_full,
         input wire iq_full,
@@ -63,37 +66,35 @@ module IC(
                     cache[rem][1] = data;
                 end
             end
-            case(pc_signal)
-                3'b001:begin
-                    rst <= 0;
-                    pc <= jalr_addr;
-                    jalr_tmp = 1;
-                    jalr_addr_tmp = jalr_addr;
+            if(branch_taken) begin
+                pc <= branch_pc;
+                head <= head + 1;
+            end
+            if(branch_not_taken) begin
+                pc <= pc + (ic_size[head] == 1 ? 4 : 2);
+                rst <= 1;
+            end
+            if(jalr_ready) begin
+                rst <= 0;
+                pc <= jalr_addr;
+                jalr_tmp = 1;
+                jalr_addr_tmp = jalr_addr;
+                head <= head + 1;
+            end
+            if(pc_ready) begin
+                rst <= 0;
+                if(nxt_pc == 32'hffffffff) begin
+                    pc <= pc + (ic_size[head] == 1 ? 4 : 2);
                     head <= head + 1;
                 end
-                3'b010:begin
-                  pc <= branch_pc;
-                head <= head + 1;
+                else begin
+                    pc <= nxt_pc;
+                    head <= head + 1;
                 end
-                3'b011:begin
-                    rst <= 0;
-                    if(nxt_pc == 32'hffffffff) begin
-                        pc <= pc + (ic_size[head] == 1 ? 4 : 2);
-                        head <= head + 1;
-                    end
-                    else begin
-                        pc <= nxt_pc;
-                        head <= head + 1;
-                    end
-                end
-                3'b100:begin
-                    pc <= pc + (ic_size[head] == 1 ? 4 : 2);
-                    rst <= 1;
-                end
-                default:begin
-                    rst <= 0;
-                end
-        endcase
+            end
+            if((!branch_not_taken) && (!jalr_ready) && (!pc_ready)) begin
+                rst <= 0;
+            end
         end
     end
     reg[31:0] value0;

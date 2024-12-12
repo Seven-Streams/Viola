@@ -67,12 +67,15 @@ IC ic(
   .clk(clk_in),
   .data(lsb.ins_value),
   .data_ready(lsb.ins_ready),
+  .branch_taken(rob.branch_taken),
   .branch_pc(rob.branch_pc),
   .jalr_addr(rob.jalr_pc),
+  .jalr_ready(rob.jalr_ready),
+  .pc_ready(rob.pc_ready),
   .nxt_pc(rob.nxt_pc),
   .lsb_full(lsb.if_full),
   .iq_full(iq.iq_full),
-  .pc_signal(rob.pc_signal)
+  .branch_not_taken(rob.branch_not_taken)
 );
 
 Decoder decoder(
