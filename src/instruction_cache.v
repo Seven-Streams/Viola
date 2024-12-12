@@ -102,11 +102,12 @@ module IC(
     reg[31:0] value2;
     reg[31:0] value3;
     reg [4:0] rem;
+    reg [4:0] rem2;
     always@(negedge clk) begin
         if(!rst) begin
             if((!lsb_full) && (!iq_full) && (!shooted) && (!ready)) begin
-                rem = predicted_pc[5:1];
-                if(cache[rem][0] == predicted_pc) begin
+                rem2 = predicted_pc[5:1];
+                if(cache[rem2][0] == predicted_pc) begin
                     ready <= 1;
                 end
                 else begin
@@ -119,7 +120,7 @@ module IC(
                 asking <= 0;
             end
             if(ready) begin
-                data_tmp = cache[rem][1];
+                data_tmp = cache[rem2][1];
                 instruction <= data_tmp;
                 ready <= 0;
                 if(data_tmp[1:0] == 2'b11) begin
