@@ -121,7 +121,7 @@ module IC(
             end
             if(ready) begin
                 data_tmp = cache[rem2][1];
-                instruction <= data_tmp;
+                instruction = data_tmp;
                 ready <= 0;
                 if(data_tmp[1:0] == 2'b11) begin
                     ic_size[tail] <= 1;
@@ -134,11 +134,11 @@ module IC(
                             value0[11] = data_tmp[20];
                             value0[10:1] = data_tmp[30:21];
                             if(data_tmp[31] == 0) begin
-                                predicted_pc <= (predicted_pc + value0);
+                                predicted_pc = (predicted_pc + value0);
                             end
                             else begin
                                 value0[31:20] = 12'hfff;
-                                predicted_pc <= predicted_pc + value0;
+                                predicted_pc = predicted_pc + value0;
                             end
                             shooted <= 0;
                         end
@@ -149,11 +149,11 @@ module IC(
                             value0[10:5] = data_tmp[30:25];
                             value0[4:1] = data_tmp[11:8];
                             if(data_tmp[31] == 0) begin
-                                predicted_pc <= predicted_pc + value0;
+                                predicted_pc = predicted_pc + value0;
                             end
                             else begin
                                 value0[31:12] = 20'hfffff;
-                                predicted_pc <= predicted_pc + value0;
+                                predicted_pc = predicted_pc + value0;
                             end
                             shooted <= 0;
                         end
@@ -161,7 +161,7 @@ module IC(
                             shooted <= 1;
                         end
                         default: begin
-                            predicted_pc <= predicted_pc + 4;
+                            predicted_pc = predicted_pc + 4;
                             shooted <= 0;
                         end//Predict branch always not taken.
                     endcase
@@ -186,12 +186,12 @@ module IC(
                             value[0][4] = data_tmp[11];
                             value[0][3:1] = data_tmp[5:3];
                             if(data_tmp[12] == 0) begin
-                                predicted_pc <= predicted_pc + value[0];
+                                predicted_pc = predicted_pc + value[0];
                             end
                             else begin
                                 pc_tmp[11:0] = value[0][11:0];
                                 pc_tmp[31:12] = 20'hfffff;
-                                predicted_pc <= predicted_pc + pc_tmp;
+                                predicted_pc = predicted_pc + pc_tmp;
                             end
                             shooted <= 0;
                         end
@@ -206,11 +206,11 @@ module IC(
                             value[0][4] = data_tmp[11];
                             value[0][3:1] = data_tmp[5:3];
                             if(data_tmp[12] == 0) begin
-                                predicted_pc <= predicted_pc + value[0];
+                                predicted_pc = predicted_pc + value[0];
                             end
                             else begin
                                 value[0][31:12] = 20'hfffff;
-                                predicted_pc <= predicted_pc + value[0];
+                                predicted_pc = predicted_pc + value[0];
                             end
                             shooted <= 0;                            
                         end
@@ -221,12 +221,12 @@ module IC(
                                 value0[4:3] = data_tmp[11:10];
                                 value0[2:1] = data_tmp[4:3];
                                 if(data_tmp[12] == 0) begin
-                                    predicted_pc <= predicted_pc + value0;
+                                    predicted_pc = predicted_pc + value0;
                                     shooted <= 0;
                                 end
                                 else begin
                                     value0[31:8] = 24'hffffff;
-                                    predicted_pc <= predicted_pc + value0;
+                                    predicted_pc = predicted_pc + value0;
                                     shooted <= 0;
                                 end
                         end
@@ -237,36 +237,36 @@ module IC(
                                 value0[4:3] = data_tmp[11:10];
                                 value0[2:1] = data_tmp[4:3];
                                 if(data_tmp[12] == 0) begin
-                                    predicted_pc <= predicted_pc + value0;
+                                    predicted_pc = predicted_pc + value0;
                                     shooted <= 0;
                                 end
                                 else begin
                                     value0[31:8] = 24'hffffff;
-                                    predicted_pc <= predicted_pc + value0;
+                                    predicted_pc = predicted_pc + value0;
                                     shooted <= 0;
                                 end
                         end
                         default:begin
-                            predicted_pc <= predicted_pc + 2;
+                            predicted_pc = predicted_pc + 2;
                             shooted <= 0;
                         end
                         endcase
                         end
                         else begin
                         
-                                predicted_pc <= predicted_pc + 2;
+                                predicted_pc = predicted_pc + 2;
                                 shooted <= 0;
                         end
                     end
                 end
             end
             else begin
-                instruction <= 0;
+                instruction = 0;
             end
             now_pc <= pc;
             if(jalr_tmp) begin
                 shooted <= 0;
-                predicted_pc <= jalr_addr_tmp;
+                predicted_pc = jalr_addr_tmp;
             end
             if(flag) begin
                 ready <= 1;
@@ -276,7 +276,7 @@ module IC(
             asking = 0;
             tail <= 0;
             instruction <= 0;
-            predicted_pc <= pc;
+            predicted_pc = pc;
             shooted <= 0;
         end
     end
