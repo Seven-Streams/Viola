@@ -137,10 +137,10 @@ module IC(
                             value3 = data_tmp[30:21];
                             value3 = value3 << 1;
                             if(value0 == 0) begin
-                                predicted_pc <= (predicted_pc + value0 + value1 + value2 + value3);
+                                predicted_pc <= (predicted_pc + (value0 | value1 | value2 | value3));
                             end
                             else begin
-                                pc_tmp = value0 + value1 + value2 + value3;
+                                pc_tmp = value0 | value1 | value2 | value3;
                                 pc_tmp[31:20] = 12'hfff;
                                 predicted_pc <= predicted_pc + pc_tmp;
                             end
@@ -155,10 +155,10 @@ module IC(
                             value3 = data_tmp[11:8];
                             value3 = value3 << 1;
                             if(value0 == 0) begin
-                                predicted_pc <= predicted_pc + value0 + value1 + value2 + value3;
+                                predicted_pc <= predicted_pc + (value0 | value1 | value2 | value3);
                             end
                             else begin
-                                pc_tmp = value1 + value2 + value3;
+                                pc_tmp = value1 | value2 | value3;
                                 pc_tmp[31:12] = 20'hfffff;
                                 predicted_pc <= predicted_pc + pc_tmp;
                             end
@@ -181,22 +181,15 @@ module IC(
                     end
                     else begin
                         if(data_tmp[1:0] == 2'b01 && (data_tmp[15:13] == 3'b001 || data_tmp[15:13] == 3'b101)) begin
-                            value[0] = data_tmp[12];
-                            value[0] = value[0] << 1;
-                            value[0] = value[0] + data_tmp[8];
-                            value[0] = value[0] << 2;
-                            value[0] = value[0] + data_tmp[10:9];
-                            value[0] = value[0] << 1;
-                            value[0] = value[0] + data_tmp[6];
-                            value[0] = value[0] << 1;
-                            value[0] = value[0] + data_tmp[7];
-                            value[0] = value[0] << 1;
-                            value[0] = value[0] + data_tmp[2];
-                            value[0] = value[0] << 1;
-                            value[0] = value[0] + data_tmp[11];
-                            value[0] = value[0] << 3;
-                            value[0] = value[0] + data_tmp[5:3];
-                            value[0] = value[0] << 1;
+                            value[0] = 0;
+                            value[0][11] = data_tmp[12];
+                            value[0][10] = data_tmp[8];
+                            value[0][9:8] = data_tmp[10:9];
+                            value[0][7] = data_tmp[6];
+                            value[0][6] = data_tmp[7];
+                            value[0][5] = data_tmp[2];
+                            value[0][4] = data_tmp[11];
+                            value[0][3:1] = data_tmp[5:3];
                             if(data_tmp[12] == 0) begin
                                 predicted_pc <= predicted_pc + value[0];
                             end
@@ -209,14 +202,11 @@ module IC(
                         end
                         else begin
                             if(data_tmp[1:0] == 2'b01 && (data_tmp[15:13] == 3'b110 || data_tmp[15:13] == 3'b111)) begin
-                                value0 = data_tmp[6:5];
-                                value0 = value0 << 1;
-                                value0 = value0 + data_tmp[2];
-                                value0 = value0 << 2;
-                                value0 = value0 + data_tmp[11:10];
-                                value0 = value0 << 2;
-                                value0 = value0 + data_tmp[4:3];
-                                value0 = value0 << 1;
+                                value0 = 0;
+                                value0[7:6] = data_tmp[6:5];
+                                value0[5] = data_tmp[2];
+                                value0[4:3] = data_tmp[11:10];
+                                value0[2:1] = data_tmp[4:3];
                                 if(data_tmp[12] == 0) begin
                                     predicted_pc <= predicted_pc + value0;
                                     shooted <= 0;
