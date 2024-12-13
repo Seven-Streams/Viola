@@ -1,5 +1,5 @@
 // RISCV32 CPU top module
-// port modification allowed for debugging purposes
+// port modifi_fation allowed for debugging purposes
 module cpu(
   input  wire                 clk_in,			// system clock signal
   input  wire                 rst_in,			// reset signal
@@ -16,7 +16,7 @@ module cpu(
 );
 
 // implementation goes here
-// Specifications:
+// Specifi_fations:
 // - Pause cpu(freeze pc, registers, etc.) when rdy_in is low
 // - Memory read result will be returned in the next cycle. Write takes 1 cycle(no need to wait)
 // - Memory is of size 128KB, with valid address ranging from 0x0 to 0x20000
@@ -24,7 +24,7 @@ module cpu(
 // - 0x30000 read: read a byte from input
 // - 0x30000 write: write a byte to output (write 0x00 is ignored)
 // - 0x30004 read: read clocks passed since cpu starts (in dword, 4 bytes)
-// - 0x30004 write: indicates program stop (will output '\0' through uart tx)
+// - 0x30004 write: indi_fates program stop (will output '\0' through uart tx)
 
   reg clk_inner;
 initial 
@@ -46,7 +46,7 @@ always @(clk_in)
   assign dbgreg_dout = 0;
 AU au(
   .clk(clk_in),
-  .rst(ic.rst),
+  .rst(i_f.rst),
   .value1(rs.memory_value1),
   .value2(rs.memory_imm),
   .op_input(rs.memory_op),
@@ -56,17 +56,17 @@ AU au(
 
 ALU alu(
   .clk(clk_in),
-  .rst(ic.rst),
+  .rst(i_f.rst),
   .value_1(rs.alu_value1),
   .value_2(rs.alu_value2),
   .op(rs.alu_op),
   .des_input(rs.alu_des)
 );
 
-IC ic(
+IF i_f(
   .clk(clk_in),
-  .data(lsb.ins_value),
-  .data_ready(lsb.ins_ready),
+  .data(ic.instruction_out),
+  .data_ready(ic.ready_out),
   .branch_taken(rob.branch_taken),
   .branch_pc(rob.branch_pc),
   .jalr_addr(rob.jalr_pc),
@@ -80,13 +80,13 @@ IC ic(
 
 Decoder decoder(
   .clk(clk_in),
-  .rst(ic.rst),
-  .instruction(ic.instruction)
+  .rst(i_f.rst),
+  .instruction(i_f.instruction)
 );
 
 IQ iq(
   .clk(clk_in),
-  .rst(ic.rst),
+  .rst(i_f.rst),
   .op(decoder.op),
   .rs1(decoder.rs1),
   .rs2(decoder.rs2),
@@ -99,10 +99,10 @@ IQ iq(
 
 ROB rob(
   .clk(clk_in),
-  .rst(ic.rst),
+  .rst(i_f.rst),
   .has_imm(iq.has_imm_out),
   .imm(iq.imm_out),
-  .now_pc(ic.pc),
+  .now_pc(i_f.pc),
   .rd(iq.rd_out),
   .op(iq.op_out),
   .value1_rf(rf.value1),
@@ -119,7 +119,7 @@ ROB rob(
 
 RF rf(
   .clk(clk_in),
-  .rst(ic.rst),
+  .rst(i_f.rst),
   .commit(rob.commit),
   .reg_num(rob.rd_out),
   .data_in(rob.value_out),
@@ -133,7 +133,7 @@ RF rf(
 
 RS rs(
   .clk(clk_in),
-  .rst(ic.rst),
+  .rst(i_f.rst),
   .alu_data(alu.result),
   .alu_des_in(alu.des),
   .memory_data(lsb.output_value),
@@ -149,15 +149,24 @@ RS rs(
 
 LSB lsb(
   .clk(clk_in),
-  .rst(ic.rst),
-  .pc_addr(ic.addr),
-  .new_ins(ic.asking),
+  .rst(i_f.rst),
+  .pc_addr(ic.addr_out),
+  .new_ins(ic.asking_out),
   .addr(au.addr),
   .data(au.ls_value_output),
   .rob_number(au.rob_number),
   .op(au.op),
   .committed_number(rob.ls_num_out),
   .ram_loaded_data(mem_din)
+);
+
+IC ic(
+  .clk(clk_in),
+  .rst(i_f.rst),
+  .addr_in(i_f.addr),
+  .asking_in(i_f.asking),
+  .instruction_in(lsb.ins_value),
+  .ins_ready_in(lsb.ins_ready)
 );
 
 endmodule
