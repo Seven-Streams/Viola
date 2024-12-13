@@ -4,13 +4,16 @@ module ALU(
         input wire[31:0] value_2,
         input wire[4:0] op,
         input wire[2:0] des_input,
+        input wire is_branch_input,
         input wire clk,
         input wire rst,
         output reg[2:0] des_rob,
         output reg[2:0] des_rs,
-        output reg[31:0] result
+        output reg[31:0] result,
+        output reg is_branch_out
     );
     reg[31:0] tmp;
+    reg is_branch_tmp;
     localparam [4:0]
                ADD = 5'b00000,
                AND = 5'b00001,
@@ -30,6 +33,7 @@ module ALU(
                LT = 5'b11010,
                LTU = 5'b11011;
     always @(posedge clk) begin
+        is_branch_tmp <= is_branch_input;
         case(op)
             LT:
                 tmp <= ($signed(value_1) < $signed(value_2)) ? 1 : 0;
@@ -74,6 +78,7 @@ module ALU(
             des_rob <= des_input;
             des_rs <= des_input;
             result <= tmp;
+            is_branch_out <= is_branch_tmp;
         end
         else begin
             des_rob <= 0;

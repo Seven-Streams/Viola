@@ -64,7 +64,10 @@ module LSB(
     reg [2:0] executing;
     reg [0:0] is_ins;
     reg [31:0] now_addr;
-    reg [31:0] now_data;
+    reg [7:0] now_data0;
+    reg [7:0] now_data1;
+    reg [7:0] now_data2;
+    reg [7:0] now_data3;
     reg [2:0] commited_tmp;
     reg [2:0] now_committed;
     reg [2:0] rob_number_tmp;
@@ -129,7 +132,10 @@ module LSB(
                 output_number <= 0;
                 if((buffer_busy[now_committed] == 1) && (now_committed != 0)) begin
                     now_addr <= buffer_addr[now_committed];
-                    now_data <= buffer_data[now_committed];
+                    now_data0 <= buffer_data[now_committed][7:0];
+                    now_data1 <= buffer_data[now_committed][15:8];
+                    now_data2 <= buffer_data[now_committed][23:16];
+                    now_data3 <= buffer_data[now_committed][31:24];
                     is_ins <= 0;
                     if(buffer_op[now_committed] == SB || buffer_op[now_committed] == SH || buffer_op[now_committed] == SW) begin
                         is_writing <= 1;
@@ -179,16 +185,16 @@ module LSB(
                     ins_ready <= 0;
                     case(executing)
                         1: begin
-                            ram_data <= now_data[7:0];
+                            ram_data <= now_data0;
                         end
                         2: begin
-                            ram_data <= now_data[15:8];
+                            ram_data <= now_data1;
                         end
                         3: begin
-                            ram_data <= now_data[23:16];
+                            ram_data <= now_data2;
                         end
                         4: begin
-                            ram_data <= now_data[31:24];
+                            ram_data <= now_data3;
                         end
                     endcase
                     if(executing == 1) begin
@@ -221,16 +227,16 @@ module LSB(
                     end
                     case(executing)
                         5: begin
-                            now_data[31:24] = ram_loaded_data;
+                            now_data3 = ram_loaded_data;
                         end
                         4: begin
-                            now_data[23:16] = ram_loaded_data;
+                            now_data2 = ram_loaded_data;
                         end
                         3: begin
-                            now_data[15:8] = ram_loaded_data;
+                            now_data1 = ram_loaded_data;
                         end
                         2: begin
-                            now_data[7:0] = ram_loaded_data;
+                            now_data0 = ram_loaded_data;
                         end
                         default: begin
                         end
@@ -240,7 +246,10 @@ module LSB(
                         if(is_ins) begin
                             ins_ready <= 1;
                             mem_ready <= 0;
-                            ins_value <= now_data;
+                            ins_value[7:0] <= now_data0;
+                            ins_value[15:8] <= now_data1;
+                            ins_value[23:16] <= now_data2;
+                            ins_value[31:24] <= now_data3;
                             if_ready[if_head] = 0;
                             if_head <= if_head + 1;
                         end
@@ -248,33 +257,38 @@ module LSB(
                             ins_ready <= 0;
                             mem_ready <= 1;
                             if(buffer_op[now_committed] == LB) begin
-                                if(now_data[7] == 1) begin
+                                if(now_data0[7] == 1) begin
                                     output_value[31:8] <= 24'hffffff;
                                 end
                                 else begin
                                     output_value[31:8] <= 24'h000000;
                                 end
-                                output_value[7:0] <= now_data[7:0];
+                                output_value[7:0] <= now_data0;
                             end
                             if(buffer_op[now_committed] == LBU) begin
                                 output_value[31:8] <= 24'h000000;
-                                output_value[7:0] <= now_data[7:0];
+                                output_value[7:0] <= now_data0;
                             end
                             if(buffer_op[now_committed] == LH) begin
-                                if(now_data[15] == 1) begin
+                                if(now_data1[7] == 1) begin
                                     output_value[31:16] <= 16'hffff;
                                 end
                                 else begin
                                     output_value[31:16] <= 16'h0000;
                                 end
-                                output_value[15:0] <= now_data[15:0];
+                                output_value[15:8] <= now_data1;
+                                output_value[7:0] <= now_data0;
                             end
                             if(buffer_op[now_committed] == LHU) begin
                                 output_value[31:16] <= 16'h0000;
-                                output_value[15:0] <= now_data[15:0];
+                                output_value[15:8] <= now_data1;
+                                output_value[7:0] <= now_data0;
                             end
                             if(buffer_op[now_committed] == LW) begin
-                                output_value <= now_data;
+                                output_value[31:24] <= now_data3;
+                                output_value[23:16] <= now_data2;
+                                output_value[15:8] <= now_data1;
+                                output_value[7:0] <= now_data0;
                             end
                             output_number <= now_committed;
                             buffer_busy[now_committed] = 0;

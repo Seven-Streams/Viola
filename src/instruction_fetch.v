@@ -33,7 +33,9 @@ module IF(
     integer i;
     reg [31:0] pc_tmp;
     reg flag;
+    reg short;
     initial begin
+        short = 0;
         flag = 0;
         pc = 0;
         predicted_pc = 0;
@@ -54,14 +56,17 @@ module IF(
         else begin
             if(data_ready) begin
                 data_tmp = data;
+                data_tmp0 = data;
+                data_tmp1 = data;
                 flag = 1;
             end
             if(branch_taken) begin
                 pc <= branch_pc;
                 head <= head + 1;
             end
+            short = ic_size[head] == 1 ? 1 : 0;
             if(branch_not_taken) begin
-                pc <= pc + (ic_size[head] == 1 ? 4 : 2);
+                pc <= pc + (short ? 4 : 2);
                 rst <= 1;
             end
             if(jalr_ready) begin
@@ -74,7 +79,7 @@ module IF(
             if(pc_ready) begin
                 rst <= 0;
                 if(nxt_pc == 32'hffffffff) begin
-                    pc <= pc + (ic_size[head] == 1 ? 4 : 2);
+                    pc <= pc + (short? 4 : 2);
                     head <= head + 1;
                 end
                 else begin
@@ -87,6 +92,8 @@ module IF(
             end
         end
     end
+    reg[31:0] data_tmp0;
+    reg[31:0] data_tmp1;
     reg[31:0] value0;
     reg[31:0] value1;
     reg[31:0] value2;
@@ -109,14 +116,14 @@ module IF(
                 if(data_tmp[1:0] == 2'b11) begin
                     ic_size[tail] <= 1;
                     tail <= tail + 1;
-                    case(data_tmp[6:0])
+                    case(data_tmp0[6:0])
                         7'b1101111: begin
                             value0 = 0;
-                            value0[20] = data_tmp[31];
-                            value0[19:12] = data_tmp[19:12];
-                            value0[11] = data_tmp[20];
-                            value0[10:1] = data_tmp[30:21];
-                            if(data_tmp[31] == 0) begin
+                            value0[20] = data_tmp0[31];
+                            value0[19:12] = data_tmp0[19:12];
+                            value0[11] = data_tmp0[20];
+                            value0[10:1] = data_tmp0[30:21];
+                            if(data_tmp0[31] == 0) begin
                                 predicted_pc = (predicted_pc + value0);
                             end
                             else begin
@@ -127,11 +134,11 @@ module IF(
                         end
                         7'b1100011: begin
                             value1 = 0;
-                            value1[12] = data_tmp[31];
-                            value1[11] = data_tmp[7];
-                            value1[10:5] = data_tmp[30:25];
-                            value1[4:1] = data_tmp[11:8];
-                            if(data_tmp[31] == 0) begin
+                            value1[12] = data_tmp0[31];
+                            value1[11] = data_tmp0[7];
+                            value1[10:5] = data_tmp0[30:25];
+                            value1[4:1] = data_tmp0[11:8];
+                            if(data_tmp0[31] == 0) begin
                                 predicted_pc = predicted_pc + value1;
                             end
                             else begin
@@ -156,19 +163,19 @@ module IF(
                         shooted <= 1;
                     end
                     else begin
-                        if(data_tmp[1:0] == 2'b01) begin
-                            case(data_tmp[15:13])
+                        if(data_tmp1[1:0] == 2'b01) begin
+                            case(data_tmp1[15:13])
                         3'b001: begin
                             value[0] = 0;
-                            value[0][11] = data_tmp[12];
-                            value[0][10] = data_tmp[8];
-                            value[0][9:8] = data_tmp[10:9];
-                            value[0][7] = data_tmp[6];
-                            value[0][6] = data_tmp[7];
-                            value[0][5] = data_tmp[2];
-                            value[0][4] = data_tmp[11];
-                            value[0][3:1] = data_tmp[5:3];
-                            if(data_tmp[12] == 0) begin
+                            value[0][11] = data_tmp1[12];
+                            value[0][10] = data_tmp1[8];
+                            value[0][9:8] = data_tmp1[10:9];
+                            value[0][7] = data_tmp1[6];
+                            value[0][6] = data_tmp1[7];
+                            value[0][5] = data_tmp1[2];
+                            value[0][4] = data_tmp1[11];
+                            value[0][3:1] = data_tmp1[5:3];
+                            if(data_tmp1[12] == 0) begin
                                 predicted_pc = predicted_pc + value[0];
                             end
                             else begin
@@ -180,15 +187,15 @@ module IF(
                         end
                         3'b101:begin
                             value[0] = 0;
-                            value[0][11] = data_tmp[12];
-                            value[0][10] = data_tmp[8];
-                            value[0][9:8] = data_tmp[10:9];
-                            value[0][7] = data_tmp[6];
-                            value[0][6] = data_tmp[7];
-                            value[0][5] = data_tmp[2];
-                            value[0][4] = data_tmp[11];
-                            value[0][3:1] = data_tmp[5:3];
-                            if(data_tmp[12] == 0) begin
+                            value[0][11] = data_tmp1[12];
+                            value[0][10] = data_tmp1[8];
+                            value[0][9:8] = data_tmp1[10:9];
+                            value[0][7] = data_tmp1[6];
+                            value[0][6] = data_tmp1[7];
+                            value[0][5] = data_tmp1[2];
+                            value[0][4] = data_tmp1[11];
+                            value[0][3:1] = data_tmp1[5:3];
+                            if(data_tmp1[12] == 0) begin
                                 predicted_pc = predicted_pc + value[0];
                             end
                             else begin
@@ -199,11 +206,11 @@ module IF(
                         end
                         3'b110:begin
                                 value2 = 0;
-                                value2[7:6] = data_tmp[6:5];
-                                value2[5] = data_tmp[2];
-                                value2[4:3] = data_tmp[11:10];
-                                value2[2:1] = data_tmp[4:3];
-                                if(data_tmp[12] == 0) begin
+                                value2[7:6] = data_tmp1[6:5];
+                                value2[5] = data_tmp1[2];
+                                value2[4:3] = data_tmp1[11:10];
+                                value2[2:1] = data_tmp1[4:3];
+                                if(data_tmp1[12] == 0) begin
                                     predicted_pc = predicted_pc + value2;
                                     shooted <= 0;
                                 end
@@ -215,11 +222,11 @@ module IF(
                         end
                         3'b111:begin
                                 value3 = 0;
-                                value3[7:6] = data_tmp[6:5];
-                                value3[5] = data_tmp[2];
-                                value3[4:3] = data_tmp[11:10];
-                                value3[2:1] = data_tmp[4:3];
-                                if(data_tmp[12] == 0) begin
+                                value3[7:6] = data_tmp1[6:5];
+                                value3[5] = data_tmp1[2];
+                                value3[4:3] = data_tmp1[11:10];
+                                value3[2:1] = data_tmp1[4:3];
+                                if(data_tmp1[12] == 0) begin
                                     predicted_pc = predicted_pc + value3;
                                     shooted <= 0;
                                 end

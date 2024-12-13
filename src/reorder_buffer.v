@@ -13,6 +13,7 @@ module ROB(
         input wire rs_full,
         input wire[2:0] alu_num,
         input wire[31:0] alu_value,
+        input wire is_branch_input,
         input wire[2:0] mem_num,
         input wire[31:0] mem_value,
         input wire[2:0] ready_load_num,
@@ -22,6 +23,7 @@ module ROB(
         output reg[31:0] value2_out,
         output reg[2:0] query1_out,
         output reg[2:0] query2_out,
+        output reg is_branch_out,
         output reg commit,
         output reg[4:0] rd_out,
         output reg[2:0] num_out,
@@ -50,6 +52,7 @@ module ROB(
     reg add;
     reg minus;
     initial begin
+        is_branch_out = 0;
         add = 0;
         minus = 0;
         cnt = 0;
@@ -113,7 +116,7 @@ module ROB(
         end
         if(!rst) begin
             if(alu_num != 0) begin
-                if(rob_op[alu_num] == BGE || rob_op[alu_num] == BGEU || rob_op[alu_num] == BLT || rob_op[alu_num] == BLTU || rob_op[alu_num] == BEQ || rob_op[alu_num] == BNE) begin
+                if(is_branch_input) begin
                     if(alu_value == 0) begin
                         rob_ready[alu_num] = 2'b10;
                     end
@@ -170,6 +173,11 @@ module ROB(
                 end
                 else begin
                     op_out <= rob_op[last_ins];
+                end
+                if(op == BEQ || op == BGE || op == BNE || op == BGEU || op == BLT || op == BLTU) begin
+                    is_branch_out <= 1;
+                end else begin
+                    is_branch_out <= 0;
                 end
                 if(query1_rf == 0) begin
                     value1_out <= value1_rf;

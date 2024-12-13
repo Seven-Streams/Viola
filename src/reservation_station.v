@@ -12,9 +12,11 @@ module RS(
         input wire[31:0] imm_in,
         input wire[2:0] query1,
         input wire[2:0] query2,
+        input wire is_branch_input,
         output reg[4:0] alu_op,
         output reg[31:0] alu_value1,
         output reg[31:0] alu_value2,
+        output reg is_branch_out,
         output reg[2:0] alu_des,
         output reg[4:0] memory_op,
         output reg[31:0] memory_value1,
@@ -33,6 +35,7 @@ module RS(
     reg[2:0] des_rs[5:0];
     reg[5:0] query1_rs[5:0];
     reg[5:0] query2_rs[5:0];
+    reg[0:0] is_branch[5:0];
     reg[31:0] imm[5:0];
     reg busy[5:0];
     reg alu_shooted;
@@ -175,6 +178,7 @@ module RS(
                     for(i = 0; (i < 3) && flag; i = i + 1) begin
                         if(!busy[i]) begin
                             busy[i] = 1;
+                            is_branch[i] <= is_branch_input;
                             op_rs[i] <= op;
                             des_rs[i] <= des_in;
                             if(query1 == 0) begin
@@ -247,6 +251,7 @@ module RS(
                         alu_value2 <= value2_rs[k];
                         alu_des <= des_rs[k];
                         alu_op <= op_rs[k];
+                        is_branch_out <= is_branch[k];
                         alu_shoot_tmp = k;
                         alu_shooted = 1;
                     end

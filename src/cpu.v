@@ -59,6 +59,7 @@ ALU alu(
   .rst(i_f.rst),
   .value_1(rs.alu_value1),
   .value_2(rs.alu_value2),
+  .is_branch_input(rs.is_branch_out),
   .op(rs.alu_op),
   .des_input(rs.alu_des)
 );
@@ -112,6 +113,7 @@ ROB rob(
   .rs_full(rs.rs_full),
   .alu_num(alu.des_rob),
   .alu_value(alu.result),
+  .is_branch_input(alu.is_branch_out),
   .mem_num(lsb.output_number),
   .mem_value(lsb.output_value),
   .ready_load_num(lsb.can_be_load)
@@ -144,6 +146,7 @@ RS rs(
   .value2(rob.value2_out),
   .query1(rob.query1_out),
   .query2(rob.query2_out),
+  .is_branch_input(rob.is_branch_out),
   .imm_in(rob.imm_out)
 );
 
