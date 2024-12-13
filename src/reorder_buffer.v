@@ -45,6 +45,9 @@ module ROB(
     reg to_shoot;
     reg [4:0] rob_op[7:0];
     reg [4:0] rob_rd[7:0];
+    reg [31:0] now_pc_tmp;
+    reg [4:0] head_op;
+    reg [31:0] head_value;
     reg [0:0]rob_busy[7:0];
     reg [1:0]rob_ready[7:0];//00:executing, 01:can be load_store committed, 10: branch not taken, 11: can be committed
     reg [31:0]rob_value[7:0];
@@ -132,7 +135,7 @@ module ROB(
         end
         if(!rst) begin
             if(op != 5'b11111) begin
-                rob_op[tail] <= op;
+                rob_op[tail] = op;
                  if(op == LUI || op == AUIPC || op == JAL || op == JAL_C) begin
                     rob_ready[tail] = 2'b11;
                 end else begin
@@ -160,6 +163,9 @@ module ROB(
         if(tail == 0) begin
             tail = 1;
         end
+        now_pc_tmp = now_pc;
+        head_value = rob_value[head];
+        head_op = rob_op[head];
     end
     always@(negedge clk) begin
         if(!rst) begin
@@ -236,21 +242,18 @@ module ROB(
                     if(rob_rd[head] != 0) begin
                         commit <= 1;
                         rd_out <= rob_rd[head];
-                        if(rob_op[head] == JALR || rob_op[head] == JAL) begin
+                        case(head_op)
+                        JALR:
                             value_out <= (now_pc + 4);
-                        end
-                        else begin
-                            if(rob_op[head] == JAL_C) begin
-                                value_out <= (now_pc + 2);
-                            end
-                            else begin
-                                if(rob_op[head] == AUIPC) begin
-                                    value_out <= (now_pc + rob_value[head]);
-                                end else begin
-                                value_out <= rob_value[head];
-                                end
-                            end
-                        end
+                        JAL:
+                            value_out <= (now_pc + 4);
+                        JAL_C:
+                            value_out <= (now_pc + 2);
+                        AUIPC:
+                            value_out <= (now_pc + head_value);
+                        default:
+                            value_out <= head_value;
+                    endcase
                         num_out <= head;
                     end
                     if(head != 7) begin
