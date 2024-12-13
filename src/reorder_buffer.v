@@ -97,20 +97,7 @@ module ROB(
                JAL_C = 5'b11100;
 
     integer i;
-    always@(posedge clk) begin
-        add = 0;
-        if(!rst)begin
-            if(mem_num != 0) begin
-                rob_value[mem_num] = mem_value;
-                rob_ready[mem_num] = 2'b11;
-            end
-            if(ready_load_num != 0 && (mem_num != ready_load_num) && (rob_ready[ready_load_num] != 2'b11)) begin
-                rob_ready[ready_load_num] = 2'b01;
-            end
-        end else begin
-            tail = 1;
-            to_shoot = 0;
-        end
+    always@(rst or alu_num) begin
         if(!rst) begin
             if(alu_num != 0) begin
                 if(rob_op[alu_num] == BGE || rob_op[alu_num] == BGEU || rob_op[alu_num] == BLT || rob_op[alu_num] == BLTU || rob_op[alu_num] == BEQ || rob_op[alu_num] == BNE) begin
@@ -126,6 +113,21 @@ module ROB(
                     rob_ready[alu_num] = 2'b11;
                 end
             end
+        end
+    end
+    always@(posedge clk) begin
+        add = 0;
+        if(!rst)begin
+            if(mem_num != 0) begin
+                rob_value[mem_num] = mem_value;
+                rob_ready[mem_num] = 2'b11;
+            end
+            if(ready_load_num != 0 && (mem_num != ready_load_num) && (rob_ready[ready_load_num] != 2'b11)) begin
+                rob_ready[ready_load_num] = 2'b01;
+            end
+        end else begin
+            tail = 1;
+            to_shoot = 0;
         end
         if(!rst) begin
             if(op != 5'b11111) begin
