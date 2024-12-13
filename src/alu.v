@@ -6,7 +6,8 @@ module ALU(
         input wire[2:0] des_input,
         input wire clk,
         input wire rst,
-        output reg[2:0] des,
+        output reg[2:0] des_rob,
+        output reg[2:0] des_rs,
         output reg[31:0] result
     );
     reg[31:0] tmp;
@@ -70,11 +71,13 @@ module ALU(
     end
     always @(negedge clk) begin
         if(!rst) begin
-            des <= des_input;
+            des_rob <= des_input;
+            des_rs <= des_input;
             result <= tmp;
         end
         else begin
-            des <= 0;
+            des_rob <= 0;
+            des_rs <= 0;
         end
     end
 endmodule
