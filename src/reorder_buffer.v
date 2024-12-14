@@ -106,23 +106,34 @@ module ROB(
     always@(posedge clk) begin
         add = 0;
         if(!rst)begin
-            rob_value[mem_num] = mem_value;
-            rob_ready[mem_num] = 2'b11;
+            if(mem_num != 0) begin
+                rob_value[mem_num] = mem_value;
+                rob_ready[mem_num] = 2'b11;
+            end
             if(ready_load_num != 0 && (mem_num != ready_load_num) && (rob_ready[ready_load_num] != 2'b11)) begin
                 rob_ready[ready_load_num] = 2'b01;
             end
-            if(is_branch_input) begin
-                if(alu_value == 0) begin
+        end else begin
+            tail = 1;
+            to_shoot = 0;
+        end
+        if(!rst) begin
+            if(alu_num != 0) begin
+                if(is_branch_input) begin
+                    if(alu_value == 0) begin
                         rob_ready[alu_num] = 2'b10;
+                    end
+                    else begin
+                        rob_ready[alu_num] = 2'b11;
+                    end
                 end
                 else begin
+                    rob_value[alu_num] = alu_value;
                     rob_ready[alu_num] = 2'b11;
                 end
-             end
-            else begin
-                rob_value[alu_num] = alu_value;
-                rob_ready[alu_num] = 2'b11;
             end
+        end
+        if(!rst) begin
             if(op != 5'b11111) begin
                 rob_op[tail] = op;
                  if(op == LUI || op == AUIPC || op == JAL || op == JAL_C) begin
@@ -145,11 +156,12 @@ module ROB(
                 to_shoot = 0;
             end
         end else begin
-            tail = 1;
-            to_shoot = 0;
-            for(i = 1; i < 8; i = i + 1) begin
+          for(i = 1; i < 8; i = i + 1) begin
             rob_ready[i] = 0;
           end
+        end
+        if(tail == 0) begin
+            tail = 1;
         end
         now_pc_tmp = now_pc;
         head_value = rob_value[head];
