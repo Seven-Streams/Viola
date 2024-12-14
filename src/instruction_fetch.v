@@ -20,6 +20,7 @@ module IF(
     reg [31:0] data_tmp;
     reg [31:0] pc;
     reg [31:0] predicted_pc;
+    reg [31:0] normal_nxt_pc;
     reg [0:0] ready;
     reg jalr_tmp;
     reg [0:0] ready_tmp;
@@ -64,9 +65,8 @@ module IF(
                 pc <= branch_pc;
                 head <= head + 1;
             end
-            short = ic_size[head] == 1 ? 1 : 0;
             if(branch_not_taken) begin
-                pc <= pc + (short ? 4 : 2);
+                pc <= normal_nxt_pc;
                 rst <= 1;
             end
             if(jalr_ready) begin
@@ -79,7 +79,7 @@ module IF(
             if(pc_ready) begin
                 rst <= 0;
                 if(nxt_pc == 32'hffffffff) begin
-                    pc <= pc + (short? 4 : 2);
+                    pc <= normal_nxt_pc;
                     head <= head + 1;
                 end
                 else begin
@@ -102,6 +102,8 @@ module IF(
     reg [4:0] rem2;
     always@(negedge clk) begin
         if(!rst) begin
+            short = ic_size[head] == 1 ? 1 : 0;
+            normal_nxt_pc <= pc + (short ? 4 : 2);
             if((!lsb_full) && (!iq_full) && (!shooted) && (!ready)) begin
                 asking <= 1;
                 addr <= predicted_pc;
