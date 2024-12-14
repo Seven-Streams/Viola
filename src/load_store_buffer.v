@@ -77,6 +77,18 @@ module LSB(
     reg [2:0] rob_number_tmp;
     integer cnt;
     initial begin
+        output_number = 0;
+        output_value = 0;
+        ins_value = 0;
+        ins_ready = 0;
+        mem_ready = 0;
+        can_be_load = 0;
+        ram_addr = 0;
+        ram_writing = 0;
+        ram_data = 0;
+        if_full = 0;
+        rob_number_tmp = 0;
+        commited_tmp = 0;
         output_value = 0;
         now_committed = 0;
         ins_value = 0;

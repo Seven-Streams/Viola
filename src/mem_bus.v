@@ -11,6 +11,8 @@ module MEM_BUS(
   initial begin
     data_tmp = 0;
     num_tmp = 0;
+    data_out = 0;
+    num_out = 0;
   end
   always @(posedge clk) begin
     if(rst == 1) begin

@@ -9,6 +9,14 @@ module Decoder(
         output reg[31:0] imm,
         output reg has_imm
     );
+    initial begin
+        op = 5'b11111;
+        rs1 = 0;
+        rs2 = 0;
+        rd = 0;
+        imm = 0;
+        has_imm = 0;
+    end
     localparam [4:0]
                ADD = 5'b00000,
                AND = 5'b00001,

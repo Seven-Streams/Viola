@@ -54,12 +54,32 @@ module ROB(
     reg [2:0] cnt;
     reg add;
     reg minus;
+    integer init;
     initial begin
+        rob_full = 0;
+        op_out = 5'b11111;
+        value1_out = 0;
+        value2_out = 0;
+        query1_out = 0;
+        query2_out = 0;
+        is_branch_out = 0;
+        commit = 0;
+        rd_out = 0;
+        num_out = 0;
+        value_out = 0;
+        ls_num_out = 0;
+        branch_taken = 0;
+        branch_pc = 0;
+        jalr_ready = 0;
+        jalr_pc = 0;
+        pc_ready = 0;
+        nxt_pc = 0;
+        target = 0;
+        imm_out = 0;
         is_branch_out = 0;
         add = 0;
         minus = 0;
         cnt = 0;
-        branch_taken = 0;
         jalr_ready = 0;
         pc_ready = 0;
         branch_not_taken = 0;
@@ -70,6 +90,10 @@ module ROB(
         to_shoot = 0;
         commit = 0;
         op_out = 5'b11111;
+        for(init = 0; init < 8; init = init + 1) begin
+            rob_busy[init] = 1'b0;
+            rob_ready[init] = 2'b00;
+        end
     end
     localparam [4:0]
                ADD = 5'b00000,
@@ -279,10 +303,10 @@ module ROB(
                             branch_not_taken <= 0;
                             pc_ready <= 1;
                             if(rob_op[head] == JAL || rob_op[head] == JAL_C) begin
-                                nxt_pc <= (rob_value[head] + now_pc);
+                                nxt_pc = (rob_value[head] + now_pc);
                             end
                             else begin
-                                    nxt_pc <= 32'hffffffff;
+                                    nxt_pc = 32'hffffffff;
                             end
                         end
                     end
@@ -305,7 +329,7 @@ module ROB(
                         branch_taken <= 0;
                         jalr_ready <= 0;
                         branch_not_taken <= 1;
-                        nxt_pc <= 32'hffffffff;
+                        nxt_pc = 32'hffffffff;
                     end
                     else begin
                         branch_not_taken <= 0;

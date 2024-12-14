@@ -12,6 +12,13 @@ module ALU(
         output reg[31:0] result,
         output reg is_branch_out
     );
+    initial begin
+        des_rob = 0;
+        des_rs = 0;
+        result = 0;
+        is_branch_out = 0;
+        op_tmp = 0;
+    end
     reg[31:0] tmp;
     reg[31:0] value1_tmp;
     reg[31:0] value2_tmp;

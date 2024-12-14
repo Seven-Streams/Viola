@@ -43,7 +43,10 @@ module IF(
         ready = 0;
         rst = 0;
         head = 0;
+        addr = 0;
         tail = 0;
+        instruction = 0;
+        asking = 0;
     end
 
     always@(posedge clk) begin

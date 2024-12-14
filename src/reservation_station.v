@@ -79,6 +79,12 @@ module RS(
         busy[3] = 0;
         busy[4] = 0;
         busy[5] = 0;
+        alu_op = 5'b11111;
+        memory_des = 0;
+        alu_shooted = 0;
+        memory_shooted = 0;
+        alu_shoot_tmp = 6;
+        memory_shoot_tmp = 6;
     end
 
     integer i;

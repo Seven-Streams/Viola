@@ -39,6 +39,7 @@ module IQ(
     integer init;
     initial begin
         op_tmp = 5'b11111;
+        cnt = 0;
         rs1_tmp = 0;
         rs2_tmp = 0;
         rd_tmp = 0;
@@ -60,6 +61,20 @@ module IQ(
         iq_full = 0;
         cnt = 0;
         add = 0;
+        iq_full = 0;
+        op_out = 5'b11111;
+        rs1_out = 0;
+        rs2_out = 0;
+        rd_out = 0;
+        imm_out = 0;
+        has_imm_out = 0;
+        shooted = 0;
+        op_tmp = 5'b11111;
+        rs1_tmp = 0;
+        rs2_tmp = 0;
+        rd_tmp = 0;
+        imm_tmp = 0;
+        has_imm_tmp = 0;
     end
     always@(posedge clk) begin
         add = 0;

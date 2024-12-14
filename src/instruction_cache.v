@@ -17,6 +17,7 @@ module IC(
  reg[4:0] rem;
  integer i;
  initial begin
+  instruction_out = 0;
   shoot = 0;
   ready_out = 0;
   addr_tmp = 1;

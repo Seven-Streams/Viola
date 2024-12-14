@@ -34,6 +34,10 @@ module RF(
             dependency[cnt] = 0;
             regs[cnt] = 0;
         end
+        value1 = 0;
+        value2 = 0;
+        query1 = 0;
+        query2 = 0;
     end
     always@(posedge clk) begin
         instruction_tmp = instruction;
