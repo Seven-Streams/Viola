@@ -37,7 +37,7 @@ module RS(
     reg[5:0] query2_rs[5:0];
     reg[0:0] is_branch[5:0];
     reg[31:0] imm[5:0];
-    reg busy[5:0];
+    reg busy[6:0];
     reg alu_shooted;
     reg memory_shooted;
     reg [2:0]busy_check_alu;
@@ -94,12 +94,8 @@ module RS(
         alu_data_tmp = alu_data;
         memory_data_tmp = memory_data;
         if(!rst) begin
-            if(alu_shooted) begin
-                busy[alu_shoot_tmp] = 0;
-            end
-            if(memory_shooted) begin
-                busy[memory_shoot_tmp] = 0;
-            end
+            busy[alu_shoot_tmp] = 0;
+            busy[memory_shoot_tmp] = 0;
             for(j = 0; j < 6; j = j + 1) begin
                 if(busy[j]) begin
                     if(alu_des_in != 0) begin
@@ -272,9 +268,11 @@ module RS(
             end
             if(!alu_shooted) begin
                 alu_des <= 0;
+                alu_shoot_tmp = 6;
             end
             if(!memory_shooted) begin
                 memory_op <= 5'b11111;
+                memory_shoot_tmp = 6;
                 memory_des <= 0;
             end
         end
