@@ -113,8 +113,7 @@ module IF(
             if(ready) begin
                 instruction = data_tmp;
                 ready <= 0;
-                case(data_tmp[1:0])
-                2'b11:begin
+                if(data_tmp[1:0] == 2'b11) begin
                     ic_size[tail] <= 1;
                     tail <= tail + 1;
                     case(data_tmp0[6:0])
@@ -157,19 +156,15 @@ module IF(
                         end//Predict branch always not taken.
                     endcase
                 end
-                2'b10:begin
+                else begin
                     ic_size[tail] <= 0;
                     tail <= tail + 1;
-                    if(data_tmp[15:13] == 3'b100 && data_tmp[6:2] == 5'b00000) begin
+                    if(data_tmp[1:0] == 2'b10 && data_tmp[15:13] == 3'b100 && data_tmp[6:2] == 5'b00000) begin
                         shooted <= 1;
-                    end else begin
-                        predicted_pc = predicted_pc + 2;
-                        shooted <= 0;
                     end
-                end
-                2'b01:begin
-                    ic_size[tail] <= 0;
-                          case(data_tmp1[15:13])
+                    else begin
+                        if(data_tmp1[1:0] == 2'b01) begin
+                            case(data_tmp1[15:13])
                         3'b001: begin
                             value[0] = 0;
                             value[0][11] = data_tmp1[12];
@@ -245,16 +240,17 @@ module IF(
                             predicted_pc = predicted_pc + 2;
                             shooted <= 0;
                         end
-                    endcase
+                        endcase
+                        end
+                        else begin
+                        
+                                predicted_pc = predicted_pc + 2;
+                                shooted <= 0;
+                        end
+                    end
                 end
-                default:begin
-                    ic_size[tail] <= 0;
-                    predicted_pc = predicted_pc + 2;
-                    shooted <= 0;
-                end
-                endcase
-                tail <= tail + 1;
-            end else begin
+            end
+            else begin
                 instruction = 0;
             end
             now_pc <= pc;

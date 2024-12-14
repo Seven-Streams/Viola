@@ -114,8 +114,8 @@ ROB rob(
   .alu_num(alu.des_rob),
   .alu_value(alu.result),
   .is_branch_input(alu.is_branch_out),
-  .mem_num(mem_bus.num_out),
-  .mem_value(mem_bus.data_out),
+  .mem_num(lsb.output_number),
+  .mem_value(lsb.output_value),
   .ready_load_num(lsb.can_be_load)
 );
 
@@ -170,13 +170,6 @@ IC ic(
   .asking_in(i_f.asking),
   .instruction_in(lsb.ins_value),
   .ins_ready_in(lsb.ins_ready)
-);
-
-MEM_BUS mem_bus(
-  .clk(clk_in),
-  .rst(i_f.rst),
-  .data_in(lsb.output_value),
-  .num_in(lsb.output_number)
 );
 
 endmodule
