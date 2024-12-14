@@ -1,6 +1,7 @@
 module RS(
         input wire clk,
         input wire rst,
+        input wire pause,
         input wire[31:0] alu_data,
         input wire[2:0] alu_des_in,
         input wire[31:0] memory_data,
@@ -99,6 +100,7 @@ module RS(
     reg [2:0] memory_shoot_tmp;
     reg flag;
     always@(posedge clk) begin
+        if(!pause) begin
         alu_in_tmp = alu_des_in;
         memory_in_tmp = memory_des_in;
         alu_data_tmp = alu_data;
@@ -238,8 +240,10 @@ module RS(
             busy[5] = 0;
         end
     end
+    end
 
     always@(negedge clk) begin
+        if(!pause)begin
         if(!rst) begin
             busy_check_alu = busy[0] + busy[1] + busy[2];
             busy_check_memory = busy[3] + busy[4] + busy[5];
@@ -291,5 +295,6 @@ module RS(
             memory_shooted = 0;
             rs_full = 0;
         end
+    end
     end
 endmodule

@@ -1,5 +1,6 @@
 module IC(
   input wire clk,
+  input wire pause,
   input rst,
   input wire[31:0] addr_in,
   input wire asking_in,
@@ -30,6 +31,7 @@ module IC(
  end
 
 always@(posedge clk) begin
+  if(!pause) begin
   if(rst == 1 || ready_out == 1) begin
     addr_tmp = 1;
   end else begin
@@ -44,9 +46,11 @@ always@(posedge clk) begin
       in_cache_addr = addr_tmp;
     end
   end
+  end
 end
 
 always@(negedge clk) begin
+  if(!pause)begin
   ready_out = 0;
   asking_out = 0;
   addr_out = 0;
@@ -67,5 +71,6 @@ always@(negedge clk) begin
   end else begin
     shoot = 0;
   end
+end
 end
 endmodule

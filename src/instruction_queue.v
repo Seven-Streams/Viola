@@ -1,6 +1,7 @@
 module IQ(
         input wire clk,
         input wire rst,
+        input wire pause,
         input wire[4:0] op,
         input wire[4:0] rs1,
         input wire[4:0] rs2,
@@ -77,6 +78,7 @@ module IQ(
         has_imm_tmp = 0;
     end
     always@(posedge clk) begin
+        if(!pause)begin
         add = 0;
         if(!rst) begin
             if(op != 5'b11111) begin
@@ -94,8 +96,10 @@ module IQ(
           tail = 0;
         end
     end
+    end
 
     always@(negedge clk) begin
+        if(!pause)begin
         cnt = cnt + add;
         if(add == 1) begin
             busy[last] = 1;
@@ -141,5 +145,6 @@ module IQ(
             cnt = 0;
             iq_full = 0;
         end
+    end
     end
 endmodule

@@ -2,6 +2,7 @@ module LSB(
         input wire clk,
         input wire rst,
         input wire[31:0] pc_addr,
+        input wire pause,
         input wire new_ins,
         input wire[31:0] addr,
         input wire[31:0] data,
@@ -109,6 +110,7 @@ module LSB(
     reg flag;
     reg[2:0] value;
     always@(posedge clk) begin
+        if(!pause)begin
         flag = 0;
         if(!rst) begin
             if(op != 5'b11111) begin
@@ -151,8 +153,10 @@ module LSB(
             if_tail = 0;
         end
     end
+    end
 
     always@(negedge clk) begin
+        if(!pause) begin
         if(!rst) begin
             now_committed = commited_tmp;
             if((if_head == (if_tail + 2)) || (if_head == (if_tail + 1))) begin
@@ -342,5 +346,6 @@ module LSB(
             mem_ready = 0;
             now_committed = 0;
         end
+    end
     end
 endmodule

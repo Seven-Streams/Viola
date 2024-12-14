@@ -1,6 +1,7 @@
 module RF(
         input wire clk,
         input wire rst,
+        input wire pause,
         input wire commit,
         input wire [4:0] reg_num,
         input wire [31:0] data_in,
@@ -42,6 +43,7 @@ module RF(
         query2 = 0;
     end
     always@(posedge clk) begin
+        if(!pause) begin
         instruction_tmp = instruction;
         rs1_tmp = rs1;
         rs2_tmp = rs2;
@@ -78,7 +80,9 @@ module RF(
             end
         end
     end
+    end
     always@(negedge clk) begin
+        if(!pause)begin
         if(!rst) begin
             if(instruction_tmp && (rd != 0)) begin
                 dependency[rd] <= dependency_num;
@@ -88,5 +92,6 @@ module RF(
         value2 <= value2_tmp;
         query1 <= query1_tmp;
         query2 <= query2_tmp;
+    end
     end
 endmodule

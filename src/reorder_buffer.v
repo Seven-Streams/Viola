@@ -1,6 +1,7 @@
 module ROB(
         input wire clk,
         input wire rst,
+        input wire pause,
         input wire has_imm,
         input wire[31:0] imm,
         input wire[31:0] now_pc,
@@ -131,6 +132,7 @@ module ROB(
 
     integer i;
     always@(posedge clk) begin
+        if(!pause)begin
         add = 0;
         if(!rst)begin
             rob_value[mem_num] = mem_value;
@@ -190,7 +192,9 @@ module ROB(
         head_value = rob_value[head];
         head_op = rob_op[head];
     end
+    end
     always@(negedge clk) begin
+        if(!pause)begin
         if(!rst) begin
             cnt = cnt + add;
             rob_full <= (cnt >= 5);
@@ -358,5 +362,6 @@ module ROB(
                 rob_busy[i] = 1'b0;
             end
         end
+    end
     end
 endmodule

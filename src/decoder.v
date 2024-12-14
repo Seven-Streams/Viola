@@ -2,6 +2,7 @@ module Decoder(
         input wire clk,
         input wire rst,
         input [31:0] instruction,
+        input wire pause,
         output reg[4:0] op,
         output reg[4:0] rs1,
         output reg[4:0] rs2,
@@ -61,6 +62,7 @@ module Decoder(
     reg [0:0]has_imm_tmp;
     reg [31:0]value_tmp;
     always@(posedge clk) begin
+        if(!pause) begin
         instruction_tmp = instruction;
         if(instruction != 0) begin
             if(instruction[1:0] == 2'b11) begin
@@ -643,8 +645,10 @@ module Decoder(
         end else begin
           op_tmp <= 5'b11111;
         end
+        end
     end
     always@(negedge clk) begin
+        if(!pause) begin
         if(!rst) begin
             op <= op_tmp;
             rs1 <= rs1_tmp;
@@ -656,5 +660,6 @@ module Decoder(
         else begin
             op <= 5'b11111;
         end
+    end
     end
 endmodule

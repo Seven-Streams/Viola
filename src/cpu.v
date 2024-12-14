@@ -26,27 +26,21 @@ module cpu(
 // - 0x30004 read: read clocks passed since cpu starts (in dword, 4 bytes)
 // - 0x30004 write: indi_fates program stop (will output '\0' through uart tx)
 
-  reg clk_inner;
-initial 
-  begin
-    clk_inner = 0;
-  end
-
-always @(clk_in)
-  begin
-    if(io_buffer_full == 1'b1 || (rdy_in == 0)) begin
-    end else begin
-      clk_inner = clk_in;
-    end
-  end
-
   assign mem_dout = lsb.ram_data;
   assign mem_a = lsb.ram_addr;
   assign mem_wr = lsb.ram_writing;
   assign dbgreg_dout = 0;
+
+reg pause;
+always @(*) begin
+  pause = (!rdy_in);
+end
+
+
 AU au(
-  .clk(clk_inner),
+  .clk(clk_in),
   .rst(i_f.rst),
+  .pause(pause),
   .value1(rs.memory_value1),
   .value2(rs.memory_imm),
   .op_input(rs.memory_op),
@@ -55,7 +49,8 @@ AU au(
 );
 
 ALU alu(
-  .clk(clk_inner),
+  .pause(pause),
+  .clk(clk_in),
   .rst(i_f.rst),
   .value_1(rs.alu_value1),
   .value_2(rs.alu_value2),
@@ -65,7 +60,8 @@ ALU alu(
 );
 
 IF i_f(
-  .clk(clk_inner),
+  .pause(pause),
+  .clk(clk_in),
   .data(ic.instruction_out),
   .data_ready(ic.ready_out),
   .branch_taken(rob.branch_taken),
@@ -80,13 +76,15 @@ IF i_f(
 );
 
 Decoder decoder(
-  .clk(clk_inner),
+  .pause(pause),
+  .clk(clk_in),
   .rst(i_f.rst),
   .instruction(i_f.instruction)
 );
 
 IQ iq(
-  .clk(clk_inner),
+  .pause(pause),
+  .clk(clk_in),
   .rst(i_f.rst),
   .op(decoder.op),
   .rs1(decoder.rs1),
@@ -99,7 +97,8 @@ IQ iq(
 );
 
 ROB rob(
-  .clk(clk_inner),
+  .pause(pause),
+  .clk(clk_in),
   .rst(i_f.rst),
   .has_imm(iq.has_imm_out),
   .imm(iq.imm_out),
@@ -120,7 +119,8 @@ ROB rob(
 );
 
 RF rf(
-  .clk(clk_inner),
+  .pause(pause),
+  .clk(clk_in),
   .rst(i_f.rst),
   .commit(rob.commit),
   .reg_num(rob.rd_out),
@@ -134,7 +134,8 @@ RF rf(
 );
 
 RS rs(
-  .clk(clk_inner),
+  .pause(pause),
+  .clk(clk_in),
   .rst(i_f.rst),
   .alu_data(alu.result),
   .alu_des_in(alu.des_rs),
@@ -151,7 +152,8 @@ RS rs(
 );
 
 LSB lsb(
-  .clk(clk_inner),
+  .pause(pause),
+  .clk(clk_in),
   .rst(i_f.rst),
   .pc_addr(ic.addr_out),
   .new_ins(ic.asking_out),
@@ -164,7 +166,8 @@ LSB lsb(
 );
 
 IC ic(
-  .clk(clk_inner),
+  .pause(pause),
+  .clk(clk_in),
   .rst(i_f.rst),
   .addr_in(i_f.addr),
   .asking_in(i_f.asking),
@@ -173,7 +176,8 @@ IC ic(
 );
 
 MEM_BUS mem_bus(
-  .clk(clk_inner),
+  .pause(pause),
+  .clk(clk_in),
   .rst(i_f.rst),
   .data_in(lsb.output_value),
   .num_in(lsb.output_number)

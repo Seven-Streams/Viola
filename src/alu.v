@@ -3,6 +3,7 @@ module ALU(
         input wire[31:0] value_1,
         input wire[31:0] value_2,
         input wire[4:0] op,
+        input wire pause,
         input wire[2:0] des_input,
         input wire is_branch_input,
         input wire clk,
@@ -45,6 +46,7 @@ module ALU(
                LT = 5'b11010,
                LTU = 5'b11011;
     always @(posedge clk) begin
+        if(!pause) begin
         is_branch_tmp = is_branch_input;
         value1_tmp = value_1;
         value2_tmp = value_2;
@@ -81,8 +83,10 @@ module ALU(
             default:
                 tmp = 32'b0;
         endcase
+        end
     end
     always @(negedge clk) begin
+        if(!pause)begin
         if(!rst) begin
             des_rob = des_input;
             des_rs = des_input;
@@ -101,6 +105,7 @@ module ALU(
         else begin
             des_rob = 0;
             des_rs = 0;
+        end
         end
     end
 endmodule
