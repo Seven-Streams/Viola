@@ -22,7 +22,7 @@ module MEM_BUS(
     end
   end
   always @(negedge clk) begin
-    data_out <= data_tmp;
-    num_out <= num_tmp;
+    data_out = data_tmp;
+    num_out = num_tmp;
   end
 endmodule
