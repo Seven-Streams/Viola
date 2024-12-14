@@ -11,6 +11,13 @@ module AU(
         output reg[2:0] rob_number,
         output reg[31:0] ls_value_output
     );
+    initial begin
+        rob_number = 0;
+        op = 5'b11111;
+        op_tmp = 5'b11111;
+        rob_number_tmp = 0;
+        addr = 0;
+    end
     reg [31:0] value_tmp;
     reg [4:0] op_tmp;
     reg [2:0] rob_number_tmp;

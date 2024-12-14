@@ -38,6 +38,7 @@ module IQ(
     reg [4:0]cnt;
     integer init;
     initial begin
+        rd_tmp = 0;
         op_tmp = 5'b11111;
         cnt = 0;
         rs1_tmp = 0;
@@ -62,7 +63,6 @@ module IQ(
         cnt = 0;
         add = 0;
         iq_full = 0;
-        op_out = 5'b11111;
         rs1_out = 0;
         rs2_out = 0;
         rd_out = 0;

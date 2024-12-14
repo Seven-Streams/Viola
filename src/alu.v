@@ -13,11 +13,13 @@ module ALU(
         output reg is_branch_out
     );
     initial begin
+        tmp = 0;
         des_rob = 0;
         des_rs = 0;
         result = 0;
         is_branch_out = 0;
-        op_tmp = 0;
+        op_tmp = 5'b11111;
+        result = 0;
     end
     reg[31:0] tmp;
     reg[31:0] value1_tmp;

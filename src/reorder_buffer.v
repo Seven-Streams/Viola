@@ -56,6 +56,8 @@ module ROB(
     reg minus;
     integer init;
     initial begin
+        head_op = 5'b11111;
+        now_pc_tmp = 0;
         rob_full = 0;
         op_out = 5'b11111;
         value1_out = 0;
@@ -92,6 +94,7 @@ module ROB(
         op_out = 5'b11111;
         for(init = 0; init < 8; init = init + 1) begin
             rob_busy[init] = 1'b0;
+            rob_op[init] = 5'b11111;
             rob_ready[init] = 2'b00;
         end
     end

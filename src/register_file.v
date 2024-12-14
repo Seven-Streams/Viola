@@ -28,6 +28,8 @@ module RF(
     integer i;
     integer cnt;
     initial begin
+        rd_tmp = 0;
+        instruction_tmp = 0;
         query1 = 0;
         query2 = 0;
         for(cnt = 0; cnt < 32; cnt = cnt + 1) begin

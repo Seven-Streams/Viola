@@ -77,6 +77,8 @@ module LSB(
     reg [2:0] rob_number_tmp;
     integer cnt;
     initial begin
+        flag = 0;
+        writing_flag = 0;
         output_number = 0;
         output_value = 0;
         ins_value = 0;

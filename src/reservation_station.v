@@ -78,8 +78,12 @@ module RS(
         busy[2] = 0;
         busy[3] = 0;
         busy[4] = 0;
+        flag = 0;
         busy[5] = 0;
         alu_op = 5'b11111;
+        memory_op = 5'b11111;
+        is_branch_out = 0;
+        alu_des = 0;
         memory_des = 0;
         alu_shooted = 0;
         memory_shooted = 0;

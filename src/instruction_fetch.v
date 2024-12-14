@@ -35,6 +35,7 @@ module IF(
     reg flag;
     reg short;
     initial begin
+        jalr_addr_tmp = 0;
         short = 0;
         flag = 0;
         pc = 0;

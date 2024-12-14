@@ -10,6 +10,10 @@ module Decoder(
         output reg has_imm
     );
     initial begin
+        rd_tmp = 0;
+        rd = 0;
+        instruction_tmp = 0;
+        op_tmp = 5'b11111;
         op = 5'b11111;
         rs1 = 0;
         rs2 = 0;
