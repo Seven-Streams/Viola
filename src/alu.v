@@ -13,9 +13,6 @@ module ALU(
         output reg is_branch_out
     );
     reg[31:0] tmp;
-    reg[31:0] value1_tmp;
-    reg[31:0] value2_tmp;
-    reg[4:0] op_tmp;
     reg is_branch_tmp;
     localparam [4:0]
                ADD = 5'b00000,
@@ -36,62 +33,56 @@ module ALU(
                LT = 5'b11010,
                LTU = 5'b11011;
     always @(posedge clk) begin
-        is_branch_tmp = is_branch_input;
-        value1_tmp = value_1;
-        value2_tmp = value_2;
-        op_tmp = op;
+        is_branch_tmp <= is_branch_input;
         case(op)
             LT:
-                tmp = ($signed(value_1) < $signed(value_2)) ? 1 : 0;
+                tmp <= ($signed(value_1) < $signed(value_2)) ? 1 : 0;
             LTU:
-                tmp = (value_1 < value_2) ? 1 : 0;
+                tmp <= (value_1 < value_2) ? 1 : 0;
             JALR:
-                tmp = value_1 + value_2;
+                tmp <= value_1 + value_2;
             ADD:
-                tmp = value_1 + value_2;
+                tmp <= value_1 + value_2;
             AND:
-                tmp = value_1 & value_2;
+                tmp <= value_1 & value_2;
             OR:
-                tmp = value_1 | value_2;
+                tmp <= value_1 | value_2;
             SLL:
-                tmp = value_1 << value_2[4:0];
+                tmp <= value_1 << value_2[4:0];
             SRL:
-                tmp = value_1 >> value_2[4:0];
+                tmp <= value_1 >> value_2[4:0];
             SLT:
-                tmp = ($signed(value_1) < $signed(value_2)) ? 1 : 0;
+                tmp <= ($signed(value_1) < $signed(value_2)) ? 1 : 0;
             SLTU:
-                tmp = ($unsigned(value_1) < $unsigned(value_2)) ? 1 : 0;
+                tmp <= ($unsigned(value_1) < $unsigned(value_2)) ? 1 : 0;
             SRA:
-                tmp = value_1 >>> value_2[4:0];
+                tmp <= value_1 >>> value_2[4:0];
             SUB:
-                tmp = value_1 - value_2;
+                tmp <= value_1 - value_2;
             XOR:
-                tmp = value_1 ^ value_2;
+                tmp <= value_1 ^ value_2;
             EQ:
-                tmp = (value_1 == value_2) ? 1 : 0;
+                tmp <= (value_1 == value_2) ? 1 : 0;
+            GE:
+                tmp <= ($signed(value_1) >= $signed(value_2)) ? 1 : 0;
+            NE:
+                tmp <= (value_1 != value_2) ? 1 : 0;
+            GEU:
+                tmp <= ($unsigned(value_1) >= $unsigned(value_2)) ? 1 : 0;
             default:
-                tmp = 32'b0;
+                tmp <= 32'b0;
         endcase
     end
     always @(negedge clk) begin
         if(!rst) begin
-            des_rob = des_input;
-            des_rs = des_input;
-            case(op_tmp)
-            GE:
-                result = ($signed(value_1) >= $signed(value_2)) ? 1 : 0;
-            NE:
-                result = (value_1 != value_2) ? 1 : 0;
-            GEU:
-                result = ($unsigned(value_1) >= $unsigned(value_2)) ? 1 : 0;
-            default:
-            result = tmp;
-        endcase
-            is_branch_out = is_branch_tmp;
+            des_rob <= des_input;
+            des_rs <= des_input;
+            result <= tmp;
+            is_branch_out <= is_branch_tmp;
         end
         else begin
-            des_rob = 0;
-            des_rs = 0;
+            des_rob <= 0;
+            des_rs <= 0;
         end
     end
 endmodule
