@@ -166,7 +166,7 @@ module ROB(
     always@(negedge clk) begin
         if(!rst) begin
             cnt = cnt + add;
-            rob_full = (cnt >= 5);
+            rob_full <= (cnt >= 5);
             if(to_shoot) begin
                 last_ins = (tail == 1) ? 7 : (tail - 1);
                 rob_busy[last_ins] = 1;

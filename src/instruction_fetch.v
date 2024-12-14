@@ -14,11 +14,10 @@ module IF(
         output reg [31:0] instruction,
         output reg [0:0] asking,
         output reg [31:0] addr,
-        output reg [31:0] now_pc,
+        output reg [31:0] pc,
         output reg rst
     );
     reg [31:0] data_tmp;
-    reg [31:0] pc;
     reg [31:0] predicted_pc;
     reg [31:0] normal_nxt_pc;
     reg [0:0] ready;
@@ -62,16 +61,16 @@ module IF(
                 flag = 1;
             end
             if(branch_taken) begin
-                pc <= branch_pc;
+                pc = branch_pc;
                 head <= head + 1;
             end
             if(branch_not_taken) begin
-                pc <= normal_nxt_pc;
+                pc = normal_nxt_pc;
                 rst <= 1;
             end
             if(jalr_ready) begin
                 rst <= 0;
-                pc <= jalr_addr;
+                pc = jalr_addr;
                 jalr_tmp = 1;
                 jalr_addr_tmp = jalr_addr;
                 head <= head + 1;
@@ -79,11 +78,11 @@ module IF(
             if(pc_ready) begin
                 rst <= 0;
                 if(nxt_pc == 32'hffffffff) begin
-                    pc <= normal_nxt_pc;
+                    pc = normal_nxt_pc;
                     head <= head + 1;
                 end
                 else begin
-                    pc <= nxt_pc;
+                    pc = nxt_pc;
                     head <= head + 1;
                 end
             end
@@ -259,7 +258,6 @@ module IF(
             end else begin
                 instruction = 0;
             end
-            now_pc <= pc;
             if(jalr_tmp) begin
                 shooted <= 0;
                 predicted_pc = jalr_addr_tmp;
