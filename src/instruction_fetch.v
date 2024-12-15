@@ -35,6 +35,14 @@ module IF(
     reg [31:0] pc_tmp;
     reg flag;
     reg short;
+    reg[31:0] data_tmp0;
+    reg[31:0] data_tmp1;
+    reg[31:0] value0;
+    reg[31:0] value1;
+    reg[31:0] value2;
+    reg[31:0] value3;
+    reg [4:0] rem;
+    reg [4:0] rem2;
     initial begin
         jalr_addr_tmp = 0;
         short = 0;
@@ -98,14 +106,7 @@ module IF(
         end
     end
     end
-    reg[31:0] data_tmp0;
-    reg[31:0] data_tmp1;
-    reg[31:0] value0;
-    reg[31:0] value1;
-    reg[31:0] value2;
-    reg[31:0] value3;
-    reg [4:0] rem;
-    reg [4:0] rem2;
+
     always@(negedge clk) begin
         if(!pause)begin
         if(!rst) begin

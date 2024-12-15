@@ -109,7 +109,6 @@ ROB rob(
   .value2_rf(rf.value2),
   .query1_rf(rf.query1),
   .query2_rf(rf.query2),
-  .rs_full(rs.rs_full),
   .alu_num(alu.des_rob),
   .alu_value(alu.result),
   .is_branch_input(alu.is_branch_out),

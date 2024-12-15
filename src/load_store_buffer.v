@@ -76,6 +76,9 @@ module LSB(
     reg [2:0] commited_tmp;
     reg [2:0] now_committed;
     reg [2:0] rob_number_tmp;
+    integer i;
+    reg flag;
+    reg[2:0] value;
     integer cnt;
     initial begin
         flag = 0;
@@ -106,9 +109,6 @@ module LSB(
         mem_ready = 0;
         if_tail = 0;
     end
-    integer i;
-    reg flag;
-    reg[2:0] value;
     always@(posedge clk) begin
         if(!pause)begin
         flag = 0;

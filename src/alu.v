@@ -13,6 +13,11 @@ module ALU(
         output reg[31:0] result,
         output reg is_branch_out
     );
+    reg[31:0] tmp;
+    reg[31:0] value1_tmp;
+    reg[31:0] value2_tmp;
+    reg[4:0] op_tmp;
+    reg is_branch_tmp;
     initial begin
         tmp = 0;
         des_rob = 0;
@@ -22,11 +27,6 @@ module ALU(
         op_tmp = 5'b11111;
         result = 0;
     end
-    reg[31:0] tmp;
-    reg[31:0] value1_tmp;
-    reg[31:0] value2_tmp;
-    reg[4:0] op_tmp;
-    reg is_branch_tmp;
     localparam [4:0]
                ADD = 5'b00000,
                AND = 5'b00001,

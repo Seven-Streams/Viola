@@ -10,6 +10,15 @@ module Decoder(
         output reg[31:0] imm,
         output reg has_imm
     );
+    integer value[3:0];
+    reg[4:0] op_tmp;
+    reg[4:0] rs1_tmp;
+    reg[4:0] rs2_tmp;
+    reg[4:0] rd_tmp;
+    reg[31:0] imm_tmp;
+    reg[31:0] instruction_tmp;
+    reg [0:0]has_imm_tmp;
+    reg [31:0]value_tmp;
     initial begin
         rd_tmp = 0;
         rd = 0;
@@ -52,15 +61,6 @@ module Decoder(
                BLT = 5'b11010,
                BLTU = 5'b11011,
                JAL_C = 5'b11100;
-    integer value[3:0];
-    reg[4:0] op_tmp;
-    reg[4:0] rs1_tmp;
-    reg[4:0] rs2_tmp;
-    reg[4:0] rd_tmp;
-    reg[31:0] imm_tmp;
-    reg[31:0] instruction_tmp;
-    reg [0:0]has_imm_tmp;
-    reg [31:0]value_tmp;
     always@(posedge clk) begin
         if(!pause) begin
         instruction_tmp = instruction;

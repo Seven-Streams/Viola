@@ -43,6 +43,13 @@ module RS(
     reg memory_shooted;
     reg [2:0]busy_check_alu;
     reg [2:0]busy_check_memory;
+    integer i;
+    integer j;
+    integer k;
+    integer l;
+    reg [2:0] alu_shoot_tmp;
+    reg [2:0] memory_shoot_tmp;
+    reg flag;
     localparam [4:0]
                ADD = 5'b00000,
                AND = 5'b00001,
@@ -92,13 +99,6 @@ module RS(
         memory_shoot_tmp = 6;
     end
 
-    integer i;
-    integer j;
-    integer k;
-    integer l;
-    reg [2:0] alu_shoot_tmp;
-    reg [2:0] memory_shoot_tmp;
-    reg flag;
     always@(posedge clk) begin
         if(!pause) begin
         alu_in_tmp = alu_des_in;

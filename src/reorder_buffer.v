@@ -11,7 +11,6 @@ module ROB(
         input wire [31:0] value2_rf,
         input wire [2:0] query1_rf,
         input wire [2:0] query2_rf,
-        input wire rs_full,
         input wire[2:0] alu_num,
         input wire[31:0] alu_value,
         input wire is_branch_input,
