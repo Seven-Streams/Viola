@@ -244,17 +244,17 @@ module LSB(
                             buffer_busy[now_committed] = 0;
                             executing <= executing - 1;
                             ram_writing <= 0;
-                            ram_addr <= 0;
+                            ram_addr = 0;
                             now_committed = 0;
                         end
                         else begin
-                            ram_addr <= now_addr + (executing - 1);
+                            ram_addr = now_addr + (executing - 1);
                             ram_writing <= 1;
                             writing_flag <= 0;
                         end
                     end
                     else begin
-                        ram_addr <= now_addr + (executing - 1);
+                        ram_addr = now_addr + (executing - 1);
                         executing <= executing - 1;
                         ram_writing <= 1;
                         mem_ready <= 0;
@@ -263,7 +263,7 @@ module LSB(
                 else begin
                     ram_writing <= 0;
                     if(executing >= 3) begin
-                        ram_addr <= now_addr + (executing - 3);
+                        ram_addr = now_addr + (executing - 3);
                     end
                     executing <= executing - 1;
                     if(executing == 1) begin
@@ -346,6 +346,9 @@ module LSB(
             mem_ready = 0;
             now_committed = 0;
         end
-    end
+        end else begin
+            ram_addr = 0;
+            ram_writing = 0;
+        end
     end
 endmodule

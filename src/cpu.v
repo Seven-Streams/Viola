@@ -32,8 +32,8 @@ module cpu(
   assign dbgreg_dout = 0;
 
 reg pause;
-always @(*) begin
-  pause = (!rdy_in);
+always @(posedge clk_in) begin
+  pause = (!rdy_in) | io_buffer_full;
 end
 
 
