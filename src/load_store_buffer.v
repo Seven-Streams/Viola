@@ -82,6 +82,7 @@ module LSB(
     integer cnt;
     initial begin
         flag = 0;
+        value = 0;
         writing_flag = 0;
         output_number = 0;
         output_value = 0;
@@ -108,6 +109,18 @@ module LSB(
         ins_ready = 0;
         mem_ready = 0;
         if_tail = 0;
+        i = 0;
+        is_ins = 0;
+        is_writing = 0;
+        now_addr = 0;
+        now_data0 = 0;
+        now_data1 = 0;
+        now_data2 = 0;
+        now_data3 = 0;
+        now_data0l = 0;
+        now_data1l = 0;
+        now_data2l = 0;
+        now_data3l = 0;
     end
     always@(posedge clk) begin
         if(!pause)begin

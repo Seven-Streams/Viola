@@ -30,6 +30,11 @@ module Decoder(
         rd = 0;
         imm = 0;
         has_imm = 0;
+        has_imm_tmp = 0;
+        rs1_tmp = 0;
+        rs2_tmp = 0;
+        value_tmp = 0;
+        imm_tmp = 0;
     end
     localparam [4:0]
                ADD = 5'b00000,

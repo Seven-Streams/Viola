@@ -19,6 +19,9 @@ module ALU(
     reg[4:0] op_tmp;
     reg is_branch_tmp;
     initial begin
+        is_branch_tmp = 0;
+        value1_tmp = 0;
+        value2_tmp = 0;
         tmp = 0;
         des_rob = 0;
         des_rs = 0;

@@ -97,6 +97,19 @@ module RS(
         memory_shooted = 0;
         alu_shoot_tmp = 6;
         memory_shoot_tmp = 6;
+        alu_data_tmp = 0;
+        alu_in_tmp = 0;
+        alu_value1 = 0;
+        alu_value2 = 0;
+        i = 0;
+        j = 0;
+        k = 0;
+        l = 0;
+        memory_data_tmp = 0;
+        memory_in_tmp = 0;
+        memory_imm = 0;
+        memory_value1 = 0;
+        memory_value2 = 0;
     end
 
     always@(posedge clk) begin

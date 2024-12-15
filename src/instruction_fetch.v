@@ -57,6 +57,18 @@ module IF(
         tail = 0;
         instruction = 0;
         asking = 0;
+        data_tmp0 = 0;
+        data_tmp1 = 0;
+        data_tmp = 0;
+        for(i = 0; i < 32; i = i + 1) begin
+            ic_size[i] = 0;
+        end
+        jalr_tmp = 0;
+        pc_tmp = 0;
+        value0 = 0;
+        value1 = 0;
+        value2 = 0;
+        value3 = 0; 
     end
 
     always@(posedge clk) begin

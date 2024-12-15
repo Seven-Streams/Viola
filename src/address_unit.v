@@ -22,6 +22,9 @@ module AU(
         op_tmp = 5'b11111;
         rob_number_tmp = 0;
         addr = 0;
+        ls_value_output = 0;
+        value_tmp = 0;
+        ls_value_tmp = 0;
     end
     always@(posedge clk) begin
         if(!pause) begin

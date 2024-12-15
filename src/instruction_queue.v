@@ -56,6 +56,7 @@ module IQ(
             has_imm_buffer[init] = 0;
             busy[init] = 0;
         end
+        last = 0;
         shooted = 0;
         head = 0;
         tail = 0;

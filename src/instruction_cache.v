@@ -28,6 +28,8 @@ module IC(
       cache[i][1] = 32'h0;
       cache[i][0] = 32'h1;
     end
+  in_cache_addr = 32'h1;
+  rem = 0;
  end
 
 always@(posedge clk) begin

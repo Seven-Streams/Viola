@@ -31,9 +31,9 @@ module cpu(
   assign mem_wr = lsb.ram_writing;
   assign dbgreg_dout = 0;
 
-reg pause;
+reg pause = 1;
 always @(posedge clk_in) begin
-  pause = (!rdy_in) | io_buffer_full;
+  pause <= (!rdy_in) | io_buffer_full;
 end
 
 

@@ -41,6 +41,13 @@ module RF(
         value2 = 0;
         query1 = 0;
         query2 = 0;
+        i = 0;
+        query1_tmp = 0;
+        query2_tmp = 0;
+        value1_tmp = 0;
+        value2_tmp = 0;
+        rs1_tmp = 0;
+        rs2_tmp = 0;
     end
     always@(posedge clk) begin
         if(!pause) begin
