@@ -81,16 +81,16 @@ module IQ(
     always@(posedge clk) begin
         if(!pause)begin
         add = 0;
+        last = tail;
         if(!rst) begin
             if(op != 5'b11111) begin
                 op_buffer[tail] <= op;
-                last = tail;
                 rs1_buffer[tail] <= rs1;
                 rs2_buffer[tail] <= rs2;
                 rd_buffer[tail] <= rd;
                 imm_buffer[tail] <= imm;
                 has_imm_buffer[tail] <= has_imm;
-                tail <= tail + 1;
+                tail = tail + 1;
                 add = 1;
             end
         end else begin

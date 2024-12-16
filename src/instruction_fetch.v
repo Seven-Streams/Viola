@@ -123,7 +123,7 @@ module IF(
         if(!pause)begin
         if(!rst) begin
             short = ic_size[head] == 1 ? 1 : 0;
-            normal_nxt_pc <= pc + (short ? 4 : 2);
+            normal_nxt_pc = pc + (short ? 4 : 2);
             if((!lsb_full) && (!iq_full) && (!shooted) && (!ready)) begin
                 asking <= 1;
                 addr <= predicted_pc;

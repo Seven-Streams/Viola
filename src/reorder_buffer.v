@@ -45,7 +45,6 @@ module ROB(
     reg to_shoot;
     reg [4:0] rob_op[7:0];
     reg [4:0] rob_rd[7:0];
-    reg [31:0] now_pc_tmp;
     reg [4:0] head_op;
     reg [31:0] head_value;
     reg [0:0]rob_busy[7:0];
@@ -57,7 +56,6 @@ module ROB(
     integer init;
     initial begin
         head_op = 5'b11111;
-        now_pc_tmp = 0;
         rob_full = 0;
         op_out = 5'b11111;
         value1_out = 0;
@@ -187,9 +185,9 @@ module ROB(
         if(tail == 0) begin
             tail = 1;
         end
-        now_pc_tmp = now_pc;
         head_value = rob_value[head];
         head_op = rob_op[head];
+        last_ins = (tail == 1) ? 7 : (tail - 1);
     end
     end
     always@(negedge clk) begin
@@ -198,7 +196,6 @@ module ROB(
             cnt = cnt + add;
             rob_full <= (cnt >= 5);
             if(to_shoot) begin
-                last_ins = (tail == 1) ? 7 : (tail - 1);
                 rob_busy[last_ins] = 1;
                 if(op == LUI || op == AUIPC || op == JAL || op == JAL_C) begin
                     op_out <= 5'b11111;
@@ -349,13 +346,13 @@ module ROB(
         end
         else begin
             cnt = 0;
-            ls_num_out = 0;
-            branch_taken = 0;
-            jalr_ready = 0;
-            pc_ready = 0;
+            ls_num_out <= 0;
+            branch_taken <= 0;
+            jalr_ready <= 0;
+            pc_ready <= 0;
             head <= 1;
-            rob_full = 0;
-            commit = 0;
+            rob_full <= 0;
+            commit <= 0;
             op_out <= 5'b11111;
             for(i = 1; i < 8; i = i + 1) begin
                 rob_busy[i] = 1'b0;
