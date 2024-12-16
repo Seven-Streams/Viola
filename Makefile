@@ -54,7 +54,7 @@ build_fpga_test: testcases _no_testcase_name_check $(TESTSPACE_DIR)
 	@find $(FPGA_TESTCASE_DIR) -name '*$(name)*.in' -exec cp {} $(TESTSPACE_DIR)/test.in \;
 	@find $(FPGA_TESTCASE_DIR) -name '*$(name)*.ans' -exec cp {} $(TESTSPACE_DIR)/test.ans \;
 
-run_sim:# build_sim build_sim_test
+run_sim: build_sim build_sim_test
 	cd $(TESTSPACE_DIR) && ./test
 # add your own test script here
 # Example:

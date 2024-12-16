@@ -54,7 +54,6 @@ module LSB(
     reg [31:0]buffer_addr[7:0];
     reg [31:0]buffer_data[7:0];
     reg [0:0]buffer_busy[7:0];
-
     reg [31:0]if_addr[7:0];
     reg [31:0]if_ready[7:0];
     reg [2:0]if_head;
@@ -123,6 +122,7 @@ module LSB(
         now_data3l = 0;
     end
     always@(posedge clk) begin
+        io = (ram_addr == 32'h00030000);
         if(!pause)begin
         flag = 0;
         if(!rst) begin
@@ -277,6 +277,8 @@ module LSB(
                     ram_writing <= 0;
                     if(executing >= 3) begin
                         ram_addr = now_addr + (executing - 3);
+                    end else begin
+                        ram_addr = 0;
                     end
                     executing <= executing - 1;
                     if(executing == 1) begin
@@ -363,5 +365,6 @@ module LSB(
             ram_addr = 0;
             ram_writing = 0;
         end
+
     end
 endmodule
