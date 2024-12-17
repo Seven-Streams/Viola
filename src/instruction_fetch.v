@@ -1,5 +1,6 @@
 module IF(
         input wire clk,
+        input wire clear,
         input wire [31:0] data,
         input wire data_ready,
         input wire pause,
@@ -72,6 +73,7 @@ module IF(
     end
 
     always@(posedge clk) begin
+        if(!clear)begin
         if(!pause) begin
         flag = 0;
         jalr_tmp = 0;
@@ -117,10 +119,14 @@ module IF(
             end
         end
     end
+        end else begin
+          pc = 0;
+          head = 0;
+        end
     end
 
     always@(negedge clk) begin
-        if(!pause)begin
+        if((!pause) && (!clear))begin
         if(!rst) begin
             short = ic_size[head] == 1 ? 1 : 0;
             normal_nxt_pc = pc + (short ? 4 : 2);
@@ -294,6 +300,11 @@ module IF(
             predicted_pc = pc;
             shooted <= 0;
         end
-    end
+        end else begin
+          if(clear) begin
+            predicted_pc = 0;
+            tail = 0;
+          end
+        end
     end
 endmodule

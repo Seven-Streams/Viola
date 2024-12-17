@@ -2,6 +2,7 @@ module IC(
   input wire clk,
   input wire pause,
   input rst,
+  input wire clear,
   input wire[31:0] addr_in,
   input wire asking_in,
   input wire[31:0] instruction_in,
@@ -33,6 +34,7 @@ module IC(
  end
 
 always@(posedge clk) begin
+  if(!clear) begin
   if(!pause) begin
   if(rst == 1 || ready_out == 1) begin
     addr_tmp = 1;
@@ -48,6 +50,11 @@ always@(posedge clk) begin
       in_cache_addr = addr_tmp;
     end
   end
+  end
+  end else begin
+    for(i = 0; i < 32; i = i + 1) begin
+      cache[i][0] = 32'h1;
+    end
   end
 end
 

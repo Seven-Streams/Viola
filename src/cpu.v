@@ -39,7 +39,7 @@ end
 
 AU au(
   .clk(clk_in),
-  .rst(i_f.rst),
+  .rst(i_f.rst | rst_in),
   .pause(pause),
   .value1(rs.memory_value1),
   .value2(rs.memory_imm),
@@ -51,7 +51,7 @@ AU au(
 ALU alu(
   .pause(pause),
   .clk(clk_in),
-  .rst(i_f.rst),
+  .rst(i_f.rst | rst_in),
   .value_1(rs.alu_value1),
   .value_2(rs.alu_value2),
   .is_branch_input(rs.is_branch_out),
@@ -62,6 +62,7 @@ ALU alu(
 IF i_f(
   .pause(pause),
   .clk(clk_in),
+  .clear(rst_in),
   .data(ic.instruction_out),
   .data_ready(ic.ready_out),
   .branch_taken(rob.branch_taken),
@@ -78,14 +79,14 @@ IF i_f(
 Decoder decoder(
   .pause(pause),
   .clk(clk_in),
-  .rst(i_f.rst),
+  .rst(i_f.rst | rst_in),
   .instruction(i_f.instruction)
 );
 
 IQ iq(
   .pause(pause),
   .clk(clk_in),
-  .rst(i_f.rst),
+  .rst(i_f.rst | rst_in),
   .op(decoder.op),
   .rs1(decoder.rs1),
   .rs2(decoder.rs2),
@@ -99,7 +100,7 @@ IQ iq(
 ROB rob(
   .pause(pause),
   .clk(clk_in),
-  .rst(i_f.rst),
+  .rst(i_f.rst | rst_in),
   .has_imm(iq.has_imm_out),
   .imm(iq.imm_out),
   .now_pc(i_f.pc),
@@ -120,7 +121,7 @@ ROB rob(
 RF rf(
   .pause(pause),
   .clk(clk_in),
-  .rst(i_f.rst),
+  .rst(i_f.rst | rst_in),
   .commit(rob.commit),
   .reg_num(rob.rd_out),
   .data_in(rob.value_out),
@@ -135,7 +136,7 @@ RF rf(
 RS rs(
   .pause(pause),
   .clk(clk_in),
-  .rst(i_f.rst),
+  .rst(i_f.rst | rst_in),
   .alu_data(alu.result),
   .alu_des_in(alu.des_rs),
   .memory_data(mem_bus.data_out),
@@ -153,7 +154,7 @@ RS rs(
 LSB lsb(
   .pause(pause),
   .clk(clk_in),
-  .rst(i_f.rst),
+  .rst(i_f.rst | rst_in),
   .pc_addr(ic.addr_out),
   .new_ins(ic.asking_out),
   .addr(au.addr),
@@ -168,6 +169,7 @@ IC ic(
   .pause(pause),
   .clk(clk_in),
   .rst(i_f.rst),
+  .clear(rst_in),
   .addr_in(i_f.addr),
   .asking_in(i_f.asking),
   .instruction_in(lsb.ins_value),
@@ -177,7 +179,7 @@ IC ic(
 MEM_BUS mem_bus(
   .pause(pause),
   .clk(clk_in),
-  .rst(i_f.rst),
+  .rst(i_f.rst | rst_in),
   .data_in(lsb.output_value),
   .num_in(lsb.output_number)
 );
