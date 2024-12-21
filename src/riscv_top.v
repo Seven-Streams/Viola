@@ -33,6 +33,11 @@ module riscv_top #(
  end
 
 
+(* DONT_TOUCH = "true"*)ila_0 probe(     
+  .clk     (clk),
+  .probe0  (cpu0.now_pc)
+);
+
   //
   // RAM: internal ram
   //
@@ -78,7 +83,6 @@ module riscv_top #(
       .mem_a         (cpu_mem_a),
       .mem_wr        (cpu_mem_wr),
       .io_buffer_full(cpu_io_buffer_full),
-      .now_pc(led),
       .dbgreg_dout(cpu_dbgreg_dout)
   );
 
