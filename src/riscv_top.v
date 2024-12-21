@@ -6,9 +6,10 @@ module riscv_top #(
 ) (
     input  wire EXCLK,
     input  wire btnC,
+    input  wire btnU,
     output wire Tx,
     input  wire Rx,
-    output wire led
+    output wire[15:0] led
 );
 
   localparam SYS_CLK_FREQ = 100000000;
@@ -21,15 +22,15 @@ module riscv_top #(
   // assign EXCLK (or your own clock module) to clk
   wire clk = EXCLK;
 
-  always @(posedge clk or posedge btnC) begin
-    if (btnC) begin
-      rst <= 1'b1;
-      rst_delay <= 1'b1;
-    end else begin
-      rst_delay <= 1'b0;
-      rst <= rst_delay;
-    end
-  end
+ always @(posedge clk or posedge btnC) begin
+   if (btnC) begin
+     rst <= 1'b1;
+     rst_delay <= 1'b1;
+   end else begin
+     rst_delay <= 1'b0;
+     rst <= rst_delay;
+   end
+ end
 
 
   //
@@ -71,12 +72,13 @@ module riscv_top #(
       .clk_in        (clk),
       .rst_in        (rst | hci_program_finish),
       .rdy_in        (cpu_rdy),
+      // .signal        (btnU),
       .mem_din       (cpu_mem_din),
       .mem_dout      (cpu_mem_dout),
       .mem_a         (cpu_mem_a),
       .mem_wr        (cpu_mem_wr),
       .io_buffer_full(cpu_io_buffer_full),
-
+      .now_pc(led),
       .dbgreg_dout(cpu_dbgreg_dout)
   );
 
@@ -157,6 +159,6 @@ module riscv_top #(
   //
 
   // indicates debug break
-  assign led = hci_active;
+//  assign led = hci_active;
 
 endmodule

@@ -2,14 +2,14 @@
 // port modifi_fation allowed for debugging purposes
 module cpu(
   input  wire                 clk_in,			// system clock signal
+  input wire move,
   input  wire                 rst_in,			// reset signal
 	input  wire					        rdy_in,			// ready signal, pause cpu when low
-
   input  wire [ 7:0]          mem_din,		// data input bus
   output wire [ 7:0]          mem_dout,		// data output bus
   output wire [31:0]          mem_a,			// address bus (only 17:0 is used)
   output wire                 mem_wr,			// write/read signal (1 for write)
-	
+	output reg [15:0]          now_pc,
 	input  wire                 io_buffer_full, // 1 if uart buffer is full
 	
 	output wire [31:0]			dbgreg_dout		// cpu register output (debugging demo)
@@ -30,14 +30,15 @@ module cpu(
   assign mem_a = lsb.ram_addr;
   assign mem_wr = lsb.ram_writing;
   assign dbgreg_dout = 0;
-
 reg pause = 1;
 
 always @(posedge clk_in) begin
+  now_pc[15:0] = rob.now_pc[15:0];
   pause <= (!rdy_in) | io_buffer_full;
 end
 
-AU au(
+
+(* DONT_TOUCH = "true"*)AU au(
   .clk(clk_in),
   .rst(i_f.rst | rst_in),
   .pause(pause),
@@ -48,7 +49,7 @@ AU au(
   .ls_value(rs.memory_value2)
 );
 
-ALU alu(
+(* DONT_TOUCH = "true"*)ALU alu(
   .pause(pause),
   .clk(clk_in),
   .rst(i_f.rst | rst_in),
@@ -59,7 +60,7 @@ ALU alu(
   .des_input(rs.alu_des)
 );
 
-IF i_f(
+(* DONT_TOUCH = "true"*)IF i_f(
   .pause(pause),
   .clk(clk_in),
   .clear(rst_in),
@@ -76,14 +77,14 @@ IF i_f(
   .branch_not_taken(rob.branch_not_taken)
 );
 
-Decoder decoder(
+(* DONT_TOUCH = "true"*)Decoder decoder(
   .pause(pause),
   .clk(clk_in),
   .rst(i_f.rst | rst_in),
   .instruction(i_f.instruction)
 );
 
-IQ iq(
+(* DONT_TOUCH = "true"*)IQ iq(
   .pause(pause),
   .clk(clk_in),
   .rst(i_f.rst | rst_in),
@@ -97,7 +98,7 @@ IQ iq(
   .rs_full(rs.rs_full)
 );
 
-ROB rob(
+(* DONT_TOUCH = "true"*)ROB rob(
   .pause(pause),
   .clk(clk_in),
   .rst(i_f.rst | rst_in),
@@ -118,7 +119,7 @@ ROB rob(
   .ready_load_num(lsb.can_be_load)
 );
 
-RF rf(
+(* DONT_TOUCH = "true"*)RF rf(
   .pause(pause),
   .clk(clk_in),
   .rst(i_f.rst | rst_in),
@@ -133,7 +134,7 @@ RF rf(
   .dependency_num(rob.tail) 
 );
 
-RS rs(
+(* DONT_TOUCH = "true"*)RS rs(
   .pause(pause),
   .clk(clk_in),
   .rst(i_f.rst | rst_in),
@@ -151,7 +152,7 @@ RS rs(
   .imm_in(rob.imm_out)
 );
 
-LSB lsb(
+(* DONT_TOUCH = "true"*)LSB lsb(
   .pause(pause),
   .clk(clk_in),
   .rst(i_f.rst | rst_in),
@@ -165,7 +166,7 @@ LSB lsb(
   .ram_loaded_data(mem_din)
 );
 
-IC ic(
+(* DONT_TOUCH = "true"*)IC ic(
   .pause(pause),
   .clk(clk_in),
   .rst(i_f.rst),
@@ -176,7 +177,7 @@ IC ic(
   .ins_ready_in(lsb.ins_ready)
 );
 
-MEM_BUS mem_bus(
+(* DONT_TOUCH = "true"*)MEM_BUS mem_bus(
   .pause(pause),
   .clk(clk_in),
   .rst(i_f.rst | rst_in),
