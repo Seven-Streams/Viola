@@ -12,7 +12,12 @@ module cpu(
 	(*KEEP = "true"*)output reg [31:0]          now_pc,
 	input  wire                 io_buffer_full, // 1 if uart buffer is full
 	
-	output wire [31:0]			dbgreg_dout		// cpu register output (debugging demo)
+	output wire [31:0]			dbgreg_dout,		// cpu register output (debugging demo),
+  (*KEEP = "true"*)output reg [31:0] sp,
+  (*KEEP = "true"*)output reg [31:0] a2,
+  (*KEEP = "true"*)output reg [31:0] a5,
+  (*KEEP = "true"*)output reg branch_not_taken,
+  (*KEEP = "true"*)output reg branch_taken
 );
 
 // implementation goes here
@@ -33,6 +38,11 @@ module cpu(
 reg pause = 1;
 
 always @(posedge clk_in) begin
+  a5 = rf.a5;
+  a2 = rf.a2;
+  sp = rf.sp;
+  branch_not_taken = rob.branch_not_taken;
+  branch_taken = rob.branch_taken;
   now_pc = i_f.pc;
   pause <= (!rdy_in) | io_buffer_full;
 end
