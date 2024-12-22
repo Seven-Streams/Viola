@@ -86,6 +86,9 @@ module ROB(
         ls_num_out = 0;
         head = 1;
         tail = 1;
+        head_value = 0;
+        last_ins = 7;
+        i = 0;
         rob_full = 0;
         to_shoot = 0;
         commit = 0;
@@ -93,6 +96,7 @@ module ROB(
         for(init = 0; init < 8; init = init + 1) begin
             rob_busy[init] = 1'b0;
             rob_op[init] = 5'b11111;
+            rob_value[init] = 0;
             rob_ready[init] = 2'b00;
         end
     end

@@ -33,10 +33,10 @@ module riscv_top #(
  end
 
 
-(* DONT_TOUCH = "true"*)ila_0 probe(     
-  .clk     (clk),
-  .probe0  (cpu0.now_pc)
-);
+// (* DONT_TOUCH = "true"*)ila_0 probe(     
+//   .clk     (clk),
+//   .probe0  (cpu0.now_pc)
+// );
 
   //
   // RAM: internal ram

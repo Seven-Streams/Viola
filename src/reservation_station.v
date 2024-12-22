@@ -101,6 +101,8 @@ module RS(
         alu_in_tmp = 0;
         alu_value1 = 0;
         alu_value2 = 0;
+        busy_check_alu = 0;
+        busy_check_memory = 0;
         i = 0;
         j = 0;
         k = 0;

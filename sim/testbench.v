@@ -16,10 +16,11 @@ riscv_top #(.SIM(1)) top(
 );
 
 initial begin
+  rst=0;
   clk=0;
-  rst=1;
-  repeat(50) #1 clk=!clk;
-  rst=0; 
+  // rst=0;
+  // repeat(50) #1 clk=!clk;
+  // rst=0; 
   forever #1 clk=!clk;
 
   $finish;

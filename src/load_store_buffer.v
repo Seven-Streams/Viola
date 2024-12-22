@@ -102,6 +102,8 @@ module LSB(
         for(cnt = 0; cnt < 8; cnt = cnt + 1) begin
             buffer_op[cnt] = 5'b11111;
             buffer_busy[cnt] = 0;
+            buffer_addr[cnt] = 0;
+            if_addr[cnt] = 0;
             if_ready[cnt] = 0;
         end
         if_head = 0;

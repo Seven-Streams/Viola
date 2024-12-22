@@ -45,6 +45,7 @@ module IF(
     reg [4:0] rem;
     reg [4:0] rem2;
     initial begin
+        normal_nxt_pc = 0;
         jalr_addr_tmp = 0;
         short = 0;
         flag = 0;
