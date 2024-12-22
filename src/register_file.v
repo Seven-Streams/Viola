@@ -24,7 +24,6 @@ module RF(
     reg [4:0] rs1_tmp;
     reg [4:0] rs2_tmp;
     reg [4:0] rd_tmp;
-    reg instruction_tmp;
     reg [31:0] value1_tmp;
     reg [31:0] value2_tmp;
     reg [2:0] query1_tmp;
@@ -33,7 +32,6 @@ module RF(
     integer cnt;
     initial begin
         rd_tmp = 0;
-        instruction_tmp = 0;
         query1 = 0;
         query2 = 0;
         for(cnt = 0; cnt < 32; cnt = cnt + 1) begin
@@ -57,7 +55,6 @@ module RF(
         a2 = regs[12];
         a5 = regs[15];
         if(!pause) begin
-        instruction_tmp = instruction;
         rs1_tmp = rs1;
         rs2_tmp = rs2;
         rd_tmp = rd;
@@ -86,6 +83,9 @@ module RF(
                     query2_tmp = dependency[rs2_tmp];
                 end
             end
+            if(instruction && (rd != 0)) begin
+                dependency[rd] = dependency_num;
+            end
         end
         else begin
             for(i = 0; i < 32; i = i + 1) begin
@@ -96,11 +96,6 @@ module RF(
     end
     always@(negedge clk) begin
         if(!pause)begin
-        if(!rst) begin
-            if(instruction_tmp && (rd != 0)) begin
-                dependency[rd] <= dependency_num;
-            end
-        end
         value1 <= value1_tmp;
         value2 <= value2_tmp;
         query1 <= query1_tmp;

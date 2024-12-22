@@ -33,19 +33,6 @@ module riscv_top #(
  end
 
 
-(* DONT_TOUCH = "true"*)ila_0 probe(     
-  .clk     (clk),
-  .probe0  (cpu0.now_pc),
-  .probe1  (cpu0.sp),
-  .probe2  (cpu0.a2),
-  .probe3  (cpu0.a5),
-  .probe4  (cpu0.branch_not_taken),
-  .probe5  (cpu0.branch_taken),
-  .probe6  (cpu0.mem_a),
-  .probe7  (cpu0.mem_wr),
-  .probe8  (cpu0.mem_dout),
-  .probe9  (cpu0.mem_din)
-);
 
   //
   // RAM: internal ram
